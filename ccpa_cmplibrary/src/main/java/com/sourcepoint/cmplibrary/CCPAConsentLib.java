@@ -139,7 +139,7 @@ public class CCPAConsentLib {
         // read consent from/store consent to default shared preferences
         // per gdpr framework: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/852cf086fdac6d89097fdec7c948e14a2121ca0e/In-App%20Reference/Android/app/src/main/java/com/smaato/soma/cmpconsenttooldemoapp/cmpconsenttool/storage/CMPStorage.java
         //sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-        sharedPref = activity.getPreferences(MODE_PRIVATE);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
         consentUUID = sharedPref.getString(CONSENT_UUID_KEY, null);
         metaData = sharedPref.getString(META_DATA_KEY, null);
         webView = buildWebView();
@@ -167,7 +167,7 @@ public class CCPAConsentLib {
             public void onSavePM(UserConsent u) {
                 CCPAConsentLib.this.userConsent = u;
                 try {
-                    sendConsent();
+                    sendConsent(ActionTypes.PM_COMPLETE);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (UnsupportedEncodingException e) {
@@ -208,7 +208,7 @@ public class CCPAConsentLib {
 
     private void onMsgAccepted() throws UnsupportedEncodingException, JSONException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedNone);
-        sendConsent();
+        sendConsent(ActionTypes.PM_COMPLETE);
     }
 
     private void onDismiss(){
@@ -223,20 +223,14 @@ public class CCPAConsentLib {
 
     private void onMsgRejected() throws UnsupportedEncodingException, JSONException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedAll);
-        sendConsent();
+        sendConsent(ActionTypes.MSG_REJECT);
     }
 
     private void onShowPm(){
         webView.loadPM();
     }
 
-    private void storeData(){
-        Log.i("uuid", consentUUID);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        if(consentUUID != null) editor.putString(CONSENT_UUID_KEY, consentUUID);
-        if(metaData != null) editor.putString(META_DATA_KEY, metaData);
-        editor.apply();
-    }
+
 
     /**
      * Communicates with SourcePoint to load the message. It all happens in the background and the WebView
@@ -298,8 +292,8 @@ public class CCPAConsentLib {
         return params;
     }
 
-    private void sendConsent() throws JSONException, UnsupportedEncodingException {
-        sourcePoint.sendConsent(paramsToSendConsent(), new OnLoadComplete() {
+    private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException {
+        sourcePoint.sendConsent(actionType, paramsToSendConsent(), new OnLoadComplete() {
             @Override
             public void onSuccess(Object result) {
                 try{
@@ -371,8 +365,19 @@ public class CCPAConsentLib {
         if (weOwnTheView && activity != null) destroy();
     }
 
+
+    private void storeData(){
+        //Log.i("uuid", consentUUID);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        if(consentUUID != null) editor.putString(CONSENT_UUID_KEY, consentUUID);
+        if(metaData != null) editor.putString(META_DATA_KEY, metaData);
+        editor.commit();
+    }
+
     private void finish() {
         storeData();
+        Log.i("uuid", consentUUID);
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
             onConsentReady.run(CCPAConsentLib.this);

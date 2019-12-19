@@ -25,13 +25,13 @@ public class UserConsent {
         this.rejectedCategories = json2StrArr(rejectedCategories);
         if(this.rejectedVendors.isEmpty() && this.rejectedCategories.isEmpty())
             this.status = ConsentStatus.rejectedNone;
-        setSjonConsents();
+        setJsonConsents();
 
     }
 
     public UserConsent(ConsentStatus status) throws JSONException {
         this.status = status;
-        setSjonConsents();
+        setJsonConsents();
     }
 
     private ArrayList<String> json2StrArr(JSONArray jArray) throws JSONException {
@@ -44,9 +44,9 @@ public class UserConsent {
         return listData;
     }
 
-    private void setSjonConsents() throws JSONException {
+    private void setJsonConsents() throws JSONException {
         jsonConsents.put("status", status.name());
         jsonConsents.put("rejectedVendors", new JSONArray(rejectedVendors));
-        jsonConsents.put("rejectedCategories", new JSONArray(rejectedVendors));
+        jsonConsents.put("rejectedCategories", new JSONArray(rejectedCategories));
     }
 }

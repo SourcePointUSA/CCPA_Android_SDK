@@ -27,7 +27,7 @@ class SourcePointClient {
 
     private static final String baseMsgUrl = "https://wrapper-api.sp-prod.net/ccpa/message-url";
 
-    private static final String baseSendConsentUrl = "https://wrapper-api.sp-prod.net/ccpa/consent/1?env=stage";
+    private static final String baseSendConsentUrl = "https://wrapper-api.sp-prod.net/ccpa/consent";
 
     private int accountId;
     private String property;
@@ -40,6 +40,8 @@ class SourcePointClient {
         requestUUID =  UUID.randomUUID().toString();
         return requestUUID;
     }
+
+
 
     class ResponseHandler extends JsonHttpResponseHandler {
         //TODO: decouple from consentLib -> interface OnloadComplete should be in a separate file out of consentLib class
@@ -91,8 +93,8 @@ class SourcePointClient {
         return baseMsgUrl + "?" + TextUtils.join("&", params);
     }
 
-    private String consentUrl(){
-        return baseSendConsentUrl;
+    private String consentUrl(int actionType){
+        return baseSendConsentUrl + "/" + actionType;
     }
 
     @VisibleForTesting
@@ -103,7 +105,7 @@ class SourcePointClient {
 
     void getMessage(String consentUUID, String meta, CCPAConsentLib.OnLoadComplete onLoadComplete) {
         //TODO inject real params to messageUrl
-        String url = messageUrl("", "");
+        String url = messageUrl(consentUUID, meta);
         http.get(url, new ResponseHandler(url, onLoadComplete) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -124,8 +126,8 @@ class SourcePointClient {
         });
     }
 
-    void sendConsent(JSONObject params, CCPAConsentLib.OnLoadComplete onLoadComplete) throws UnsupportedEncodingException, JSONException {
-        String url = consentUrl();
+    void sendConsent(int  actionType, JSONObject params, CCPAConsentLib.OnLoadComplete onLoadComplete) throws UnsupportedEncodingException, JSONException {
+        String url = consentUrl(actionType);
         params.put("requestUUID", getRequestUUID());
         StringEntity entity = new StringEntity(params.toString());
         http.post(null, url, entity, "application/json",  new ResponseHandler(url, onLoadComplete) {
