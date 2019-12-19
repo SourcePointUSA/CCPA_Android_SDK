@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/CCPA_Android_SDK.iml" filepath="$PROJECT_DIR$/CCPA_Android_SDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/authexample/authexample.iml" filepath="$PROJECT_DIR$/authexample/authexample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cmplibrary/cmplibrary.iml" filepath="$PROJECT_DIR$/cmplibrary/cmplibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ccpa_cmplibrary/ccpa_cmplibrary.iml" filepath="$PROJECT_DIR$/ccpa_cmplibrary/ccpa_cmplibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/metaapp/metaapp.iml" filepath="$PROJECT_DIR$/metaapp/metaapp.iml" />
     </modules>
   </component>
