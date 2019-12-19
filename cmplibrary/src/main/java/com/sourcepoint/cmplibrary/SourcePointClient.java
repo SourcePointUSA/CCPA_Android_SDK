@@ -6,7 +6,6 @@ import android.util.Log;
 import com.google.common.annotations.VisibleForTesting;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,9 +28,8 @@ class SourcePointClient {
 
     private static final String baseSendConsentUrl = "https://wrapper-api.sp-prod.net/ccpa/consent/1?env=stage";
 
-    private URL mmsUrl, cmpUrl, messageUrl;
     private EncodedParam accountId, property, propertyId;
-    private Boolean stagingCampaign, isShowPM;
+    private Boolean isStagingCampaign;
     private String requestUUID = "";
 
     private String getRequestUUID(){
@@ -67,35 +65,16 @@ class SourcePointClient {
             EncodedParam accountID,
             EncodedParam property,
             EncodedParam propertyId,
-            boolean stagingCampaign,
-            boolean isShowPM,
-            URL mmsUrl,
-            URL cmpUrl,
-            URL messageUrl
+            boolean isStagingCampaign
     ) {
-        this.stagingCampaign = stagingCampaign;
-        this.isShowPM = isShowPM;
+        this.isStagingCampaign = isStagingCampaign;
         this.accountId = accountID;
         this.propertyId = propertyId;
         this.property = property;
-        this.mmsUrl = mmsUrl;
-        this.cmpUrl = cmpUrl;
-        this.messageUrl = messageUrl;
-    }
-
-    private String customConsentsUrl(String consentUUID, String euConsent, String propertyId, String[] vendorIds) {
-        String consentParam = consentUUID == null ? "[CONSENT_UUID]" : consentUUID;
-        String euconsentParam = euConsent == null ? "[EUCONSENT]" : euConsent;
-        String customVendorIdString = URLEncoder.encode(TextUtils.join(",", vendorIds));
-
-        return cmpUrl + "/consent/v2/" + propertyId + "/custom-vendors?" +
-                "customVendorIds=" + customVendorIdString +
-                "&consentUUID=" + consentParam +
-                "&euconsent=" + euconsentParam;
     }
 
     //TODO: extract url from user params
-    private String messageUrl(String propertyId, String accountId, String propertyHref) {
+    private String messageUrl(String consentUUID, String meta) {
         return baseMsgUrl;
     }
 
@@ -111,7 +90,7 @@ class SourcePointClient {
 
     void getMessage(String consentUUID, String meta, CCPAConsentLib.OnLoadComplete onLoadComplete) {
         //TODO inject real params to messageUrl
-        String url = messageUrl("", "", "");
+        String url = messageUrl("", "");
         http.get(url, new ResponseHandler(url, onLoadComplete) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
