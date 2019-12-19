@@ -27,6 +27,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashSet;
 
 abstract public class ConsentWebView extends WebView {
@@ -42,11 +45,15 @@ abstract public class ConsentWebView extends WebView {
                 "function handleEvent(event) {\n" +
                 "    try {\n" +
                 "        JSReceiver.log(JSON.stringify(event.data, null, 2));\n" +
+                "        if (event.data.name === 'sp.showMessage') {\n" +
+                "            JSReceiver.onMessageReady();\n" +
+                "            return;\n" +
+                "        }\n" +
                 "        const data = eventData(event);\n" +
                 "        JSReceiver.log(JSON.stringify(data, null, 2));\n" +
-                "        if (data.name === 'sp.showMessage') JSReceiver.onMessageReady();\n" +
-                "        else if(data.action){\n" +
-                "            JSReceiver.onAction(data.action.choice_id, data.action.type);\n" +
+                "        if(data.type) {\n" +
+                "            if(data.type === 1) JSReceiver.onSavePM(JSON.stringify(data.payload));\n" +
+                "            else JSReceiver.onAction(data.type);\n" +
                 "        }\n" +
                 "    } catch (err) {\n" +
                 "        JSReceiver.log(err.stack);\n" +
@@ -58,38 +65,35 @@ abstract public class ConsentWebView extends WebView {
                 "};\n" +
                 "\n" +
                 "function isFromPM(event) {\n" +
-                "    return !!event.data.action;\n" +
+                "    return !!event.data.payload;\n" +
                 "};\n" +
                 "\n" +
                 "function dataFromMessage(msgEvent) {\n" +
                 "    return {\n" +
                 "        name: msgEvent.data.name,\n" +
-                "        action: msgEvent.data.actions.length ? msgEvent.data.actions[0].data : null\n" +
+                "        type: msgEvent.data.actions.length ? msgEvent.data.actions[0].data.type : null\n" +
                 "    };\n" +
                 "};\n" +
                 "\n" +
                 "function dataFromPM(pmEvent) {\n" +
-                "    const name = pmEvent.data.action;\n" +
                 "    return {\n" +
-                "        name,\n" +
-                "        action: pmActions[name]\n" +
+                "        name: pmEvent.data.name,\n" +
+                "        type: pmEvent.data ? pmEvent.data.payload.actionType : null,\n" +
+                "        payload: pmEvent.data ? pmEvent.data.payload :  null\n" +
                 "    };\n" +
-                "};\n" +
-                "\n" +
-                "var pmActions = {\n" +
-                "    \"sp.pmComplete\": {\n" +
-                "        choice_id: 99,\n" +
-                "        type: 99\n" +
-                "    },\n" +
-                "    \"sp.cancel\": {\n" +
-                "        choice_id: 98,\n" +
-                "        type: 98\n" +
-                "    }\n" +
                 "};";
     }
 
     @SuppressWarnings("unused")
     private class MessageInterface {
+
+        private UserConsent strPayload2UserConsent(String payload) throws JSONException {
+            JSONObject jConsents = (new JSONObject(payload)).getJSONObject("consents");
+            return new UserConsent(
+                    jConsents.getJSONObject("vendors").getJSONArray("rejected"),
+                    jConsents.getJSONObject("categories").getJSONArray("rejected")
+                    );
+        }
 
         @JavascriptInterface
         public void log(String tag, String msg){
@@ -111,13 +115,25 @@ abstract public class ConsentWebView extends WebView {
 
         // called when a choice is selected on the message
         @JavascriptInterface
-        public void onAction(int choiceId, int choiceType) {
+        public void onAction(int choiceType) {
             Log.d("onAction", "called");
             if (ConsentWebView.this.hasLostInternetConnection()) {
                 ConsentWebView.this.onError(new ConsentLibException.NoInternetConnectionException());
             }
-            ConsentWebView.this.onAction(choiceId, choiceType);
+            ConsentWebView.this.onAction(choiceType);
         }
+
+        // called when a choice is selected on the message
+        @JavascriptInterface
+        public void onSavePM(String payloadStr) throws JSONException {
+            Log.d("onSavePM", "called");
+            if (ConsentWebView.this.hasLostInternetConnection()) {
+                ConsentWebView.this.onError(new ConsentLibException.NoInternetConnectionException());
+            }
+            ConsentWebView.this.onSavePM(strPayload2UserConsent(payloadStr));
+        }
+
+
 
         //called when an error is occured while loading web-view
         @JavascriptInterface
@@ -233,7 +249,6 @@ abstract public class ConsentWebView extends WebView {
                 connectionPool.remove(url);
                 //view.loadUrl("javascript:" + "addEventListener('message', SDK.onEvent('oie'))");
                 view.loadUrl("javascript:" + getJSInjection());
-
             }
 
             @Override
@@ -316,7 +331,10 @@ abstract public class ConsentWebView extends WebView {
 
     abstract public void onError(ConsentLibException error);
 
-    abstract public void onAction(int choiceType, int choiceId);
+    abstract public void onAction(int choiceType);
+
+    abstract public void onSavePM(UserConsent userConsent);
+
 
     public void loadConsentMsgFromUrl(String url) throws ConsentLibException.NoInternetConnectionException {
         if (hasLostInternetConnection())
@@ -337,6 +355,16 @@ abstract public class ConsentWebView extends WebView {
                 loadUrl(pmBaseUrl);
             }
         });
+    }
+
+    public boolean goBackIfPossible() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (canGoBack()) goBack();
+            }
+        });
+        return canGoBack();
     }
 
 

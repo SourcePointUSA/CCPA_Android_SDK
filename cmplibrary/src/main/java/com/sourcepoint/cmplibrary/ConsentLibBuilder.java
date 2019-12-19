@@ -17,13 +17,13 @@ public class ConsentLibBuilder {
     String mmsDomain, cmpDomain, msgDomain;
     String page = "";
     ViewGroup viewGroup = null;
-    ConsentLib.Callback onAction, onConsentReady, onError, onMessageReady;
+    CCPAConsentLib.Callback onAction, onConsentReady, onError, onMessageReady;
     boolean staging, stagingCampaign, newPM , isShowPM, shouldCleanConsentOnError;
 
     EncodedParam targetingParamsString = null;
     EncodedParam authId = null;
     String pmId = "";
-    ConsentLib.DebugLevel debugLevel = ConsentLib.DebugLevel.OFF;
+    CCPAConsentLib.DebugLevel debugLevel = CCPAConsentLib.DebugLevel.OFF;
     long defaultMessageTimeOut = 10000;
 
     ConsentLibBuilder(Integer accountId, String property, Integer propertyId , String pmId , Activity activity) {
@@ -35,9 +35,9 @@ public class ConsentLibBuilder {
         mmsDomain = cmpDomain = msgDomain = null;
         staging = stagingCampaign = newPM = isShowPM = false;
         shouldCleanConsentOnError = true;
-        ConsentLib.Callback noOpCallback = new ConsentLib.Callback() {
+        CCPAConsentLib.Callback noOpCallback = new CCPAConsentLib.Callback() {
             @Override
-            public void run(ConsentLib c) {
+            public void run(CCPAConsentLib c) {
             }
         };
         onAction = onConsentReady = onError = onMessageReady = noOpCallback;
@@ -71,12 +71,12 @@ public class ConsentLibBuilder {
     // TODO: add what are the possible choices returned to the Callback
     /**
      *  <b>Optional</b> Sets the Callback to be called when the user selects an option on the WebView.
-     *  The selected choice will be available in the instance variable ConsentLib.choiceType
+     *  The selected choice will be available in the instance variable CCPAConsentLib.choiceType
      * @param c - a callback that will be called when the user selects an option on the WebView
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnMessageChoiceSelect(ConsentLib.Callback c) {
+    public ConsentLibBuilder setOnMessageChoiceSelect(CCPAConsentLib.Callback c) {
         onAction = c;
         return this;
     }
@@ -86,15 +86,13 @@ public class ConsentLibBuilder {
      *  either by closing it, canceling or accepting the terms.
      *  At this point, the following keys will available populated in the sharedStorage:
      *  <ul>
-     *      <li>{@link ConsentLib#CONSENT_KEY}</li>
-     *      <li>{@link ConsentLib#CONSENT_UUID_KEY}</li>
-     *      <li>{@link ConsentLib#CONSENT_SUBJECT_TO_CCPA}</li>
+     *      <li>{@link CCPAConsentLib#CONSENT_UUID_KEY}</li>
      *  </ul>
      * @param c - Callback to be called when the user finishes interacting with the WebView
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnConsentReady(ConsentLib.Callback c) {
+    public ConsentLibBuilder setOnConsentReady(CCPAConsentLib.Callback c) {
         onConsentReady = c;
         return this;
     }
@@ -104,7 +102,7 @@ public class ConsentLibBuilder {
      * @param callback to be called when the message is ready to be displayed
      * @return ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnMessageReady(ConsentLib.Callback callback) {
+    public ConsentLibBuilder setOnMessageReady(CCPAConsentLib.Callback callback) {
         onMessageReady = callback;
         return this;
     }
@@ -115,7 +113,7 @@ public class ConsentLibBuilder {
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnErrorOccurred(ConsentLib.Callback callback) {
+    public ConsentLibBuilder setOnErrorOccurred(CCPAConsentLib.Callback callback) {
         onError = callback;
         return this;
     }
@@ -202,12 +200,12 @@ public class ConsentLibBuilder {
     /**
      * <b>Optional</b> Sets the DEBUG level.
      * <i>(Not implemented yet)</i>
-     * <b>Default</b>{@link ConsentLib.DebugLevel#DEBUG}
-     * @param l - one of the values of {@link ConsentLib.DebugLevel#DEBUG}
+     * <b>Default</b>{@link CCPAConsentLib.DebugLevel#DEBUG}
+     * @param l - one of the values of {@link CCPAConsentLib.DebugLevel#DEBUG}
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setDebugLevel(ConsentLib.DebugLevel l) {
+    public ConsentLibBuilder setDebugLevel(CCPAConsentLib.DebugLevel l) {
         debugLevel = l;
         return this;
     }
@@ -226,16 +224,16 @@ public class ConsentLibBuilder {
     }
 
     /**
-     * Run internal tasks and build the ConsentLib. This method will validate the
+     * Run internal tasks and build the CCPAConsentLib. This method will validate the
      * data coming from the previous Builders and throw {@link ConsentLibException.BuildException}
      * in case something goes wrong.
-     * @return ConsentLib | ConsentLibNoOp
+     * @return CCPAConsentLib | ConsentLibNoOp
      * @throws ConsentLibException.BuildException - if any of the required data is missing or invalid
      */
-    public ConsentLib build() throws ConsentLibException {
+    public CCPAConsentLib build() throws ConsentLibException {
         if(sdkNotSupported()) {
             throw new ConsentLibException.BuildException(
-                    "ConsentLib supports only API level 19 and above.\n"+
+                    "CCPAConsentLib supports only API level 19 and above.\n"+
                             "See https://github.com/SourcePointUSA/android-cmp-app/issues/25 for more information."
             );
         }
@@ -247,7 +245,7 @@ public class ConsentLibBuilder {
             throw new ConsentLibException.BuildException(e.getMessage());
         }
 
-        return new ConsentLib(this);
+        return new CCPAConsentLib(this);
     }
 
     public ConsentLibBuilder setMessageTimeOut(long milliSecond){

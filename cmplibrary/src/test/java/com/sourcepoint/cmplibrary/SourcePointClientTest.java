@@ -36,12 +36,12 @@ public class SourcePointClientTest {
 
     private AsyncHttpClient http;
     private SourcePointClient sourcePointClient;
-    private ConsentLib.OnLoadComplete onLoadComplete;
+    private CCPAConsentLib.OnLoadComplete onLoadComplete;
 
     @Before
     public void setSourcePointClient() throws ConsentLibException.BuildException {
         http = mock(AsyncHttpClient.class);
-        onLoadComplete = mock(ConsentLib.OnLoadComplete.class);
+        onLoadComplete = mock(CCPAConsentLib.OnLoadComplete.class);
 
         sourcePointClient = new SourcePointClientBuilder(123, "example.com", 321, true).build();
         sourcePointClient.setHttpDummy(http);

@@ -5,7 +5,7 @@ public class ConsentLibException extends Exception {
     ConsentLibException(String message) { super(message); }
 
     public static class BuildException extends ConsentLibException {
-        BuildException(String message) { super("Error during ConsentLib build: "+message); }
+        BuildException(String message) { super("Error during CCPAConsentLib build: "+message); }
     }
 
     public static class NoInternetConnectionException extends ConsentLibException {}

@@ -37,15 +37,15 @@ dependencies {
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private ConsentLib consentLib;
+    private ConsentLib CCPAConsentLib;
 
     private ConsentLib buildAndRunConsentLib(Boolean showPM) throws ConsentLibException {
         return ConsentLib.newBuilder(22, "mobile.demo", 2372,"5c0e81b7d74b3c30c6852301",this)
                 .setStage(true)
                 .setViewGroup(findViewById(android.R.id.content))
                 .setShowPM(showPM)
-                .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
-                .setOnConsentReady(consentLib -> consentLib.getCustomVendorConsents(results -> {
+                .setOnMessageReady(CCPAConsentLib -> Log.i(TAG, "onMessageReady"))
+                .setOnConsentReady(CCPAConsentLib -> CCPAConsentLib.getCustomVendorConsents(results -> {
                     HashSet<CustomVendorConsent> consents = (HashSet) results;
                     for(CustomVendorConsent consent : consents)
                         Log.i(TAG, "Consented to: "+consent);
@@ -58,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
-            consentLib = buildAndRunConsentLib(false);
-            consentLib.run();
+            CCPAConsentLib = buildAndRunConsentLib(false);
+            CCPAConsentLib.run();
         } catch (ConsentLibException e) {
             e.printStackTrace();
         }
@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             try {
-                consentLib = buildAndRunConsentLib(true);
-                consentLib.run();
+                CCPAConsentLib = buildAndRunConsentLib(true);
+                CCPAConsentLib.run();
             } catch (ConsentLibException e) {
                 e.printStackTrace();
             }
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(consentLib != null ) { consentLib.destroy(); }
+        if(CCPAConsentLib != null ) { CCPAConsentLib.destroy(); }
     }
 }
 ```

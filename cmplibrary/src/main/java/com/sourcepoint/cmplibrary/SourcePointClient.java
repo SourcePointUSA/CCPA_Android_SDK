@@ -9,12 +9,11 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashSet;
+import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -23,20 +22,27 @@ class SourcePointClient {
 
     private static AsyncHttpClient http = new AsyncHttpClient();
 
-    private static final String baseMsgUrl = "https://wrapper-api.sp-prod.net/ccpa/message-url?propertyId=6099&accountId=22&requestUUID=test1&alwaysDisplayDNS=false&propertyHref=https://ccpa2.sp-stage.net/demo/index.html&meta={\"mmsCookies\":\"test\",\"dnsDisplayed\":true}";
+    private static final String baseMsgUrl = "https://wrapper-api.sp-prod.net/ccpa/message-url?accountId=22&requestUUID=test1&alwaysDisplayDNS=false&propertyId=6099&propertyHref=ccpa.mobile.demo&env=stage";
 
-    private static final String baseSendConsentUrl = "http://fake-wrapper-api.herokuapp.com/action/type";
+    private static final String baseSendConsentUrl = "https://wrapper-api.sp-prod.net/ccpa/consent/1?env=stage";
 
     private URL mmsUrl, cmpUrl, messageUrl;
     private EncodedParam accountId, property, propertyId;
     private Boolean stagingCampaign, isShowPM;
+    private String requestUUID = "";
+
+    private String getRequestUUID(){
+        if(!requestUUID.isEmpty()) return requestUUID;
+        requestUUID =  UUID.randomUUID().toString();
+        return requestUUID;
+    }
 
     class ResponseHandler extends JsonHttpResponseHandler {
         //TODO: decouple from consentLib -> interface OnloadComplete should be in a separate file out of consentLib class
-        ConsentLib.OnLoadComplete onLoadComplete;
+        CCPAConsentLib.OnLoadComplete onLoadComplete;
         String url;
 
-        ResponseHandler(String url, ConsentLib.OnLoadComplete onLoadComplete) {
+        ResponseHandler(String url, CCPAConsentLib.OnLoadComplete onLoadComplete) {
             this.onLoadComplete = onLoadComplete;
             this.url = url;
         }
@@ -52,10 +58,6 @@ class SourcePointClient {
             Log.d(LOG_TAG, "Failed to load resource " + url + " due to " + statusCode + ": " + responseString);
             onLoadComplete.onFailure(new ConsentLibException(throwable.getMessage()));
         }
-    }
-
-    class MessageResponseHandler extends JsonHttpResponseHandler {
-
     }
 
     SourcePointClient(
@@ -94,13 +96,17 @@ class SourcePointClient {
         return baseMsgUrl;
     }
 
+    private String consentUrl(){
+        return baseSendConsentUrl;
+    }
+
     @VisibleForTesting
     void setHttpDummy(AsyncHttpClient httpClient) {
         http = httpClient;
     }
 
 
-    void getMessage(ConsentLib.OnLoadComplete onLoadComplete) {
+    void getMessage(String consentUUID, String meta, CCPAConsentLib.OnLoadComplete onLoadComplete) {
         //TODO inject real params to messageUrl
         String url = messageUrl("", "", "");
         http.get(url, new ResponseHandler(url, onLoadComplete) {
@@ -113,7 +119,6 @@ class SourcePointClient {
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 Log.d(LOG_TAG, "Failed to load resource " + url + " due to " + statusCode + ": " + responseString);
                 onLoadComplete.onFailure(new ConsentLibException(throwable.getMessage()));
-
             }
 
             @Override
@@ -124,10 +129,8 @@ class SourcePointClient {
         });
     }
 
-    void sendConsent(ConsentLib.OnLoadComplete onLoadComplete) {
-        String url = baseSendConsentUrl;
-        //TODO include params
-        RequestParams params = new RequestParams();
+    void sendConsent(RequestParams params, CCPAConsentLib.OnLoadComplete onLoadComplete) {
+        String url = consentUrl();
         http.post(url, params,  new ResponseHandler(url, onLoadComplete) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

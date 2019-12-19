@@ -3,8 +3,8 @@ package com.example.authexample;
 import android.app.Activity;
 import android.util.Log;
 
+import com.sourcepoint.cmplibrary.CCPAConsentLib;
 import com.sourcepoint.cmplibrary.Consent;
-import com.sourcepoint.cmplibrary.ConsentLib;
 import com.sourcepoint.cmplibrary.ConsentLibBuilder;
 import com.sourcepoint.cmplibrary.ConsentLibException;
 
@@ -22,7 +22,7 @@ abstract class ConsentManager {
     }
 
     private ConsentLibBuilder getConsentLib(Boolean pm) {
-        return ConsentLib.newBuilder(22, "mobile.demo", 2372,"5c0e81b7d74b3c30c6852301",activity)
+        return CCPAConsentLib.newBuilder(22, "mobile.demo", 2372,"5c0e81b7d74b3c30c6852301",activity)
             .setStage(true)
             .setViewGroup(activity.findViewById(android.R.id.content))
             .setShowPM(pm)
