@@ -8,10 +8,10 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 
-import com.loopj.android.http.RequestParams;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
@@ -160,37 +160,49 @@ public class CCPAConsentLib {
             }
 
             @Override
-            public void onSavePM(UserConsent userConsent) {
-                CCPAConsentLib.this.userConsent = userConsent;
-                sendConsent();
+            public void onSavePM(UserConsent u) {
+                CCPAConsentLib.this.userConsent = u;
+                try {
+                    sendConsent();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void onAction(int choiceType) {
-                Log.d(TAG, "onAction:  " +  choiceType  + " + choiceType");
-                switch (choiceType) {
-                    case ActionTypes.SHOW_PM:
-                        CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SHOW_PRIVACY_MANAGER;
-                        onShowPm();
-                        break;
-                    case ActionTypes.MSG_ACCEPT:
-                        onMsgAccepted();
-                        break;
-                    case ActionTypes.DISMISS:
-                        onDismiss();
-                        break;
-                    case ActionTypes.MSG_REJECT:
-                        onMsgRejected();
-                        break;
-                    default:
-                        CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.UNKNOWN;
-                        break;
+                try{
+                    Log.d(TAG, "onAction:  " +  choiceType  + " + choiceType");
+                    switch (choiceType) {
+                        case ActionTypes.SHOW_PM:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SHOW_PRIVACY_MANAGER;
+                            onShowPm();
+                            break;
+                        case ActionTypes.MSG_ACCEPT:
+                            onMsgAccepted();
+                            break;
+                        case ActionTypes.DISMISS:
+                            onDismiss();
+                            break;
+                        case ActionTypes.MSG_REJECT:
+                            onMsgRejected();
+                            break;
+                        default:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.UNKNOWN;
+                            break;
+                    }
+                }catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         };
     }
 
-    private void onMsgAccepted(){
+    private void onMsgAccepted() throws UnsupportedEncodingException, JSONException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedNone);
         sendConsent();
     }
@@ -205,7 +217,7 @@ public class CCPAConsentLib {
         });
     }
 
-    private void onMsgRejected(){
+    private void onMsgRejected() throws UnsupportedEncodingException, JSONException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedAll);
         sendConsent();
     }
@@ -269,9 +281,10 @@ public class CCPAConsentLib {
         });
     }
 
-    private RequestParams paramsToSendConsent(){
-        RequestParams params = new RequestParams();
-        params.put("consents", userConsent);
+    private JSONObject paramsToSendConsent() throws JSONException {
+        JSONObject params = new JSONObject();
+
+        params.put("consents", userConsent.jsonConsents);
         params.put("accountId", accountId);
         params.put("propertyId", propertyId);
         params.put("privacyManagerId", pmId);
@@ -280,13 +293,14 @@ public class CCPAConsentLib {
         return params;
     }
 
-    private void sendConsent() {
+    private void sendConsent() throws JSONException, UnsupportedEncodingException {
         sourcePoint.sendConsent(paramsToSendConsent(), new OnLoadComplete() {
             @Override
             public void onSuccess(Object result) {
                 try{
                     JSONObject jsonResult = (JSONObject) result;
                     consentUUID = jsonResult.getString("uuid");
+                    finish();
                 }
                 //TODO call onFailure callbacks / throw consentlibException
                 catch(JSONException e){

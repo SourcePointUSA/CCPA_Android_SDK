@@ -9,13 +9,16 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.StringEntity;
 
 class SourcePointClient {
     private static final String LOG_TAG = "SOURCE_POINT_CLIENT";
@@ -129,9 +132,11 @@ class SourcePointClient {
         });
     }
 
-    void sendConsent(RequestParams params, CCPAConsentLib.OnLoadComplete onLoadComplete) {
+    void sendConsent(JSONObject params, CCPAConsentLib.OnLoadComplete onLoadComplete) throws UnsupportedEncodingException, JSONException {
         String url = consentUrl();
-        http.post(url, params,  new ResponseHandler(url, onLoadComplete) {
+        params.put("requestUUID", getRequestUUID());
+        StringEntity entity = new StringEntity(params.toString());
+        http.post(null, url, entity, "application/json",  new ResponseHandler(url, onLoadComplete) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 onLoadComplete.onSuccess(response);

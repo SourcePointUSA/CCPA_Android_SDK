@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="18c0986a-fed8-46c0-9a98-dd275c781f74" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/fileHashes/fileHashes.bin" afterDir="false" />
@@ -17,19 +16,10 @@
       <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/sourcepoint/test_project/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/sourcepoint/test_project/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authexample/src/main/java/com/example/authexample/ConsentManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/authexample/src/main/java/com/example/authexample/ConsentManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibException.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CustomPurposeConsent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CustomVendorConsent.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/ConsentLibBuilderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/CCPAConsentLibBuilderTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/ConsentLibTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/CCPAConsentLibTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/SourcePointClientTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/SourcePointClientTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java" beforeDir="false" afterPath="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -53,20 +43,21 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
+            <state relative-caret-position="275">
               <caret line="32" column="25" lean-forward="true" selection-start-line="32" selection-start-column="25" selection-end-line="32" selection-end-column="25" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="132" selection-start-line="132" selection-end-line="132" />
+            <state relative-caret-position="4710">
+              <caret line="359" column="28" lean-forward="true" selection-start-line="359" selection-start-column="28" selection-end-line="359" selection-end-column="28" />
               <folding>
                 <element signature="e#13187#13188#0" expanded="true" />
                 <element signature="e#13237#13238#0" expanded="true" />
+                <element signature="e#14130#14131#0" expanded="true" />
                 <element signature="e#13380#13381#0" expanded="true" />
                 <element signature="e#13437#13438#0" expanded="true" />
               </folding>
@@ -84,27 +75,27 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/Consent.java">
+        <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
+            <state relative-caret-position="193">
+              <caret line="293" column="5" lean-forward="true" selection-start-line="293" selection-start-column="5" selection-end-line="293" selection-end-column="5" />
+              <folding>
+                <element signature="e#625#658#0" expanded="true" />
+                <element signature="e#729#762#0" expanded="true" />
+                <element signature="e#1203#1236#0" expanded="true" />
+                <element signature="e#7918#7919#0" expanded="true" />
+                <element signature="e#7950#7951#0" expanded="true" />
+                <element signature="e#12985#12986#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java">
+      <file pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.loopj.android/android-async-http/1.4.9/5d171c3cd5343e5997f974561abed21442273fd1/android-async-http-1.4.9-sources.jar!/com/loopj/android/http/RequestParams.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="248" column="60" lean-forward="true" selection-start-line="248" selection-start-column="60" selection-end-line="248" selection-end-column="60" />
-              <folding>
-                <element signature="e#529#562#0" expanded="true" />
-                <element signature="e#633#666#0" expanded="true" />
-                <element signature="e#1076#1109#0" expanded="true" />
-                <element signature="e#8378#8379#0" expanded="true" />
-                <element signature="e#8410#8411#0" expanded="true" />
-                <element signature="e#12315#12316#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="330">
+              <caret line="59" column="2" lean-forward="true" selection-start-line="58" selection-start-column="92" selection-end-line="59" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -112,8 +103,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="24" selection-start-line="24" selection-end-line="24" />
+            <state relative-caret-position="309">
+              <caret line="42" column="5" lean-forward="true" selection-start-line="42" selection-start-column="5" selection-end-line="42" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#666#667#0" expanded="true" />
@@ -126,8 +117,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
-              <caret line="114" selection-start-line="114" selection-end-line="114" />
+            <state relative-caret-position="609">
+              <caret line="132" column="5" lean-forward="true" selection-start-line="132" selection-start-column="5" selection-end-line="132" selection-end-column="5" />
               <folding>
                 <element signature="e#3867#3868#0" expanded="true" />
                 <element signature="e#3908#3909#0" expanded="true" />
@@ -137,31 +128,32 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/sourcepoint/test_project/MainActivity.java">
+        <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClientBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="46" selection-start-line="46" selection-end-line="46" />
+            <state relative-caret-position="-212">
+              <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.loopj.android/android-async-http/1.4.9/5d171c3cd5343e5997f974561abed21442273fd1/android-async-http-1.4.9-sources.jar!/com/loopj/android/http/AsyncHttpClient.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="260">
+              <caret line="1137" column="49" selection-start-line="1137" selection-start-column="49" selection-end-line="1137" selection-end-column="49" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#6653#6654#0" expanded="true" />
+                <element signature="e#6689#6690#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/EncodedParam.java">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/cz.msebera.android/httpclient/4.3.6/a3cd29f83aca78fb0b643a78d28f89f6d2702b7e/httpclient-4.3.6-sources.jar!/cz/msebera/android/httpclient/HttpEntity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="18" column="5" lean-forward="true" selection-start-line="18" selection-start-column="5" selection-end-line="18" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClientBuilder.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-492">
-              <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+            <state relative-caret-position="555">
+              <caret line="64" column="17" selection-start-line="64" selection-start-column="17" selection-end-line="64" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -195,9 +187,9 @@
         <option value="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLib.java" />
         <option value="$PROJECT_DIR$/cmplibrary/src/test/java/com/sourcepoint/cmplibrary/CCPAConsentLibTest.java" />
         <option value="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java" />
-        <option value="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java" />
         <option value="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java" />
         <option value="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java" />
+        <option value="$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java" />
       </list>
     </option>
   </component>
@@ -461,7 +453,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" side_tool="true" weight="0.25" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.28040057" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.28040057" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info id="Build Variants" order="4" side_tool="true" />
@@ -469,7 +461,7 @@
       <window_info id="Designer" order="6" />
       <window_info id="Resources Explorer" order="7" />
       <window_info id="Capture Tool" order="8" />
-      <window_info active="true" anchor="bottom" id="Debug" order="0" visible="true" weight="0.32891566" />
+      <window_info anchor="bottom" id="Debug" order="0" visible="true" weight="0.32891566" />
       <window_info anchor="bottom" id="Run" order="1" />
       <window_info anchor="bottom" id="Version Control" order="2" />
       <window_info anchor="bottom" id="Logcat" order="3" weight="0.32891566" />
@@ -497,51 +489,39 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
-          <line>111</line>
-          <properties />
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
-          <line>114</line>
-          <properties />
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
-          <line>133</line>
-          <properties />
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java</url>
-          <line>132</line>
-          <properties />
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java</url>
-          <line>21</line>
-          <properties />
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
-          <line>136</line>
+          <line>141</line>
           <properties />
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java</url>
-          <line>137</line>
+          <line>300</line>
           <properties />
-          <option name="timeStamp" value="14" />
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
+          <line>146</line>
+          <properties />
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
+          <line>153</line>
+          <properties />
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java</url>
+          <line>138</line>
+          <properties />
+          <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java</url>
-          <line>346</line>
+          <line>292</line>
           <properties />
-          <option name="timeStamp" value="15" />
+          <option name="timeStamp" value="23" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -551,11 +531,17 @@
         <watch expression="strPayload2UserConsent(payloadStr)" language="JAVA" />
         <watch expression="params" language="JAVA" />
         <watch expression="this.rejectedCategories" language="JAVA" />
+        <watch expression="entity" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
+      <expression>
+        <expression-string>entity</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>this.rejectedCategories</expression-string>
         <language-id>JAVA</language-id>
@@ -629,13 +615,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClientBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-492">
-          <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/Consent.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -667,23 +646,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java">
+    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="132" selection-start-line="132" selection-end-line="132" />
+        <state relative-caret-position="275">
+          <caret line="32" column="25" lean-forward="true" selection-start-line="32" selection-start-column="25" selection-end-line="32" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClientBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-212">
+          <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/cz.msebera.android/httpclient/4.3.6/a3cd29f83aca78fb0b643a78d28f89f6d2702b7e/httpclient-4.3.6-sources.jar!/cz/msebera/android/httpclient/HttpEntity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="555">
+          <caret line="64" column="17" selection-start-line="64" selection-start-column="17" selection-end-line="64" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.loopj.android/android-async-http/1.4.9/5d171c3cd5343e5997f974561abed21442273fd1/android-async-http-1.4.9-sources.jar!/com/loopj/android/http/AsyncHttpClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="1137" column="49" selection-start-line="1137" selection-start-column="49" selection-end-line="1137" selection-end-column="49" />
           <folding>
-            <element signature="e#13187#13188#0" expanded="true" />
-            <element signature="e#13237#13238#0" expanded="true" />
-            <element signature="e#13380#13381#0" expanded="true" />
-            <element signature="e#13437#13438#0" expanded="true" />
+            <element signature="e#6653#6654#0" expanded="true" />
+            <element signature="e#6689#6690#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.loopj.android/android-async-http/1.4.9/5d171c3cd5343e5997f974561abed21442273fd1/android-async-http-1.4.9-sources.jar!/com/loopj/android/http/RequestParams.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="59" column="2" lean-forward="true" selection-start-line="58" selection-start-column="92" selection-end-line="59" selection-end-column="2" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/UserConsent.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="24" selection-start-line="24" selection-end-line="24" />
+        <state relative-caret-position="309">
+          <caret line="42" column="5" lean-forward="true" selection-start-line="42" selection-start-column="5" selection-end-line="42" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#666#667#0" expanded="true" />
@@ -692,17 +697,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentLibBuilder.java">
+    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="32" column="25" lean-forward="true" selection-start-line="32" selection-start-column="25" selection-end-line="32" selection-end-column="25" />
+        <state relative-caret-position="193">
+          <caret line="293" column="5" lean-forward="true" selection-start-line="293" selection-start-column="5" selection-end-line="293" selection-end-column="5" />
+          <folding>
+            <element signature="e#625#658#0" expanded="true" />
+            <element signature="e#729#762#0" expanded="true" />
+            <element signature="e#1203#1236#0" expanded="true" />
+            <element signature="e#7918#7919#0" expanded="true" />
+            <element signature="e#7950#7951#0" expanded="true" />
+            <element signature="e#12985#12986#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/SourcePointClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="114" selection-start-line="114" selection-end-line="114" />
+        <state relative-caret-position="609">
+          <caret line="132" column="5" lean-forward="true" selection-start-line="132" selection-start-column="5" selection-end-line="132" selection-end-column="5" />
           <folding>
             <element signature="e#3867#3868#0" expanded="true" />
             <element signature="e#3908#3909#0" expanded="true" />
@@ -710,17 +723,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/CCPAConsentLib.java">
+    <entry file="file://$PROJECT_DIR$/cmplibrary/src/main/java/com/sourcepoint/cmplibrary/ConsentWebView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="248" column="60" lean-forward="true" selection-start-line="248" selection-start-column="60" selection-end-line="248" selection-end-column="60" />
+        <state relative-caret-position="4710">
+          <caret line="359" column="28" lean-forward="true" selection-start-line="359" selection-start-column="28" selection-end-line="359" selection-end-column="28" />
           <folding>
-            <element signature="e#529#562#0" expanded="true" />
-            <element signature="e#633#666#0" expanded="true" />
-            <element signature="e#1076#1109#0" expanded="true" />
-            <element signature="e#8378#8379#0" expanded="true" />
-            <element signature="e#8410#8411#0" expanded="true" />
-            <element signature="e#12315#12316#0" expanded="true" />
+            <element signature="e#13187#13188#0" expanded="true" />
+            <element signature="e#13237#13238#0" expanded="true" />
+            <element signature="e#14130#14131#0" expanded="true" />
+            <element signature="e#13380#13381#0" expanded="true" />
+            <element signature="e#13437#13438#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -17,6 +17,7 @@ public class UserConsent {
     public ConsentStatus status;
     public ArrayList<String> rejectedVendors = new ArrayList();
     public ArrayList<String> rejectedCategories = new ArrayList();
+    public JSONObject jsonConsents;
 
     public UserConsent(JSONArray rejectedVendors, JSONArray rejectedCategories) throws JSONException {
         this.status = ConsentStatus.rejectedSome;
@@ -31,10 +32,22 @@ public class UserConsent {
     }
 
 
-    public UserConsent(JSONObject jsonUserConsent) throws JSONException {
-        this.status = ConsentStatus.valueOf(jsonUserConsent.getString("status"));
-        this.rejectedVendors = json2StrArr(jsonUserConsent.getJSONArray("rejectedVendors"));
-        this.rejectedCategories = json2StrArr(jsonUserConsent.getJSONArray("rejectedCategories"));
+    public UserConsent(JSONObject jsonConsents) throws JSONException {
+        this.status = ConsentStatus.rejectedSome;
+        this.rejectedVendors = json2StrArr(jsonConsents.getJSONArray("rejectedVendors"));
+        this.rejectedCategories = json2StrArr(jsonConsents.getJSONArray("rejectedCategories"));
+        if(this.rejectedVendors.isEmpty() && this.rejectedCategories.isEmpty())
+            this.status = ConsentStatus.rejectedNone;
+        jsonConsents.put("status", this.status.name());
+        this.jsonConsents = jsonConsents;
+    }
+
+    private String[] arrayFromList(ArrayList<String> l){
+        String[] s = new String[l.size()];
+        for (int i=0;i<l.size();i++){
+            s[i] = l.get(i);
+        }
+        return s;
     }
 
     private ArrayList<String> json2StrArr(JSONArray jArray) throws JSONException {

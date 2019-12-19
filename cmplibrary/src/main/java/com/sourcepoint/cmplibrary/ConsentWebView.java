@@ -76,24 +76,24 @@ abstract public class ConsentWebView extends WebView {
                 "};\n" +
                 "\n" +
                 "function dataFromPM(pmEvent) {\n" +
-                "    return {\n" +
+                "    const data = {\n" +
                 "        name: pmEvent.data.name,\n" +
                 "        type: pmEvent.data ? pmEvent.data.payload.actionType : null,\n" +
-                "        payload: pmEvent.data ? pmEvent.data.payload :  null\n" +
                 "    };\n" +
-                "};";
+                "    if(data.type === 1) data.payload = userConsents(pmEvent.data.payload);\n" +
+                "    return data;\n" +
+                "};\n" +
+                "\n" +
+                "function userConsents(payload){\n" +
+                "    return {\n" +
+                "        rejectedVendors: payload.consents.vendors.rejected,\n" +
+                "        rejectedCategories: payload.consents.categories.rejected\n" +
+                "    }\n" +
+                "}";
     }
 
     @SuppressWarnings("unused")
     private class MessageInterface {
-
-        private UserConsent strPayload2UserConsent(String payload) throws JSONException {
-            JSONObject jConsents = (new JSONObject(payload)).getJSONObject("consents");
-            return new UserConsent(
-                    jConsents.getJSONObject("vendors").getJSONArray("rejected"),
-                    jConsents.getJSONObject("categories").getJSONArray("rejected")
-                    );
-        }
 
         @JavascriptInterface
         public void log(String tag, String msg){
@@ -130,7 +130,7 @@ abstract public class ConsentWebView extends WebView {
             if (ConsentWebView.this.hasLostInternetConnection()) {
                 ConsentWebView.this.onError(new ConsentLibException.NoInternetConnectionException());
             }
-            ConsentWebView.this.onSavePM(strPayload2UserConsent(payloadStr));
+            ConsentWebView.this.onSavePM(new UserConsent(new JSONObject(payloadStr)));
         }
 
 
@@ -352,9 +352,13 @@ abstract public class ConsentWebView extends WebView {
         post(new Runnable() {
             @Override
             public void run() {
-                loadUrl(pmBaseUrl);
+                loadUrl(pmUrl());
             }
         });
+    }
+
+    private String pmUrl() {
+        return pmBaseUrl;
     }
 
     public boolean goBackIfPossible() {
