@@ -227,7 +227,12 @@ public class CCPAConsentLib {
     }
 
     private void onShowPm(){
-        webView.loadPM();
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                webView.loadUrl(pmUrl());
+            }
+        });
     }
 
 
