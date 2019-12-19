@@ -17,7 +17,7 @@ public class UserConsent {
     public ConsentStatus status;
     public ArrayList<String> rejectedVendors = new ArrayList();
     public ArrayList<String> rejectedCategories = new ArrayList();
-    public JSONObject jsonConsents;
+    public JSONObject jsonConsents = new JSONObject();
 
     public UserConsent(JSONArray rejectedVendors, JSONArray rejectedCategories) throws JSONException {
         this.status = ConsentStatus.rejectedSome;
@@ -25,38 +25,28 @@ public class UserConsent {
         this.rejectedCategories = json2StrArr(rejectedCategories);
         if(this.rejectedVendors.isEmpty() && this.rejectedCategories.isEmpty())
             this.status = ConsentStatus.rejectedNone;
+        setSjonConsents();
+
     }
 
-    public UserConsent(ConsentStatus status){
+    public UserConsent(ConsentStatus status) throws JSONException {
         this.status = status;
-    }
-
-
-    public UserConsent(JSONObject jsonConsents) throws JSONException {
-        this.status = ConsentStatus.rejectedSome;
-        this.rejectedVendors = json2StrArr(jsonConsents.getJSONArray("rejectedVendors"));
-        this.rejectedCategories = json2StrArr(jsonConsents.getJSONArray("rejectedCategories"));
-        if(this.rejectedVendors.isEmpty() && this.rejectedCategories.isEmpty())
-            this.status = ConsentStatus.rejectedNone;
-        jsonConsents.put("status", this.status.name());
-        this.jsonConsents = jsonConsents;
-    }
-
-    private String[] arrayFromList(ArrayList<String> l){
-        String[] s = new String[l.size()];
-        for (int i=0;i<l.size();i++){
-            s[i] = l.get(i);
-        }
-        return s;
+        setSjonConsents();
     }
 
     private ArrayList<String> json2StrArr(JSONArray jArray) throws JSONException {
-        ArrayList<String> listdata = new ArrayList();
+        ArrayList<String> listData = new ArrayList();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
-                listdata.add(jArray.getString(i));
+                listData.add(jArray.getString(i));
             }
         }
-        return listdata;
+        return listData;
+    }
+
+    private void setSjonConsents() throws JSONException {
+        jsonConsents.put("status", status.name());
+        jsonConsents.put("rejectedVendors", new JSONArray(rejectedVendors));
+        jsonConsents.put("rejectedCategories", new JSONArray(rejectedVendors));
     }
 }

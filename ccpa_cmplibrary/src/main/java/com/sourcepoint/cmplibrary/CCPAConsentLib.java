@@ -1,9 +1,11 @@
 package com.sourcepoint.cmplibrary;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
 
@@ -12,6 +14,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
@@ -29,6 +34,10 @@ public class CCPAConsentLib {
     @SuppressWarnings("WeakerAccess")
     public static final String META_DATA_KEY = "metaData";
     private final String pmId;
+
+    private final String PM_BASE_URL = "https://ccpa-inapp-pm.sp-prod.net";
+
+    private final String CCPA_ORIGIN = "https://ccpa-service.sp-prod.net";
 
 
     private String metaData;
@@ -125,17 +134,12 @@ public class CCPAConsentLib {
         // configurable time out
         defaultMessageTimeOut = b.defaultMessageTimeOut;
 
-        sourcePoint = new SourcePointClientBuilder(b.accountId, b.property + "/" + b.page, propertyId, b.staging)
-                .setStagingCampaign(b.stagingCampaign)
-                .setShowPM(b.isShowPM)
-                .setCmpDomain(b.cmpDomain)
-                .setMessageDomain(b.msgDomain)
-                .setMmsDomain(b.mmsDomain)
-                .build();
+        sourcePoint = new SourcePointClient(b.accountId, b.property + "/" + b.page, propertyId, b.staging);
 
         // read consent from/store consent to default shared preferences
         // per gdpr framework: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/852cf086fdac6d89097fdec7c948e14a2121ca0e/In-App%20Reference/Android/app/src/main/java/com/smaato/soma/cmpconsenttooldemoapp/cmpconsenttool/storage/CMPStorage.java
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        //sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
+        sharedPref = activity.getPreferences(MODE_PRIVATE);
         consentUUID = sharedPref.getString(CONSENT_UUID_KEY, null);
         metaData = sharedPref.getString(META_DATA_KEY, null);
         webView = buildWebView();
@@ -227,6 +231,7 @@ public class CCPAConsentLib {
     }
 
     private void storeData(){
+        Log.i("uuid", consentUUID);
         SharedPreferences.Editor editor = sharedPref.edit();
         if(consentUUID != null) editor.putString(CONSENT_UUID_KEY, consentUUID);
         if(metaData != null) editor.putString(META_DATA_KEY, metaData);
@@ -247,7 +252,7 @@ public class CCPAConsentLib {
     }
 
     public void showPm() {
-        webView.loadUrl("https://ccpa-inapp-pm.sp-prod.net/?privacy_manager_id=5df10416fb59af14237b09c8&site_id=5739&ccpa_origin=https://ccpa-service.sp-prod.net&ccpaUUID=");
+        webView.loadUrl(pmUrl());
     }
 
     private void renderMsgAndSaveConsent() throws ConsentLibException.NoInternetConnectionException {
@@ -330,6 +335,16 @@ public class CCPAConsentLib {
                 }
             }
         };
+    }
+
+    private String pmUrl(){
+        HashSet<String> params = new HashSet<>();
+        params.add("privacy_manager_id=" + pmId);
+        params.add("site_id=" + propertyId);
+        params.add("ccpa_origin=" + CCPA_ORIGIN);
+        if(consentUUID != null) params.add("ccpaUUID=" + consentUUID);
+
+        return PM_BASE_URL + "?" + TextUtils.join("&", params);
     }
 
     private void runOnLiveActivityUIThread(Runnable uiRunnable) {

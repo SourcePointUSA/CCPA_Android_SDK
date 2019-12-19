@@ -38,92 +38,92 @@ public class SourcePointClientTest {
     private SourcePointClient sourcePointClient;
     private CCPAConsentLib.OnLoadComplete onLoadComplete;
 
-    @Before
-    public void setSourcePointClient() throws ConsentLibException.BuildException {
-        http = mock(AsyncHttpClient.class);
-        onLoadComplete = mock(CCPAConsentLib.OnLoadComplete.class);
+//    @Before
+//    public void setSourcePointClient() throws ConsentLibException.BuildException {
+//        http = mock(AsyncHttpClient.class);
+//        onLoadComplete = mock(CCPAConsentLib.OnLoadComplete.class);
+//
+//        sourcePointClient = new SourcePointClientBuilder(123, "example.com", 321, true).build();
+//        sourcePointClient.setHttpDummy(http);
+//    }
+//
+//    private JSONObject jsonObject = null;
 
-        sourcePointClient = new SourcePointClientBuilder(123, "example.com", 321, true).build();
-        sourcePointClient.setHttpDummy(http);
-    }
-
-    private JSONObject jsonObject = null;
-
-    private void doAPICallWithAnswer(final boolean onSuccess , String response) {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                SourcePointClient.ResponseHandler listener = (SourcePointClient.ResponseHandler) invocation.getArguments()[1];
-
-                if (onSuccess) {
-                    try {
-                        jsonObject = new JSONObject(response);
-                    } catch (JSONException err) {
-                        System.out.println("Error " + err.toString());
-                    }
-
-                    Header[] headers = new Header[]{};
-                    listener.onSuccess(200, headers, jsonObject);
-                } else {
-                    Header[] headers = new Header[]{};
-                    listener.onFailure(404, headers, "Error", new ConsentLibException("Error"));
-                }
-
-                return null;
-            }
-        }).when(http).get(anyString(), any(ResponseHandlerInterface.class));
-    }
-
-    @Test
-    public void getGDPRStatusSuccess() {
-        String response = "{\"gdprApplies\":\"http://google.com\"}";
-        doAPICallWithAnswer(true ,response);
-
-        sourcePointClient.getCCPAStatus(onLoadComplete);
-
-        verify(onLoadComplete, times(1)).onSuccess(eq("http://google.com"));
-        verify(onLoadComplete, never()).onFailure(any(ConsentLibException.class));
-    }
-
-    @Test
-    public void getGDPRStatusFailure(){
-        String response = "{\"gdprApplies\":\"http://google.com\"}";
-        doAPICallWithAnswer(false ,response);
-
-        sourcePointClient.getCCPAStatus(onLoadComplete);
-
-        verify(onLoadComplete, never()).onSuccess(any());
-        verify(onLoadComplete, times(1)).onFailure(any(ConsentLibException.class));
-    }
-
-    @Test
-    public void getCustomConsentsSuccess()  {
-        String response = "{\"consentedPurposes\":[{\"_id\":\"5d287f273e5ba6241423f58d\",\"name\":\"Personalisation\"},{\"_id\":\"5d287f273e5ba6241423f58e\",\"name\":\"Essential Cookies\"}],\"consentedVendors\":[{\"_id\":\"5b07836aecb3fe2955eba270\",\"name\":\"Google Ad Manager\",\"vendorType\":\"CUSTOM\"}]}";
-        doAPICallWithAnswer(true , response);
-
-        String[] anyString = {"consnetUUID", "euConsent", "siteId"};
-        sourcePointClient.getCustomConsents("consentUUID", "euConsent", "siteId", anyString, onLoadComplete);
-
-        ArgumentCaptor<HashSet<Consent>> captor = ArgumentCaptor.forClass(HashSet.class);
-
-        verify(onLoadComplete, times(1)).onSuccess(captor.capture());
-        verify(onLoadComplete, never()).onFailure(any(ConsentLibException.class));
-    }
-
-    @Test
-    public void getgetCustomConsentsFailure(){
-        String response = "{\"consentedPurposes\":[{\"_id\":\"5d287f273e5ba6241423f58d\",\"name\":\"Personalisation\"},{\"_id\":\"5d287f273e5ba6241423f58e\",\"name\":\"Essential Cookies\"}],\"consentedVendors\":[{\"_id\":\"5b07836aecb3fe2955eba270\",\"name\":\"Google Ad Manager\",\"vendorType\":\"CUSTOM\"}]}";
-        doAPICallWithAnswer(false ,response);
-
-        String[] anyString = {"consnetUUID", "euConsent", "siteId"};
-        sourcePointClient.getCustomConsents("consentUUID", "euConsent", "siteId", anyString, onLoadComplete);
-
-        verify(onLoadComplete, never()).onSuccess(any());
-        verify(onLoadComplete, times(1)).onFailure(any(ConsentLibException.class));
-    }
-
-    @After
-    public void resetOnLoadComplete(){
-        reset(onLoadComplete);
-    }
+//    private void doAPICallWithAnswer(final boolean onSuccess , String response) {
+//        doAnswer(new Answer() {
+//            @Override
+//            public Object answer(InvocationOnMock invocation) {
+//                SourcePointClient.ResponseHandler listener = (SourcePointClient.ResponseHandler) invocation.getArguments()[1];
+//
+//                if (onSuccess) {
+//                    try {
+//                        jsonObject = new JSONObject(response);
+//                    } catch (JSONException err) {
+//                        System.out.println("Error " + err.toString());
+//                    }
+//
+//                    Header[] headers = new Header[]{};
+//                    listener.onSuccess(200, headers, jsonObject);
+//                } else {
+//                    Header[] headers = new Header[]{};
+//                    listener.onFailure(404, headers, "Error", new ConsentLibException("Error"));
+//                }
+//
+//                return null;
+//            }
+//        }).when(http).get(anyString(), any(ResponseHandlerInterface.class));
+//    }
+//
+//    @Test
+//    public void getGDPRStatusSuccess() {
+//        String response = "{\"gdprApplies\":\"http://google.com\"}";
+//        doAPICallWithAnswer(true ,response);
+//
+//        sourcePointClient.getCCPAStatus(onLoadComplete);
+//
+//        verify(onLoadComplete, times(1)).onSuccess(eq("http://google.com"));
+//        verify(onLoadComplete, never()).onFailure(any(ConsentLibException.class));
+//    }
+//
+//    @Test
+//    public void getGDPRStatusFailure(){
+//        String response = "{\"gdprApplies\":\"http://google.com\"}";
+//        doAPICallWithAnswer(false ,response);
+//
+//        sourcePointClient.getCCPAStatus(onLoadComplete);
+//
+//        verify(onLoadComplete, never()).onSuccess(any());
+//        verify(onLoadComplete, times(1)).onFailure(any(ConsentLibException.class));
+//    }
+//
+//    @Test
+//    public void getCustomConsentsSuccess()  {
+//        String response = "{\"consentedPurposes\":[{\"_id\":\"5d287f273e5ba6241423f58d\",\"name\":\"Personalisation\"},{\"_id\":\"5d287f273e5ba6241423f58e\",\"name\":\"Essential Cookies\"}],\"consentedVendors\":[{\"_id\":\"5b07836aecb3fe2955eba270\",\"name\":\"Google Ad Manager\",\"vendorType\":\"CUSTOM\"}]}";
+//        doAPICallWithAnswer(true , response);
+//
+//        String[] anyString = {"consnetUUID", "euConsent", "siteId"};
+//        sourcePointClient.getCustomConsents("consentUUID", "euConsent", "siteId", anyString, onLoadComplete);
+//
+//        ArgumentCaptor<HashSet<Consent>> captor = ArgumentCaptor.forClass(HashSet.class);
+//
+//        verify(onLoadComplete, times(1)).onSuccess(captor.capture());
+//        verify(onLoadComplete, never()).onFailure(any(ConsentLibException.class));
+//    }
+//
+//    @Test
+//    public void getgetCustomConsentsFailure(){
+//        String response = "{\"consentedPurposes\":[{\"_id\":\"5d287f273e5ba6241423f58d\",\"name\":\"Personalisation\"},{\"_id\":\"5d287f273e5ba6241423f58e\",\"name\":\"Essential Cookies\"}],\"consentedVendors\":[{\"_id\":\"5b07836aecb3fe2955eba270\",\"name\":\"Google Ad Manager\",\"vendorType\":\"CUSTOM\"}]}";
+//        doAPICallWithAnswer(false ,response);
+//
+//        String[] anyString = {"consnetUUID", "euConsent", "siteId"};
+//        sourcePointClient.getCustomConsents("consentUUID", "euConsent", "siteId", anyString, onLoadComplete);
+//
+//        verify(onLoadComplete, never()).onSuccess(any());
+//        verify(onLoadComplete, times(1)).onFailure(any(ConsentLibException.class));
+//    }
+//
+//    @After
+//    public void resetOnLoadComplete(){
+//        reset(onLoadComplete);
+//    }
 }

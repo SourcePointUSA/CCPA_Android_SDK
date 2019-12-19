@@ -130,10 +130,14 @@ abstract public class ConsentWebView extends WebView {
             if (ConsentWebView.this.hasLostInternetConnection()) {
                 ConsentWebView.this.onError(new ConsentLibException.NoInternetConnectionException());
             }
-            ConsentWebView.this.onSavePM(new UserConsent(new JSONObject(payloadStr)));
+            JSONObject payloadJson = new JSONObject(payloadStr);
+            ConsentWebView.this.onSavePM(
+                    new UserConsent(
+                            payloadJson.getJSONArray("rejectedVendors"),
+                            payloadJson.getJSONArray("rejectedCategories")
+                    )
+            );
         }
-
-
 
         //called when an error is occured while loading web-view
         @JavascriptInterface

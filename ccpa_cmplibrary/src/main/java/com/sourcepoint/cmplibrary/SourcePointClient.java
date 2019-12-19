@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashSet;
 import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
@@ -24,11 +25,13 @@ class SourcePointClient {
 
     private static AsyncHttpClient http = new AsyncHttpClient();
 
-    private static final String baseMsgUrl = "https://wrapper-api.sp-prod.net/ccpa/message-url?accountId=22&requestUUID=test1&alwaysDisplayDNS=false&propertyId=6099&propertyHref=ccpa.mobile.demo&env=stage";
+    private static final String baseMsgUrl = "https://wrapper-api.sp-prod.net/ccpa/message-url";
 
     private static final String baseSendConsentUrl = "https://wrapper-api.sp-prod.net/ccpa/consent/1?env=stage";
 
-    private EncodedParam accountId, property, propertyId;
+    private int accountId;
+    private String property;
+    private int propertyId;
     private Boolean isStagingCampaign;
     private String requestUUID = "";
 
@@ -62,9 +65,9 @@ class SourcePointClient {
     }
 
     SourcePointClient(
-            EncodedParam accountID,
-            EncodedParam property,
-            EncodedParam propertyId,
+            int accountID,
+            String property,
+            int propertyId,
             boolean isStagingCampaign
     ) {
         this.isStagingCampaign = isStagingCampaign;
@@ -75,7 +78,17 @@ class SourcePointClient {
 
     //TODO: extract url from user params
     private String messageUrl(String consentUUID, String meta) {
-        return baseMsgUrl;
+        HashSet<String> params = new HashSet<>();
+        params.add("propertyId=" + propertyId);
+        params.add("accountId=" + accountId);
+        params.add("propertyHref=" + property);
+        params.add("requestUUID=" + requestUUID);
+        if(consentUUID != null) {
+            params.add("uuid=" + consentUUID);
+            // cannot send meta without uuid for some mysterious reason
+            if(meta != null) params.add("meta=" + meta);
+        }
+        return baseMsgUrl + "?" + TextUtils.join("&", params);
     }
 
     private String consentUrl(){
