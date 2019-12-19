@@ -6,6 +6,9 @@ import android.util.Log;
 
 import com.sourcepoint.cmplibrary.CCPAConsentLib;
 import com.sourcepoint.cmplibrary.ConsentLibException;
+import com.sourcepoint.cmplibrary.UserConsent;
+
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -18,11 +21,24 @@ public class MainActivity extends AppCompatActivity {
                 .setViewGroup(findViewById(android.R.id.content))
                 .setShowPM(showPM)
                 .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
-//                .setOnConsentReady(CCPAConsentLib -> CCPAConsentLib.getCustomVendorConsents(results -> {
-////                    HashSet<CustomVendorConsent> consents = (HashSet) results;
-////                    for(CustomVendorConsent consent : consents)
-////                        Log.i(TAG, "Consented to: "+consent);
-////                }))
+                .setOnConsentReady(consentLib -> {
+                    Log.i(TAG, "onMessageReady");
+                    UserConsent consent = consentLib.userConsent;
+                    if(consent.status == UserConsent.ConsentStatus.rejectedNone){
+                        Log.i(TAG, "There are no rejected consents.");
+                    } else if(consent.status == UserConsent.ConsentStatus.rejectedAll){
+                        Log.i(TAG, "All consents were rejected.");
+                    } else {
+                        Iterator v = consent.rejectedVendors.iterator();
+                        while(v.hasNext()){
+                            Log.i(TAG, "The vendor " + v.next() + " was rejected.");
+                        }
+                        Iterator c = consent.rejectedCategories.iterator();
+                        while(c.hasNext()){
+                            Log.i(TAG, "The category " + c.next() + " was rejected.");
+                        }
+                    }
+                })
                 .setOnErrorOccurred(c -> Log.i(TAG, "Something went wrong: ", c.error))
                 .build();
     }
