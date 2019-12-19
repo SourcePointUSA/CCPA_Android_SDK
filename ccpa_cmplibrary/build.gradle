@@ -168,7 +168,7 @@ bintray {
 
 task copyAARToZip(type: Copy) {
     from "$buildDir/outputs/aar/ccpa_cmplibrary-release.aar"
-    into "$buildDir/zip/com/sourcepoint/ccpa_cmplibrary/cmplibrary/$VERSION_NAME"
+    into "$buildDir/zip/com/sourcepoint/ccpa_cmplibrary/ccpa_cmplibrary/$VERSION_NAME"
     rename "ccpa_cmplibrary-release.aar", "ccpa_cmplibrary-$VERSION_NAME" + ".aar"
 }
 
