@@ -145,6 +145,6 @@
     <orderEntry type="library" name="Gradle: android.arch.core:runtime:1.1.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support.constraint:constraint-layout:1.1.3@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.iab.gdpr_android:gdpr_android:1.0.1@aar" level="project" />
-    <orderEntry type="module" module-name="cmplibrary" />
+    <orderEntry type="module" module-name="ccpa_cmplibrary" />
   </component>
 </module>

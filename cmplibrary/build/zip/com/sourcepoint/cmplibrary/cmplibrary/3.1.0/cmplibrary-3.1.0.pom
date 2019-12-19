@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sourcepoint.cmplibrary</groupId>
+  <artifactId>cmplibrary</artifactId>
+  <version>3.1.0</version>
+  <packaging>aar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>com.loopj.android</groupId>
+      <artifactId>android-async-http</artifactId>
+      <version>1.4.9</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>27.0.1-android</version>
+    </dependency>
+    <dependency>
+      <groupId>com.iab.gdpr_android</groupId>
+      <artifactId>gdpr_android</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+  </dependencies>
+  <description>mvp architecture for android</description>
+  <name>mvp-arch-android</name>
+  <url>https://github.com/linjonh/MvpArch</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>null</id>
+      <name>Sourcepoint</name>
+      <email>null</email>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/SourcePointUSA/android-cmp-app</url>
+  </scm>
+</project>

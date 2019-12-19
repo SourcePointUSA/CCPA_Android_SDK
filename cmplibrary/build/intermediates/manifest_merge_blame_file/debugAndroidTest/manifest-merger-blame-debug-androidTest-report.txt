@@ -1,0 +1,40 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.cmplibrary.test" >
+4
+5    <uses-sdk
+5-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:5:5-74
+6        android:minSdkVersion="16"
+6-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:5:15-41
+7        android:targetSdkVersion="28" />
+7-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:5:42-71
+8
+9    <instrumentation
+9-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:11:5-15:77
+10        android:name="android.support.test.runner.AndroidJUnitRunner"
+10-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:11:22-83
+11        android:functionalTest="false"
+11-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:14:22-52
+12        android:handleProfiling="false"
+12-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:13:22-53
+13        android:label="Tests for com.example.cmplibrary.test"
+13-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:15:22-75
+14        android:targetPackage="com.example.cmplibrary.test" />
+14-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:12:22-73
+15
+16    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+16-->[__tested_artifact__::cmplibrary] /Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/library_manifest/debug/AndroidManifest.xml:11:5-79
+16-->[__tested_artifact__::cmplibrary] /Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/library_manifest/debug/AndroidManifest.xml:11:22-76
+17    <uses-permission android:name="android.permission.INTERNET" />
+17-->[__tested_artifact__::cmplibrary] /Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/library_manifest/debug/AndroidManifest.xml:12:5-67
+17-->[__tested_artifact__::cmplibrary] /Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/library_manifest/debug/AndroidManifest.xml:12:22-64
+18
+19    <application android:debuggable="true" >
+19-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:7:5-9:19
+19-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:7:18-43
+20        <uses-library android:name="android.test.runner" />
+20-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:8:9-60
+20-->/Users/leonardo-doin/projects/android-cmp-app/cmplibrary/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger6179337479955796850.xml:8:23-57
+21    </application>
+22
+23</manifest>

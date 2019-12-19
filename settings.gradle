@@ -1,1 +1,1 @@
-include ':app', ':cmplibrary', ':authexample', ':metaapp'
+include ':app', ':ccpa_cmplibrary', ':authexample', ':metaapp'
