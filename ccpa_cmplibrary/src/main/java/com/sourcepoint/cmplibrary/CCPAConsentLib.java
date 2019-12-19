@@ -386,7 +386,7 @@ public class CCPAConsentLib {
         Log.i("uuid", consentUUID);
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
-            onConsentReady.run(CCPAConsentLib.this);
+            if(userConsent != null) onConsentReady.run(CCPAConsentLib.this);
             activity = null; // release reference to activity
         });
     }
