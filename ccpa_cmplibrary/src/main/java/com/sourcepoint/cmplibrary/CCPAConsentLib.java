@@ -258,6 +258,7 @@ public class CCPAConsentLib {
                     JSONObject jsonResult = (JSONObject) result;
                     consentUUID = jsonResult.getString("uuid");
                     metaData = jsonResult.getString("meta");
+                    userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
                     if(jsonResult.has("url")){
                         webView.loadConsentMsgFromUrl(jsonResult.getString("url"));
                     }else{

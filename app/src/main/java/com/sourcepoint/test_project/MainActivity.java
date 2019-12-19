@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
                 .setShowPM(showPM)
                 .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
                 .setOnConsentReady(consentLib -> {
-                    Log.i(TAG, "onMessageReady");
+                    Log.i(TAG, "onConsentReady");
                     UserConsent consent = consentLib.userConsent;
                     if(consent.status == UserConsent.ConsentStatus.rejectedNone){
                         Log.i(TAG, "There are no rejected consents.");
