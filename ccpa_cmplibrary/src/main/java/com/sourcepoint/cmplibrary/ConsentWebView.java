@@ -352,15 +352,6 @@ abstract public class ConsentWebView extends WebView {
         loadUrl(url);
     }
 
-    public void loadPM(){
-        post(new Runnable() {
-            @Override
-            public void run() {
-                loadUrl(pmUrl());
-            }
-        });
-    }
-
     private String pmUrl() {
         return pmBaseUrl;
     }

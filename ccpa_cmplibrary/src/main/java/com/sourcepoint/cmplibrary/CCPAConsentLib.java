@@ -227,7 +227,12 @@ public class CCPAConsentLib {
     }
 
     private void onShowPm(){
-        webView.loadPM();
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                webView.loadUrl(pmUrl());
+            }
+        });
     }
 
 
@@ -381,7 +386,7 @@ public class CCPAConsentLib {
         Log.i("uuid", consentUUID);
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
-            onConsentReady.run(CCPAConsentLib.this);
+            if(userConsent != null) onConsentReady.run(CCPAConsentLib.this);
             activity = null; // release reference to activity
         });
     }
