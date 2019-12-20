@@ -15,9 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CCPAConsentLib buildAndRunConsentLib(Boolean showPM) throws ConsentLibException {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
-                .setStage(true)
                 .setViewGroup(findViewById(android.R.id.content))
-                .setShowPM(showPM)
                 .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
                 .setOnConsentReady(consentLib -> {
                     Log.i(TAG, "onConsentReady");
