@@ -13,13 +13,7 @@ To use `ccpa_cmplibrary` in your app, include `com.sourcepoint.ccpa_cmplibrary:c
 ```
 ...
 dependencies {
-    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:2.4.3'
-}
-...
-
-...
-dependencies {
-    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:3.1.0'
+    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.0.0'
 }
 
 ```
@@ -95,8 +89,6 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 ```
-# Docs
-For the complete documentation, open `./docs/index.html` in the browser.
 
 # Development
 ## How to build the `ccpa_cmplibrary` module from source
