@@ -8,12 +8,10 @@ import com.sourcepoint.cmplibrary.CCPAConsentLib;
 import com.sourcepoint.cmplibrary.ConsentLibException;
 import com.sourcepoint.cmplibrary.UserConsent;
 
-import java.util.Iterator;
-
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private CCPAConsentLib CCPAConsentLib;
+    private CCPAConsentLib ccpaConsentLib;
 
     private CCPAConsentLib buildAndRunConsentLib(Boolean showPM) throws ConsentLibException {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
@@ -25,17 +23,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "onConsentReady");
                     UserConsent consent = consentLib.userConsent;
                     if(consent.status == UserConsent.ConsentStatus.rejectedNone){
-                        Log.i(TAG, "There are no rejected consents.");
+                        Log.i(TAG, "There are no rejected vendors/purposes.");
                     } else if(consent.status == UserConsent.ConsentStatus.rejectedAll){
-                        Log.i(TAG, "All consents were rejected.");
+                        Log.i(TAG, "All vendors/purposes were rejected.");
                     } else {
-                        Iterator v = consent.rejectedVendors.iterator();
-                        while(v.hasNext()){
-                            Log.i(TAG, "The vendor " + v.next() + " was rejected.");
+                        for (String vendorId : consent.rejectedVendors) {
+                            Log.i(TAG, "The vendor " + vendorId + " was rejected.");
                         }
-                        Iterator c = consent.rejectedCategories.iterator();
-                        while(c.hasNext()){
-                            Log.i(TAG, "The category " + c.next() + " was rejected.");
+                        for (String purposeId : consent.rejectedCategories) {
+                            Log.i(TAG, "The category " + purposeId + " was rejected.");
                         }
                     }
                 })
@@ -47,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
-            CCPAConsentLib = buildAndRunConsentLib(false);
-            CCPAConsentLib.run();
+            ccpaConsentLib = buildAndRunConsentLib(false);
+            ccpaConsentLib.run();
         } catch (ConsentLibException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -62,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             try {
-                CCPAConsentLib = buildAndRunConsentLib(true);
-                CCPAConsentLib.showPm();
+                ccpaConsentLib = buildAndRunConsentLib(true);
+                ccpaConsentLib.showPm();
             } catch (ConsentLibException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -75,6 +71,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(CCPAConsentLib != null ) { CCPAConsentLib.destroy(); }
+        if(ccpaConsentLib != null ) { ccpaConsentLib.destroy(); }
     }
 }
