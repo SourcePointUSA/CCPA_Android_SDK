@@ -15,7 +15,7 @@ To use `ccpa_cmplibrary` in your app, include `com.sourcepoint.ccpa_cmplibrary:c
 dependencies {
     implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.0.0'
 }
-...
+```
 
 # Usage
 * In your main activity, create an instance of `CCPAConsentLib` class using `CCPAConsentLib.newBuilder()` class function passing the configurations and callback handlers to the builder and call `.run()` on the instantiated `CCPAConsentLib` object to load a message and get consents or call `.loadPM` to load a privacy menager message like following:
