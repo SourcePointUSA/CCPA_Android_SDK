@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
             CCPAConsentLib.run();
         } catch (ConsentLibException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -63,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 CCPAConsentLib = buildAndRunConsentLib(true);
                 CCPAConsentLib.showPm();
             } catch (ConsentLibException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
