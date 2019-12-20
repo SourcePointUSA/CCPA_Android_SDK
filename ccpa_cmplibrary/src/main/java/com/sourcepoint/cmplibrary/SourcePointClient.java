@@ -83,8 +83,9 @@ class SourcePointClient {
         HashSet<String> params = new HashSet<>();
         params.add("propertyId=" + propertyId);
         params.add("accountId=" + accountId);
-        params.add("propertyHref=" + property);
+        params.add("propertyHref=http://" + property);
         params.add("requestUUID=" + requestUUID);
+        params.add("alwaysDisplayDNS=" + "false");
         if(consentUUID != null) {
             params.add("uuid=" + consentUUID);
             // cannot send meta without uuid for some mysterious reason
