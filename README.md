@@ -88,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 ```
-# Docs
-For the complete documentation, open `./docs/index.html` in the browser.
 
 # Development
 ## How to build the `ccpa_cmplibrary` module from source
