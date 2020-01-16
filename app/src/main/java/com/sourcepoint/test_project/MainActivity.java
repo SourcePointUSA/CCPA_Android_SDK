@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
+            if (ccpaConsentLib != null)
+                ccpaConsentLib.destroy();
             ccpaConsentLib = buildAndRunConsentLib(false);
             ccpaConsentLib.run();
         } catch (ConsentLibException e) {
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             try {
+                if (ccpaConsentLib != null)
+                    ccpaConsentLib.destroy();
                 ccpaConsentLib = buildAndRunConsentLib(true);
                 ccpaConsentLib.showPm();
             } catch (ConsentLibException e) {
