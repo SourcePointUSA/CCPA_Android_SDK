@@ -4,16 +4,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.sourcepoint.cmplibrary.CCPAConsentLib;
-import com.sourcepoint.cmplibrary.ConsentLibException;
-import com.sourcepoint.cmplibrary.UserConsent;
+import com.sourcepoint.ccpalibrary.CCPAConsentLib;
+import com.sourcepoint.ccpalibrary.UserConsent;
+import com.sourcepoint.cmplibrary.ConsentLib;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private CCPAConsentLib ccpaConsentLib;
+    private ConsentLib consentLib;
 
-    private CCPAConsentLib buildAndRunConsentLib(Boolean showPM) throws ConsentLibException {
+    private CCPAConsentLib buildAndRunConsentLib(Boolean showPM) throws com.sourcepoint.ccpalibrary.ConsentLibException {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
                 .setViewGroup(findViewById(android.R.id.content))
                 .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
@@ -36,6 +37,15 @@ public class MainActivity extends AppCompatActivity {
                 .setOnErrorOccurred(c -> Log.i(TAG, "Something went wrong: ", c.error))
                 .build();
     }
+    private ConsentLib buildAndRunConsentLibGDPR()  throws com.sourcepoint.cmplibrary.ConsentLibException {
+        return ConsentLib.newBuilder(22,"mobile.demo",2372,"5df9105bcf42027ce707bb43",this)
+                .setViewGroup(findViewById(android.R.id.content))
+                .setStage(true)
+                .setTargetingParam("MyPrivacyManager","false")
+                .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
+                .setOnConsentReady(consentLib -> {Log.i(TAG, "onConsentReady");})
+                .setOnErrorOccurred(c -> Log.i(TAG, "Something went wrong: ", c.error)).build();
+    }
 
     @Override
     protected void onResume() {
@@ -43,7 +53,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             ccpaConsentLib = buildAndRunConsentLib(false);
             ccpaConsentLib.run();
-        } catch (ConsentLibException e) {
+            consentLib = buildAndRunConsentLibGDPR();
+            consentLib.run();
+        } catch (com.sourcepoint.ccpalibrary.ConsentLibException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 ccpaConsentLib = buildAndRunConsentLib(true);
                 ccpaConsentLib.showPm();
-            } catch (ConsentLibException e) {
+                consentLib = buildAndRunConsentLibGDPR();
+                consentLib.run();
+            } catch (com.sourcepoint.ccpalibrary.ConsentLibException e) {
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();

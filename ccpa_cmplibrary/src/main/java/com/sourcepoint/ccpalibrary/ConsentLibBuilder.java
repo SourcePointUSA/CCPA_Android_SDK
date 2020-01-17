@@ -1,4 +1,4 @@
-package com.sourcepoint.cmplibrary;
+package com.sourcepoint.ccpalibrary;
 
 import android.app.Activity;
 import android.os.Build;

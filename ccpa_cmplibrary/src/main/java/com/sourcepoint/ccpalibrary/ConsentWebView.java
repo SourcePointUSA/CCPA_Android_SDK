@@ -1,4 +1,4 @@
-package com.sourcepoint.cmplibrary;
+package com.sourcepoint.ccpalibrary;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

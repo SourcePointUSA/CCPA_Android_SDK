@@ -1,7 +1,6 @@
-package com.sourcepoint.cmplibrary;
+package com.sourcepoint.ccpalibrary;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -15,8 +14,6 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
