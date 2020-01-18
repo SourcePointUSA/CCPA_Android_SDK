@@ -7,13 +7,15 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 
 import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
-import com.sourcepoint.ccpa_cmplibrary.ConsentLibException;
 import com.sourcepoint.ccpa_cmplibrary.UserConsent;
+import com.sourcepoint.gdpr_cmplibrary.GDPRConsentLib;
+import com.sourcepoint.gdpr_cmplibrary.GDPRUserConsent;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private CCPAConsentLib ccpaConsentLib;
+    private GDPRConsentLib gdprConsentLib;
 
     private ViewGroup mainViewGroup;
 
@@ -30,7 +32,37 @@ public class MainActivity extends AppCompatActivity {
             mainViewGroup.removeView(webView);
     }
 
-    private CCPAConsentLib buildAndRunConsentLib() {
+    private GDPRConsentLib buildGDPRConsentLib() {
+        return GDPRConsentLib.newBuilder(22, "mobile.demo", 2372,"5c0e81b7d74b3c30c6852301",this)
+                .setStagingCampaign(true)
+                .setAuthId("gdpr-test")
+                .setOnConsentUIReady(consentLib -> {
+                    showMessageWebView(consentLib.webView);
+                    Log.i(TAG, "onConsentUIReady");
+                })
+                .setOnConsentUIFinished(consentLib -> {
+                    removeWebView(consentLib.webView);
+                    Log.i(TAG, "onConsentUIFinished");
+                })
+                .setOnConsentReady(consentLib -> {
+                    Log.i(TAG, "onConsentReady");
+                    GDPRUserConsent consent = consentLib.userConsent;
+                    for (String vendorId : consent.acceptedVendors) {
+                        Log.i(TAG, "The vendor " + vendorId + " was accepted.");
+                    }
+                    for (String purposeId : consent.acceptedCategories) {
+                        Log.i(TAG, "The category " + purposeId + " was accepted.");
+                    }
+                })
+                .setOnError(consentLib -> {
+                    Log.e(TAG, "Something went wrong: ", consentLib.error);
+                    Log.i(TAG, "ConsentLibErrorMessage: " + consentLib.error.consentLibErrorMessage);
+                    removeWebView(consentLib.webView);
+                })
+                .build();
+    }
+
+    private CCPAConsentLib buildCCPAConsentLib() {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
@@ -65,8 +97,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ccpaConsentLib = buildAndRunConsentLib();
+        ccpaConsentLib = buildCCPAConsentLib();
         ccpaConsentLib.run();
+        gdprConsentLib = buildGDPRConsentLib();
+        gdprConsentLib.run();
     }
 
     @Override
@@ -75,8 +109,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainViewGroup = findViewById(android.R.id.content);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
-            ccpaConsentLib = buildAndRunConsentLib();
+            ccpaConsentLib = buildCCPAConsentLib();
             ccpaConsentLib.showPm();
+            gdprConsentLib = buildGDPRConsentLib();
+            gdprConsentLib.showPm();
         });
     }
 
