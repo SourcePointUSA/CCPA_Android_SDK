@@ -68,19 +68,19 @@ public class CCPAConsentLibBuilderTest {
 
     @Test
     public void setOnInteractionComplete() {
-        consentLibBuilder.setOnMessageReady(callback);
-        assertEquals(callback, consentLibBuilder.onMessageReady);
+        consentLibBuilder.setOnConsentUIReady(callback);
+        assertEquals(callback, consentLibBuilder.onConsentUIReady);
     }
 
     @Test
     public void setOnMessageReady() {
-        consentLibBuilder.setOnMessageReady(callback);
-        assertEquals(callback, consentLibBuilder.onMessageReady);
+        consentLibBuilder.setOnConsentUIReady(callback);
+        assertEquals(callback, consentLibBuilder.onConsentUIReady);
     }
 
     @Test
     public void setOnErrorOccurred() {
-        consentLibBuilder.setOnErrorOccurred(callback);
+        consentLibBuilder.setOnError(callback);
         assertEquals(callback, consentLibBuilder.onError);
     }
 

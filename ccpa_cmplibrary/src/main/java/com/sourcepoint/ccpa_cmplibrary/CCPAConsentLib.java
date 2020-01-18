@@ -66,7 +66,7 @@ public class CCPAConsentLib {
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
     private final Callback onAction, onConsentReady, onError;
-    private Callback onMessageReady;
+    private Callback onConsentUIReady, onConsentUIFinished;
     private final EncodedParam encodedTargetingParams, encodedAuthId, encodedPMId;
     private final boolean weOwnTheView, isShowPM;
 
@@ -123,7 +123,8 @@ public class CCPAConsentLib {
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
         onError = b.onError;
-        onMessageReady = b.onMessageReady;
+        onConsentUIReady = b.onConsentUIReady;
+        onConsentUIFinished = b.onConsentUIFinished;
         encodedTargetingParams = b.targetingParamsString;
         viewGroup = b.viewGroup;
 
@@ -147,10 +148,12 @@ public class CCPAConsentLib {
 
             @Override
             public void onMessageReady() {
-                onMessageReadyCalled = true;
                 Log.d("msgReady", "called");
                 if (mCountDownTimer != null) mCountDownTimer.cancel();
-                runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onMessageReady.run(CCPAConsentLib.this));
+                if(!onMessageReadyCalled) {
+                    runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIReady.run(CCPAConsentLib.this));
+                    onMessageReadyCalled = true;
+                }
                 displayWebViewIfNeeded();
             }
 
@@ -327,7 +330,7 @@ public class CCPAConsentLib {
             @Override
             public void onFinish() {
                 if (!onMessageReadyCalled) {
-                    onMessageReady = null;
+                    onConsentUIReady = null;
                     webView.onError(new ConsentLibException("a timeout has occurred when loading the message"));
                 }
             }
@@ -381,6 +384,7 @@ public class CCPAConsentLib {
     private void finish() {
         storeData();
         Log.i("uuid", consentUUID);
+        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
             if(userConsent != null) onConsentReady.run(CCPAConsentLib.this);

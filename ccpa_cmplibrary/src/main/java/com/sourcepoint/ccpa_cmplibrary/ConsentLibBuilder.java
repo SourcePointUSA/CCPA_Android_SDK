@@ -17,7 +17,7 @@ public class ConsentLibBuilder {
     String mmsDomain, cmpDomain, msgDomain;
     String page = "";
     ViewGroup viewGroup = null;
-    CCPAConsentLib.Callback onAction, onConsentReady, onError, onMessageReady;
+    CCPAConsentLib.Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
     boolean staging, stagingCampaign, newPM , isShowPM, shouldCleanConsentOnError;
 
     EncodedParam targetingParamsString = null;
@@ -40,7 +40,7 @@ public class ConsentLibBuilder {
             public void run(CCPAConsentLib c) {
             }
         };
-        onAction = onConsentReady = onError = onMessageReady = noOpCallback;
+        onAction = onConsentReady = onError = onConsentUIReady = onConsentUIFinished = noOpCallback;
     }
 
     /**
@@ -102,8 +102,18 @@ public class ConsentLibBuilder {
      * @param callback to be called when the message is ready to be displayed
      * @return ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnMessageReady(CCPAConsentLib.Callback callback) {
-        onMessageReady = callback;
+    public ConsentLibBuilder setOnConsentUIReady(CCPAConsentLib.Callback callback) {
+        onConsentUIReady = callback;
+        return this;
+    }
+
+    /**
+     * Called when the Dialog message is about to be shown
+     * @param callback to be called when the message is ready to be closed
+     * @return ConsentLibBuilder
+     */
+    public ConsentLibBuilder setOnConsentUIFinished(CCPAConsentLib.Callback callback) {
+        onConsentUIFinished = callback;
         return this;
     }
 
@@ -113,7 +123,7 @@ public class ConsentLibBuilder {
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnErrorOccurred(CCPAConsentLib.Callback callback) {
+    public ConsentLibBuilder setOnError(CCPAConsentLib.Callback callback) {
         onError = callback;
         return this;
     }

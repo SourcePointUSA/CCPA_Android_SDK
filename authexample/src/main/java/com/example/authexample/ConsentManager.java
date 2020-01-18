@@ -32,8 +32,8 @@ abstract class ConsentManager {
 //                HashSet<Consent> consents = (HashSet) results;
 //                onConsentsReady(consents, consentLib.consentUUID, consentLib.euconsent);
 //            }))
-            .setOnMessageReady(_c -> Log.d(TAG, "Message Ready"))
-            .setOnErrorOccurred(c -> Log.d(TAG, "Error Occurred: "+c.error));
+            .setOnConsentUIReady(_c -> Log.d(TAG, "Message Ready"))
+            .setOnError(c -> Log.d(TAG, "Error Occurred: "+c.error));
     }
 
     void loadMessage(Boolean pm) {
