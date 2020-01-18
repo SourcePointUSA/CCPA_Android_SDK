@@ -26,10 +26,10 @@ import java.util.HashSet;
 public class CCPAConsentLib {
 
     @SuppressWarnings("WeakerAccess")
-    public static final String CONSENT_UUID_KEY = "consentUUID";
+    public static final String CONSENT_UUID_KEY = "sp.ccpa.consentUUID";
 
     @SuppressWarnings("WeakerAccess")
-    public static final String META_DATA_KEY = "metaData";
+    public static final String META_DATA_KEY = "sp.ccpa.metaData";
     private final String pmId;
 
     private final String PM_BASE_URL = "https://ccpa-inapp-pm.sp-prod.net";
