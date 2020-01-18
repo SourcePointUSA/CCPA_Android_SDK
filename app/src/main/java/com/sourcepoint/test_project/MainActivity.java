@@ -96,10 +96,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ccpaConsentLib = buildCCPAConsentLib();
-        ccpaConsentLib.run();
-        gdprConsentLib = buildGDPRConsentLib();
-        gdprConsentLib.run();
+        buildCCPAConsentLib().run();
+        buildGDPRConsentLib().run();
     }
 
     @Override
@@ -108,10 +106,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainViewGroup = findViewById(android.R.id.content);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
-            ccpaConsentLib = buildCCPAConsentLib();
-            ccpaConsentLib.showPm();
-            gdprConsentLib = buildGDPRConsentLib();
-            gdprConsentLib.showPm();
+            buildCCPAConsentLib().showPm();
+            buildGDPRConsentLib().showPm();
         });
     }
 
