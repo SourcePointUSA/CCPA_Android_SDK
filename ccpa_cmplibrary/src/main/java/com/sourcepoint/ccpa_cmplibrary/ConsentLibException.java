@@ -1,16 +1,24 @@
 package com.sourcepoint.ccpa_cmplibrary;
 
 public class ConsentLibException extends Exception {
+
+    public String consentLibErrorMessage;
+
     ConsentLibException() { super(); }
-    ConsentLibException(String message) { super(message); }
+    ConsentLibException(Exception e){ super(e); consentLibErrorMessage = "Something went wrong in the consentLib world."; }
+    ConsentLibException(Exception e, String  message){ super(e); consentLibErrorMessage = message;}
+
+    ConsentLibException(String  message){ super(); consentLibErrorMessage = message;}
 
     public static class BuildException extends ConsentLibException {
-        BuildException(String message) { super("Error during CCPAConsentLib build: "+message); }
+        BuildException(Exception e, String message) { super(e, "Error during ConsentLib build: "+message); }
+        BuildException(String message) { super("Error during ConsentLib build: "+message); }
     }
 
     public static class NoInternetConnectionException extends ConsentLibException {}
-    
+
     public static class ApiException extends ConsentLibException {
-        ApiException(String message) { super(message); }
+        ApiException(Exception e, String message) { super(e, "Error due to android API: " + message); }
+        ApiException(String message) { super("Error due to android API: " + message); }
     }
 }

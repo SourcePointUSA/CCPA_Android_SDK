@@ -67,7 +67,6 @@ public class CCPAConsentLib {
     private final ViewGroup viewGroup;
     private final Callback onAction, onConsentReady, onError;
     private Callback onConsentUIReady, onConsentUIFinished;
-    private final EncodedParam encodedTargetingParams, encodedAuthId, encodedPMId;
     private final boolean weOwnTheView, isShowPM;
 
     //default time out changes
@@ -111,21 +110,18 @@ public class CCPAConsentLib {
         return new ConsentLibBuilder(accountId, property, propertyId, pmId, activity);
     }
 
-    CCPAConsentLib(ConsentLibBuilder b) throws ConsentLibException.BuildException {
+    CCPAConsentLib(ConsentLibBuilder b) {
         activity = b.activity;
         property = b.property;
         accountId = b.accountId;
         propertyId = b.propertyId;
-        encodedPMId = new EncodedParam("_sp_PMId",b.pmId);
         pmId = b.pmId;
         isShowPM = b.isShowPM;
-        encodedAuthId = b.authId;
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
         onError = b.onError;
         onConsentUIReady = b.onConsentUIReady;
         onConsentUIFinished = b.onConsentUIFinished;
-        encodedTargetingParams = b.targetingParamsString;
         viewGroup = b.viewGroup;
 
         weOwnTheView = viewGroup != null;
@@ -158,9 +154,8 @@ public class CCPAConsentLib {
             }
 
             @Override
-            public void onError(ConsentLibException error) {
-                CCPAConsentLib.this.error = error;
-                runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
+            public void onError(ConsentLibException e) {
+                onErrorTask(e);
             }
 
             @Override
@@ -168,10 +163,8 @@ public class CCPAConsentLib {
                 CCPAConsentLib.this.userConsent = u;
                 try {
                     sendConsent(ActionTypes.PM_COMPLETE);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    onErrorTask(e);
                 }
             }
 
@@ -198,9 +191,9 @@ public class CCPAConsentLib {
                             break;
                     }
                 }catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    onErrorTask(e);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    onErrorTask(e);
                 }
             }
         };
@@ -235,26 +228,28 @@ public class CCPAConsentLib {
         });
     }
 
-
-
     /**
      * Communicates with SourcePoint to load the message. It all happens in the background and the WebView
      * will only show after the message is ready to be displayed (received data from SourcePoint).
      *
      * @throws ConsentLibException.NoInternetConnectionException - thrown if the device has lost connection either prior or while interacting with CCPAConsentLib
      */
-    public void run() throws ConsentLibException.NoInternetConnectionException {
+    public void run() {
+        try {
         onMessageReadyCalled = false;
         mCountDownTimer = getTimer(defaultMessageTimeOut);
         mCountDownTimer.start();
-        renderMsgAndSaveConsent();
+            renderMsgAndSaveConsent();
+        } catch (Exception e) {
+            onErrorTask(e);
+        }
     }
 
     public void showPm() {
         webView.loadUrl(pmUrl());
     }
 
-    private void renderMsgAndSaveConsent() throws ConsentLibException.NoInternetConnectionException {
+    private void renderMsgAndSaveConsent() {
         if(webView == null) { webView = buildWebView(); }
         sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
             @Override
@@ -272,16 +267,17 @@ public class CCPAConsentLib {
                 }
                 //TODO call onFailure callbacks / throw consentlibException
                 catch(JSONException e){
-                    Log.d(TAG, "Failed reading message response params.");
+                    onErrorTask(e);
                 }
                 catch(ConsentLibException e){
-                    Log.d(TAG, "Sorry, no internet connection");
+                    onErrorTask(e);
                 }
             }
 
             @Override
-            public void onFailure(ConsentLibException exception) {
-                Log.d(TAG, "Failed getting message response params.");
+            public void onFailure(ConsentLibException e) {
+                onErrorTask(e);
+
             }
         });
     }
@@ -307,18 +303,14 @@ public class CCPAConsentLib {
                     consentUUID = jsonResult.getString("uuid");
                     finish();
                 }
-                //TODO call onFailure callbacks / throw consentlibException
-                catch(JSONException e){
-                    Log.d(TAG, "Failed reading message response params.");
-                }
                 catch(Exception e){
-                    Log.d(TAG, "Sorry, something went wrong");
+                    onErrorTask(e);
                 }
             }
 
             @Override
-            public void onFailure(ConsentLibException exception) {
-                Log.d(TAG, "Failed getting message response params.");
+            public void onFailure(ConsentLibException e) {
+                onErrorTask(e);
             }
         });
     }
@@ -369,6 +361,17 @@ public class CCPAConsentLib {
 
     private void removeWebViewIfNeeded() {
         if (weOwnTheView && activity != null) destroy();
+    }
+
+    private void onErrorTask(Exception e){
+        this.error = new ConsentLibException(e);
+        cancelCounter();
+        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
+        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
+    }
+
+    private void cancelCounter(){
+        if (mCountDownTimer != null) mCountDownTimer.cancel();
     }
 
 

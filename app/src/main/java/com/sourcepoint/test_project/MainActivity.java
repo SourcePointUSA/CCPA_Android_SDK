@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             mainViewGroup.removeView(webView);
     }
 
-    private CCPAConsentLib buildAndRunConsentLib() throws ConsentLibException {
+    private CCPAConsentLib buildAndRunConsentLib() {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setOnError(consentLib -> {
                     Log.e(TAG, "Something went wrong: ", consentLib.error);
-                    removeWebView(consentLib.webView);
                 })
                 .build();
     }
@@ -66,14 +65,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            ccpaConsentLib = buildAndRunConsentLib();
-            ccpaConsentLib.run();
-        } catch (ConsentLibException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ccpaConsentLib = buildAndRunConsentLib();
+        ccpaConsentLib.run();
     }
 
     @Override
@@ -82,14 +75,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainViewGroup = findViewById(android.R.id.content);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
-            try {
-                ccpaConsentLib = buildAndRunConsentLib();
-                ccpaConsentLib.showPm();
-            } catch (ConsentLibException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ccpaConsentLib = buildAndRunConsentLib();
+            ccpaConsentLib.showPm();
         });
     }
 
