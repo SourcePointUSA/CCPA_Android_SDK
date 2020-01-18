@@ -4,9 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.sourcepoint.cmplibrary.CCPAConsentLib;
-import com.sourcepoint.cmplibrary.ConsentLibException;
-import com.sourcepoint.cmplibrary.UserConsent;
+import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
+import com.sourcepoint.ccpa_cmplibrary.ConsentLibException;
+import com.sourcepoint.ccpa_cmplibrary.UserConsent;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

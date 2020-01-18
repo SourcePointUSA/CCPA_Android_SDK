@@ -3,10 +3,10 @@ package com.example.authexample;
 import android.app.Activity;
 import android.util.Log;
 
-import com.sourcepoint.cmplibrary.CCPAConsentLib;
-import com.sourcepoint.cmplibrary.Consent;
-import com.sourcepoint.cmplibrary.ConsentLibBuilder;
-import com.sourcepoint.cmplibrary.ConsentLibException;
+import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
+import com.sourcepoint.ccpa_cmplibrary.Consent;
+import com.sourcepoint.ccpa_cmplibrary.ConsentLibBuilder;
+import com.sourcepoint.ccpa_cmplibrary.ConsentLibException;
 
 import java.util.HashSet;
 
