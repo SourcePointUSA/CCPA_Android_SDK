@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
@@ -134,8 +135,8 @@ public class CCPAConsentLib {
         // per gdpr framework: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/852cf086fdac6d89097fdec7c948e14a2121ca0e/In-App%20Reference/Android/app/src/main/java/com/smaato/soma/cmpconsenttooldemoapp/cmpconsenttool/storage/CMPStorage.java
         //sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-        consentUUID = sharedPref.getString(CONSENT_UUID_KEY, null);
-        metaData = sharedPref.getString(META_DATA_KEY, null);
+        consentUUID = sharedPref.getString(CONSENT_UUID_KEY, UUID.randomUUID().toString());
+        metaData = sharedPref.getString(META_DATA_KEY, "{}");
         webView = buildWebView();
     }
 
