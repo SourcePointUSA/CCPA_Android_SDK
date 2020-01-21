@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     private CCPAConsentLib buildCCPAConsentLib() {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
+                .setStagingCampaign(true)
+                .setTargetingParam("params", "true")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
