@@ -12,7 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.sourcepoint.ccpa_cmplibrary.Consent;
+import com.sourcepoint.cmplibrary.Consent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

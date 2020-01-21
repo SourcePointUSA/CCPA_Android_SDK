@@ -1,4 +1,4 @@
-package com.sourcepoint.ccpa_cmplibrary;
+package com.sourcepoint.cmplibrary;
 
 import android.app.Activity;
 import android.view.ViewGroup;
@@ -68,19 +68,19 @@ public class CCPAConsentLibBuilderTest {
 
     @Test
     public void setOnInteractionComplete() {
-        consentLibBuilder.setOnConsentUIReady(callback);
-        assertEquals(callback, consentLibBuilder.onConsentUIReady);
+        consentLibBuilder.setOnMessageReady(callback);
+        assertEquals(callback, consentLibBuilder.onMessageReady);
     }
 
     @Test
     public void setOnMessageReady() {
-        consentLibBuilder.setOnConsentUIReady(callback);
-        assertEquals(callback, consentLibBuilder.onConsentUIReady);
+        consentLibBuilder.setOnMessageReady(callback);
+        assertEquals(callback, consentLibBuilder.onMessageReady);
     }
 
     @Test
     public void setOnErrorOccurred() {
-        consentLibBuilder.setOnError(callback);
+        consentLibBuilder.setOnErrorOccurred(callback);
         assertEquals(callback, consentLibBuilder.onError);
     }
 

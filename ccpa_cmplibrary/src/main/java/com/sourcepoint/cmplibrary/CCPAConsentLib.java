@@ -1,6 +1,7 @@
-package com.sourcepoint.ccpa_cmplibrary;
+package com.sourcepoint.cmplibrary;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -14,7 +15,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
-import java.util.UUID;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
@@ -27,10 +29,10 @@ import java.util.UUID;
 public class CCPAConsentLib {
 
     @SuppressWarnings("WeakerAccess")
-    public static final String CONSENT_UUID_KEY = "sp.ccpa.consentUUID";
+    public static final String CONSENT_UUID_KEY = "consentUUID";
 
     @SuppressWarnings("WeakerAccess")
-    public static final String META_DATA_KEY = "sp.ccpa.metaData";
+    public static final String META_DATA_KEY = "metaData";
     private final String pmId;
 
     private final String PM_BASE_URL = "https://ccpa-inapp-pm.sp-prod.net";
@@ -67,7 +69,8 @@ public class CCPAConsentLib {
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
     private final Callback onAction, onConsentReady, onError;
-    private Callback onConsentUIReady, onConsentUIFinished;
+    private Callback onMessageReady;
+    private final EncodedParam encodedTargetingParams, encodedAuthId, encodedPMId;
     private final boolean weOwnTheView, isShowPM;
 
     //default time out changes
@@ -111,18 +114,20 @@ public class CCPAConsentLib {
         return new ConsentLibBuilder(accountId, property, propertyId, pmId, activity);
     }
 
-    CCPAConsentLib(ConsentLibBuilder b) {
+    CCPAConsentLib(ConsentLibBuilder b) throws ConsentLibException.BuildException {
         activity = b.activity;
         property = b.property;
         accountId = b.accountId;
         propertyId = b.propertyId;
+        encodedPMId = new EncodedParam("_sp_PMId",b.pmId);
         pmId = b.pmId;
         isShowPM = b.isShowPM;
+        encodedAuthId = b.authId;
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
         onError = b.onError;
-        onConsentUIReady = b.onConsentUIReady;
-        onConsentUIFinished = b.onConsentUIFinished;
+        onMessageReady = b.onMessageReady;
+        encodedTargetingParams = b.targetingParamsString;
         viewGroup = b.viewGroup;
 
         weOwnTheView = viewGroup != null;
@@ -135,8 +140,8 @@ public class CCPAConsentLib {
         // per gdpr framework: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/852cf086fdac6d89097fdec7c948e14a2121ca0e/In-App%20Reference/Android/app/src/main/java/com/smaato/soma/cmpconsenttooldemoapp/cmpconsenttool/storage/CMPStorage.java
         //sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-        consentUUID = sharedPref.getString(CONSENT_UUID_KEY, UUID.randomUUID().toString());
-        metaData = sharedPref.getString(META_DATA_KEY, "{}");
+        consentUUID = sharedPref.getString(CONSENT_UUID_KEY, null);
+        metaData = sharedPref.getString(META_DATA_KEY, null);
         webView = buildWebView();
     }
 
@@ -145,18 +150,17 @@ public class CCPAConsentLib {
 
             @Override
             public void onMessageReady() {
+                onMessageReadyCalled = true;
                 Log.d("msgReady", "called");
                 if (mCountDownTimer != null) mCountDownTimer.cancel();
-                if(!onMessageReadyCalled) {
-                    runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIReady.run(CCPAConsentLib.this));
-                    onMessageReadyCalled = true;
-                }
+                runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onMessageReady.run(CCPAConsentLib.this));
                 displayWebViewIfNeeded();
             }
 
             @Override
-            public void onError(ConsentLibException e) {
-                onErrorTask(e);
+            public void onError(ConsentLibException error) {
+                CCPAConsentLib.this.error = error;
+                runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
             }
 
             @Override
@@ -164,8 +168,10 @@ public class CCPAConsentLib {
                 CCPAConsentLib.this.userConsent = u;
                 try {
                     sendConsent(ActionTypes.PM_COMPLETE);
-                } catch (Exception e) {
-                    onErrorTask(e);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -192,9 +198,9 @@ public class CCPAConsentLib {
                             break;
                     }
                 }catch (UnsupportedEncodingException e) {
-                    onErrorTask(e);
+                    e.printStackTrace();
                 } catch (JSONException e) {
-                    onErrorTask(e);
+                    e.printStackTrace();
                 }
             }
         };
@@ -229,28 +235,26 @@ public class CCPAConsentLib {
         });
     }
 
+
+
     /**
      * Communicates with SourcePoint to load the message. It all happens in the background and the WebView
      * will only show after the message is ready to be displayed (received data from SourcePoint).
      *
      * @throws ConsentLibException.NoInternetConnectionException - thrown if the device has lost connection either prior or while interacting with CCPAConsentLib
      */
-    public void run() {
-        try {
+    public void run() throws ConsentLibException.NoInternetConnectionException {
         onMessageReadyCalled = false;
         mCountDownTimer = getTimer(defaultMessageTimeOut);
         mCountDownTimer.start();
-            renderMsgAndSaveConsent();
-        } catch (Exception e) {
-            onErrorTask(e);
-        }
+        renderMsgAndSaveConsent();
     }
 
     public void showPm() {
         webView.loadUrl(pmUrl());
     }
 
-    private void renderMsgAndSaveConsent() {
+    private void renderMsgAndSaveConsent() throws ConsentLibException.NoInternetConnectionException {
         if(webView == null) { webView = buildWebView(); }
         sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
             @Override
@@ -268,17 +272,16 @@ public class CCPAConsentLib {
                 }
                 //TODO call onFailure callbacks / throw consentlibException
                 catch(JSONException e){
-                    onErrorTask(e);
+                    Log.d(TAG, "Failed reading message response params.");
                 }
                 catch(ConsentLibException e){
-                    onErrorTask(e);
+                    Log.d(TAG, "Sorry, no internet connection");
                 }
             }
 
             @Override
-            public void onFailure(ConsentLibException e) {
-                onErrorTask(e);
-
+            public void onFailure(ConsentLibException exception) {
+                Log.d(TAG, "Failed getting message response params.");
             }
         });
     }
@@ -304,14 +307,18 @@ public class CCPAConsentLib {
                     consentUUID = jsonResult.getString("uuid");
                     finish();
                 }
+                //TODO call onFailure callbacks / throw consentlibException
+                catch(JSONException e){
+                    Log.d(TAG, "Failed reading message response params.");
+                }
                 catch(Exception e){
-                    onErrorTask(e);
+                    Log.d(TAG, "Sorry, something went wrong");
                 }
             }
 
             @Override
-            public void onFailure(ConsentLibException e) {
-                onErrorTask(e);
+            public void onFailure(ConsentLibException exception) {
+                Log.d(TAG, "Failed getting message response params.");
             }
         });
     }
@@ -323,7 +330,7 @@ public class CCPAConsentLib {
             @Override
             public void onFinish() {
                 if (!onMessageReadyCalled) {
-                    onConsentUIReady = null;
+                    onMessageReady = null;
                     webView.onError(new ConsentLibException("a timeout has occurred when loading the message"));
                 }
             }
@@ -364,17 +371,6 @@ public class CCPAConsentLib {
         if (weOwnTheView && activity != null) destroy();
     }
 
-    private void onErrorTask(Exception e){
-        this.error = new ConsentLibException(e);
-        cancelCounter();
-        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
-        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
-    }
-
-    private void cancelCounter(){
-        if (mCountDownTimer != null) mCountDownTimer.cancel();
-    }
-
 
     private void storeData(){
         //Log.i("uuid", consentUUID);
@@ -388,7 +384,6 @@ public class CCPAConsentLib {
     private void finish() {
         storeData();
         Log.i("uuid", consentUUID);
-        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
             if(userConsent != null) onConsentReady.run(CCPAConsentLib.this);

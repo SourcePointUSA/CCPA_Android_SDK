@@ -3,13 +3,10 @@ package com.sourcepoint.test_project;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ViewGroup;
-import android.webkit.WebView;
 
-import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
-import com.sourcepoint.ccpa_cmplibrary.UserConsent;
-import com.sourcepoint.gdpr_cmplibrary.GDPRConsentLib;
-import com.sourcepoint.gdpr_cmplibrary.GDPRUserConsent;
+import com.sourcepoint.cmplibrary.CCPAConsentLib;
+import com.sourcepoint.cmplibrary.ConsentLibException;
+import com.sourcepoint.cmplibrary.UserConsent;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -60,14 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     private CCPAConsentLib buildCCPAConsentLib() {
         return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
-                .setOnConsentUIReady(consentLib -> {
-                    showMessageWebView(consentLib.webView);
-                    Log.i(TAG, "onConsentUIReady");
-                })
-                .setOnConsentUIFinished(consentLib -> {
-                    removeWebView(consentLib.webView);
-                    Log.i(TAG, "onConsentUIFinished");
-                })
+                .setViewGroup(findViewById(android.R.id.content))
+                .setOnMessageReady(consentLib -> Log.i(TAG, "onMessageReady"))
                 .setOnConsentReady(consentLib -> {
                     Log.i(TAG, "onConsentReady");
                     UserConsent consent = consentLib.userConsent;
@@ -84,27 +75,36 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 })
-                .setOnError(consentLib -> {
-                    Log.e(TAG, "Something went wrong: ", consentLib.error);
-                })
+                .setOnErrorOccurred(c -> Log.i(TAG, "Something went wrong: ", c.error))
                 .build();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        buildCCPAConsentLib().run();
-        buildGDPRConsentLib().run();
+        try {
+            ccpaConsentLib = buildAndRunConsentLib(false);
+            ccpaConsentLib.run();
+        } catch (ConsentLibException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mainViewGroup = findViewById(android.R.id.content);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
-            buildCCPAConsentLib().showPm();
-            buildGDPRConsentLib().showPm();
+            try {
+                ccpaConsentLib = buildAndRunConsentLib(true);
+                ccpaConsentLib.showPm();
+            } catch (ConsentLibException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 }
