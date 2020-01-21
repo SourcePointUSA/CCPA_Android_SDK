@@ -57,20 +57,6 @@ public class ConsentLibBuilder {
         return this;
     }
 
-    /**
-     *  <b>Optional</b> Sets the view group in which WebView will will be rendered into.
-     *  If it's not called or called with null, the MainView will be used instead.
-     *  In case the main view is not a ViewGroup, a BuildException will be thrown during
-     *  when build() is called.
-     * @param v - the view group
-     * @return ConsentLibBuilder - the next build step
-     * @see ConsentLibBuilder
-     */
-    public ConsentLibBuilder setViewGroup(ViewGroup v) {
-        viewGroup = v;
-        return this;
-    }
-
     // TODO: add what are the possible choices returned to the Callback
     /**
      *  <b>Optional</b> Sets the Callback to be called when the user selects an option on the WebView.
