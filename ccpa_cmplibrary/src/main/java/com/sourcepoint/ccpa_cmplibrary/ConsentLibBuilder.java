@@ -1,4 +1,4 @@
-package com.sourcepoint.cmplibrary;
+package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
 import android.os.Build;
@@ -17,7 +17,7 @@ public class ConsentLibBuilder {
     String mmsDomain, cmpDomain, msgDomain;
     String page = "";
     ViewGroup viewGroup = null;
-    CCPAConsentLib.Callback onAction, onConsentReady, onError, onMessageReady;
+    CCPAConsentLib.Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
     boolean staging, stagingCampaign, newPM , isShowPM, shouldCleanConsentOnError;
 
     EncodedParam targetingParamsString = null;
@@ -40,7 +40,7 @@ public class ConsentLibBuilder {
             public void run(CCPAConsentLib c) {
             }
         };
-        onAction = onConsentReady = onError = onMessageReady = noOpCallback;
+        onAction = onConsentReady = onError = onConsentUIReady = onConsentUIFinished = noOpCallback;
     }
 
     /**
@@ -102,8 +102,18 @@ public class ConsentLibBuilder {
      * @param callback to be called when the message is ready to be displayed
      * @return ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnMessageReady(CCPAConsentLib.Callback callback) {
-        onMessageReady = callback;
+    public ConsentLibBuilder setOnConsentUIReady(CCPAConsentLib.Callback callback) {
+        onConsentUIReady = callback;
+        return this;
+    }
+
+    /**
+     * Called when the Dialog message is about to be shown
+     * @param callback to be called when the message is ready to be closed
+     * @return ConsentLibBuilder
+     */
+    public ConsentLibBuilder setOnConsentUIFinished(CCPAConsentLib.Callback callback) {
+        onConsentUIFinished = callback;
         return this;
     }
 
@@ -113,7 +123,7 @@ public class ConsentLibBuilder {
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnErrorOccurred(CCPAConsentLib.Callback callback) {
+    public ConsentLibBuilder setOnError(CCPAConsentLib.Callback callback) {
         onError = callback;
         return this;
     }
@@ -167,35 +177,41 @@ public class ConsentLibBuilder {
         return this;
     }
 
-    public ConsentLibBuilder setAuthId(String authId) throws ConsentLibException.BuildException {
-        this.authId = new EncodedParam("authId", authId);
-        return this;
-    }
+    //TODO implement authId support for CCPA
+//    public ConsentLibBuilder setAuthId(String authId) throws ConsentLibException.BuildException {
+//        this.authId = new EncodedParam("authId", authId);
+//        return this;
+//    }
 
     public ConsentLibBuilder setShowPM(boolean isUserTriggered){
         this.isShowPM = isUserTriggered;
         return this;
     }
 
-    public ConsentLibBuilder setTargetingParam(String key, Integer val)
-            throws ConsentLibException.BuildException  {
-        return setTargetingParam(key, (Object) val);
-    }
+    //TODO implement targetting params support for CCPA
+//    public ConsentLibBuilder setTargetingParam(String key, Integer val)
+//            throws ConsentLibException.BuildException  {
+//        return setTargetingParam(key, (Object) val);
+//    }
+//
+//    public ConsentLibBuilder setTargetingParam(String key, String val)
+//            throws ConsentLibException.BuildException {
+//        return setTargetingParam(key, (Object) val);
+//    }
+//
+//    private ConsentLibBuilder setTargetingParam(String key, Object val) throws ConsentLibException.BuildException {
+//        try {
+//            this.targetingParams.put(key, val);
+//        } catch (JSONException e) {
+//            throw new ConsentLibException
+//                    .BuildException("error parsing targeting param, key: "+key+" value: "+val);
+//        }
+//        return this;
+//    }
 
-    public ConsentLibBuilder setTargetingParam(String key, String val)
-            throws ConsentLibException.BuildException {
-        return setTargetingParam(key, (Object) val);
-    }
-
-    private ConsentLibBuilder setTargetingParam(String key, Object val) throws ConsentLibException.BuildException {
-        try {
-            this.targetingParams.put(key, val);
-        } catch (JSONException e) {
-            throw new ConsentLibException
-                    .BuildException("error parsing targeting param, key: "+key+" value: "+val);
-        }
-        return this;
-    }
+//    private void setTargetingParamsString() throws ConsentLibException {
+//        targetingParamsString = new EncodedParam("targetingParams", targetingParams.toString());
+//    }
 
     /**
      * <b>Optional</b> Sets the DEBUG level.
@@ -210,9 +226,7 @@ public class ConsentLibBuilder {
         return this;
     }
 
-    private void setTargetingParamsString() throws ConsentLibException {
-        targetingParamsString = new EncodedParam("targetingParams", targetingParams.toString());
-    }
+
 
     /**
      * The Android 4.x Browser throws an exception when parsing SourcePoint's javascript.
@@ -230,21 +244,7 @@ public class ConsentLibBuilder {
      * @return CCPAConsentLib | ConsentLibNoOp
      * @throws ConsentLibException.BuildException - if any of the required data is missing or invalid
      */
-    public CCPAConsentLib build() throws ConsentLibException {
-        if(sdkNotSupported()) {
-            throw new ConsentLibException.BuildException(
-                    "CCPAConsentLib supports only API level 19 and above.\n"+
-                            "See https://github.com/SourcePointUSA/android-cmp-app/issues/25 for more information."
-            );
-        }
-
-        try {
-            setTargetingParamsString();
-        } catch (ConsentLibException e) {
-            this.activity = null; // release reference to activity
-            throw new ConsentLibException.BuildException(e.getMessage());
-        }
-
+    public CCPAConsentLib build() {
         return new CCPAConsentLib(this);
     }
 
