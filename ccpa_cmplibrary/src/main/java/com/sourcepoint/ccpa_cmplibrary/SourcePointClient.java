@@ -26,6 +26,7 @@ class SourcePointClient {
     private static final String baseMsgUrl = "https://wrapper-api.sp-prod.net/ccpa/message-url";
 
     private static final String baseSendConsentUrl = "https://wrapper-api.sp-prod.net/ccpa/consent";
+    private String targetingParams;
 
     private int accountId;
     private String property;
@@ -68,12 +69,14 @@ class SourcePointClient {
             int accountID,
             String property,
             int propertyId,
-            boolean isStagingCampaign
+            boolean isStagingCampaign,
+            String targetingParams
     ) {
         this.isStagingCampaign = isStagingCampaign;
         this.accountId = accountID;
         this.propertyId = propertyId;
         this.property = property;
+        this.targetingParams = targetingParams;
     }
 
     //TODO: extract url from user params
@@ -84,6 +87,8 @@ class SourcePointClient {
         params.add("propertyHref=http://" + property);
         params.add("requestUUID=" + requestUUID);
         params.add("alwaysDisplayDNS=" + "false");
+        params.add("targetingParams=" + targetingParams);
+        params.add("campaignEnv=" + (isStagingCampaign ? "stage" : "prod"));
         if(consentUUID != null) {
             params.add("uuid=" + consentUUID);
             // cannot send meta without uuid for some mysterious reason
