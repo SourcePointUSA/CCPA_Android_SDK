@@ -2,10 +2,13 @@ package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
 import android.os.Build;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static android.content.ContentValues.TAG;
 
 @SuppressWarnings("unused")
 public class ConsentLibBuilder {
@@ -20,8 +23,8 @@ public class ConsentLibBuilder {
     CCPAConsentLib.Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
     boolean staging, stagingCampaign, newPM , isShowPM, shouldCleanConsentOnError;
 
-    EncodedParam targetingParamsString = null;
-    EncodedParam authId = null;
+    String targetingParamsString = null;
+    String authId = null;
     String pmId = "";
     CCPAConsentLib.DebugLevel debugLevel = CCPAConsentLib.DebugLevel.OFF;
     long defaultMessageTimeOut = 10000;
@@ -188,30 +191,39 @@ public class ConsentLibBuilder {
         return this;
     }
 
-    //TODO implement targetting params support for CCPA
-//    public ConsentLibBuilder setTargetingParam(String key, Integer val)
-//            throws ConsentLibException.BuildException  {
-//        return setTargetingParam(key, (Object) val);
-//    }
-//
-//    public ConsentLibBuilder setTargetingParam(String key, String val)
-//            throws ConsentLibException.BuildException {
-//        return setTargetingParam(key, (Object) val);
-//    }
-//
-//    private ConsentLibBuilder setTargetingParam(String key, Object val) throws ConsentLibException.BuildException {
-//        try {
-//            this.targetingParams.put(key, val);
-//        } catch (JSONException e) {
-//            throw new ConsentLibException
-//                    .BuildException("error parsing targeting param, key: "+key+" value: "+val);
-//        }
-//        return this;
-//    }
+    /**
+     * <b>Optional</b> True for <i>staging</i> campaigns or False for <i>production</i>
+     * campaigns. <b>Default:</b> false
+     * @param st - True for <i>staging</i> campaigns or False for <i>production</i>
+     * @return ConsentLibBuilder - the next build step
+     * @see ConsentLibBuilder
+     */
+    public ConsentLibBuilder setStagingCampaign(boolean st) {
+        stagingCampaign = st;
+        return this;
+    }
 
-//    private void setTargetingParamsString() throws ConsentLibException {
-//        targetingParamsString = new EncodedParam("targetingParams", targetingParams.toString());
-//    }
+    public ConsentLibBuilder setTargetingParam(String key, Integer val)  {
+        return setTargetingParam(key, (Object) val);
+    }
+
+    public ConsentLibBuilder setTargetingParam(String key, String val) {
+        return setTargetingParam(key, (Object) val);
+    }
+
+    private ConsentLibBuilder setTargetingParam(String key, Object val) {
+        try {
+            this.targetingParams.put(key, val);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error trying to parse targetting param: [" + key + ", " + val + "]", e);
+        }
+        return this;
+    }
+
+    private void setTargetingParamsString() {
+        targetingParamsString = targetingParams.toString();
+    }
+
 
     /**
      * <b>Optional</b> Sets the DEBUG level.
@@ -245,6 +257,8 @@ public class ConsentLibBuilder {
      * @throws ConsentLibException.BuildException - if any of the required data is missing or invalid
      */
     public CCPAConsentLib build() {
+
+        setTargetingParamsString();
         return new CCPAConsentLib(this);
     }
 

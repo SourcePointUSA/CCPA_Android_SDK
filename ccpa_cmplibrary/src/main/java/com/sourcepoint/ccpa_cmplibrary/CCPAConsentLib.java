@@ -129,7 +129,7 @@ public class CCPAConsentLib {
         // configurable time out
         defaultMessageTimeOut = b.defaultMessageTimeOut;
 
-        sourcePoint = new SourcePointClient(b.accountId, b.property + "/" + b.page, propertyId, b.staging);
+        sourcePoint = new SourcePointClient(b.accountId, b.property + "/" + b.page, propertyId, b.stagingCampaign, b.targetingParamsString);
 
         // read consent from/store consent to default shared preferences
         // per gdpr framework: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/852cf086fdac6d89097fdec7c948e14a2121ca0e/In-App%20Reference/Android/app/src/main/java/com/smaato/soma/cmpconsenttooldemoapp/cmpconsenttool/storage/CMPStorage.java
