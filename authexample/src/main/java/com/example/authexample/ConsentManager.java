@@ -3,10 +3,10 @@ package com.example.authexample;
 import android.app.Activity;
 import android.util.Log;
 
-import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
-import com.sourcepoint.ccpa_cmplibrary.Consent;
-import com.sourcepoint.ccpa_cmplibrary.ConsentLibBuilder;
-import com.sourcepoint.ccpa_cmplibrary.ConsentLibException;
+import com.sourcepoint.cmplibrary.CCPAConsentLib;
+import com.sourcepoint.cmplibrary.Consent;
+import com.sourcepoint.cmplibrary.ConsentLibBuilder;
+import com.sourcepoint.cmplibrary.ConsentLibException;
 
 import java.util.HashSet;
 
@@ -32,8 +32,8 @@ abstract class ConsentManager {
 //                HashSet<Consent> consents = (HashSet) results;
 //                onConsentsReady(consents, consentLib.consentUUID, consentLib.euconsent);
 //            }))
-            .setOnConsentUIReady(_c -> Log.d(TAG, "Message Ready"))
-            .setOnError(c -> Log.d(TAG, "Error Occurred: "+c.error));
+            .setOnMessageReady(_c -> Log.d(TAG, "Message Ready"))
+            .setOnErrorOccurred(c -> Log.d(TAG, "Error Occurred: "+c.error));
     }
 
     void loadMessage(Boolean pm) {

@@ -1,4 +1,4 @@
-package com.sourcepoint.ccpa_cmplibrary;
+package com.sourcepoint.cmplibrary;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

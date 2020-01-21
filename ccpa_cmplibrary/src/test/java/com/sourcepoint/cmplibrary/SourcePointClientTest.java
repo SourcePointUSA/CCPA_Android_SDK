@@ -1,15 +1,33 @@
-package com.sourcepoint.ccpa_cmplibrary;
+package com.sourcepoint.cmplibrary;
 
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.ResponseHandlerInterface;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.HashSet;
+
+import cz.msebera.android.httpclient.Header;
+
 import static android.os.Build.VERSION_CODES.O;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
