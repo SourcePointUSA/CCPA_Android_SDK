@@ -14,9 +14,6 @@ import com.sourcepoint.gdpr_cmplibrary.GDPRUserConsent;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private CCPAConsentLib ccpaConsentLib;
-    private GDPRConsentLib gdprConsentLib;
-
     private ViewGroup mainViewGroup;
 
     private void showMessageWebView(WebView webView) {
@@ -109,11 +106,5 @@ public class MainActivity extends AppCompatActivity {
             buildCCPAConsentLib().showPm();
             buildGDPRConsentLib().showPm();
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(ccpaConsentLib != null ) { ccpaConsentLib.destroy(); }
     }
 }
