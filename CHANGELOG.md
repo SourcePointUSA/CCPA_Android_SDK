@@ -1,3 +1,6 @@
+## 1.1.1 (January, 23, 2020)
+* AndroidManifest updated - solved issue integrating with remote GDPR dependency.
+
 ## 1.1.0 (January, 21, 2020)
 * setViewGroup method was removed ✂️; now the user must add the consentLibWebView to the parent view group as shown in the updated example in the readme file.
 * Call backs renamed for simplification and UI callback onUIFinished added to facilitate interaction with the consentLibWebView. This changes are also reflected in the readme file example.
