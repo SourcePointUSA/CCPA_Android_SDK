@@ -379,7 +379,6 @@ public class CCPAConsentLib {
     private void storeData(){
         //Log.i("uuid", consentUUID);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
         if(consentUUID != null) editor.putString(CONSENT_UUID_KEY, consentUUID);
         if(metaData != null) editor.putString(META_DATA_KEY, metaData);
         editor.commit();
