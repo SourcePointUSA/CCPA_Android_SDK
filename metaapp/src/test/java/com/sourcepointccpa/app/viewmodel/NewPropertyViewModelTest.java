@@ -112,7 +112,7 @@ public class NewPropertyViewModelTest {
 
     }
 
-    @Test
+  /*  @Test
     public void testGetPropertyWithDetails() {
 
         MutableLiveData<Integer> size = new MutableLiveData<>();
@@ -129,5 +129,5 @@ public class NewPropertyViewModelTest {
         assertEquals(1,count);
         listSize.removeObserver(observer);
 
-    }
+    }*/
 }
