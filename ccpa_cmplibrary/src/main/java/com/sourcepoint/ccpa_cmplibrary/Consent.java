@@ -1,4 +1,4 @@
-package com.sourcepoint.cmplibrary;
+package com.sourcepoint.ccpa_cmplibrary;
 
 import org.json.JSONException;
 import org.json.JSONObject;
