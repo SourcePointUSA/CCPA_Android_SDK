@@ -166,24 +166,6 @@ public class PropertyListActivity extends BaseActivity<PropertyListViewModel> {
         }
     }
 
-    private void clearCookies(Property property) {
-        CookieManager cookieManager = CookieManager.getInstance();
-        showProgressBar();
-        cookieManager.removeAllCookies(value -> {
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    hideProgressBar();
-                }
-            }, 3000);
-             Log.d(TAG, "Cookies cleared "+ value.toString());
-        if (value){
-            startConsentViewActivity(property);
-        }else {
-            showErrorDialog(getString(R.string.unable_to_clear_cookies));
-        }});
-    }
-
     private void showAlertDialogForPropertyDelete(Property property , int position) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(PropertyListActivity.this)
                 .setMessage(getResources().getString(R.string.delete_confirmation_message))
@@ -215,7 +197,7 @@ public class PropertyListActivity extends BaseActivity<PropertyListViewModel> {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.clear();
                     editor.commit();
-                    clearCookies( property);
+                    startConsentViewActivity(property);
 
                 })
                 .setNegativeButton("NO", (dialog, which) -> {

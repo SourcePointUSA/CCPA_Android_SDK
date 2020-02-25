@@ -23,15 +23,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.CookieManager;
+import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
-import com.sourcepoint.cmplibrary.CCPAConsentLib;
-import com.sourcepoint.cmplibrary.ConsentLibBuilder;
-import com.sourcepoint.cmplibrary.ConsentLibException;
-import com.sourcepoint.cmplibrary.UserConsent;
-import com.sourcepointccpa.app.SourcepointApp;
+import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
+import com.sourcepoint.ccpa_cmplibrary.ConsentLibBuilder;
+import com.sourcepoint.ccpa_cmplibrary.UserConsent;
 import com.sourcepointccpa.app.R;
+import com.sourcepointccpa.app.SourcepointApp;
 import com.sourcepointccpa.app.adapters.ConsentListRecyclerView;
 import com.sourcepointccpa.app.common.Constants;
 import com.sourcepointccpa.app.database.entity.Property;
@@ -52,18 +52,12 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     private final String TAG = "ConsentViewActivity";
     private ProgressDialog mProgressDialog;
     private AlertDialog mAlertDialog;
-    private boolean isShow = false;
-    private boolean onConsentReadyCalled = false;
-    private boolean isShowOnceOrError = false;
-    private boolean isPropertySaved = false;
 
     private List<Consents> mVendorConsents = new ArrayList<>();
     private List<Consents> mPurposeConsents = new ArrayList<>();
-    private String mError = "";
 
     private CCPAConsentLib mConsentLib;
     private TextInputEditText mConsentUUID;
-    private TextInputEditText mMetaData;
     private RecyclerView mConsentRecyclerView;
     private List<Consents> mConsentList = new ArrayList<>();
     private ConsentListRecyclerView mConsentListRecyclerAdapter;
@@ -71,23 +65,37 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     private SharedPreferences preferences;
     private ConstraintLayout mConstraintLayout;
 
-    private CCPAConsentLib buildConsentLib(Property property, Activity activity) throws ConsentLibException {
+    private ViewGroup mainViewGroup;
 
+    private void showMessageWebView(WebView webView) {
+        webView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
+        webView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+        webView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+        webView.bringToFront();
+        webView.requestLayout();
+        mainViewGroup.addView(webView);
+    }
+
+    private void removeWebView(WebView webView) {
+        if (webView.getParent() != null)
+            mainViewGroup.removeView(webView);
+    }
+
+    private CCPAConsentLib buildConsentLib(Property property, Activity activity) {
 
         ConsentLibBuilder consentLibBuilder = CCPAConsentLib.newBuilder(property.getAccountID(), property.getProperty(), property.getPropertyID(), property.getPmID(), activity)
                 // optional, used for running stage campaigns
                 .setStage(property.isStaging())
                 .setShowPM(property.isShowPM())
-                .setViewGroup(findViewById(android.R.id.content))
-                //optional message timeout default timeout is 5 seconds
                 .setMessageTimeOut(15000)
-                .setOnMessageReady(ccpaConsentLib -> {
+                .setOnConsentUIReady(ccpaConsentLib -> {
                     hideProgressBar();
-                    Log.d(TAG, "OnMessageReady");
-
-                    isShow = true;
-                    saveToDatabase();
-                    Log.i(TAG, "The message is about to be shown.");
+                    Log.d(TAG, "setOnConsentUIReady");
+                    showMessageWebView(ccpaConsentLib.webView);
+                })
+                .setOnConsentUIFinished(ccpaConsentLib -> {
+                    removeWebView(ccpaConsentLib.webView);
+                    Log.d(TAG, "setOnConsentUIFinished");
                 })
                 // optional, callback triggered when message choice is selected when called choice
                 // type will be available as Integer at cLib.choiceType
@@ -97,59 +105,20 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
                 })
                 // optional, callback triggered when consent data is captured when called
                 .setOnConsentReady(ccpaConsentLib -> {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // showActionBar();
-                                    showProgressBar();
-                                }
-                            });
-                            onConsentReadyCalled = true;
-                            UserConsent consent = ccpaConsentLib.userConsent;
+                            mConsentList.clear();
+                            mVendorConsents.clear();
+                            mPurposeConsents.clear();
+                            runOnUiThread(this::showProgressBar);
+                            getConsentsFromConsentLib(ccpaConsentLib);
 
-
-                            if (consent.status == UserConsent.ConsentStatus.rejectedNone) {
-                                Log.i(TAG, "There are no rejected vendors/purposes.");
-                                mConsentNotAvailable.setText("There are no rejected vendors/purposes.");
-                            } else if (consent.status == UserConsent.ConsentStatus.rejectedAll) {
-                                Log.i(TAG, "All vendors/purposes were rejected.");
-                                mConsentNotAvailable.setText("All vendors/purposes were rejected.");
-                            } else {
-                               if(consent.rejectedVendors.size() > 0){
-                                   Consents vendorHeader = new Consents("0", "Rejected Vendor Consents Ids", "Header");
-                                   mVendorConsents.add(vendorHeader);
-                                   for (String vendorId : consent.rejectedVendors) {
-                                       Log.i(TAG, "The vendor " + vendorId + " was rejected.");
-                                       Consents vendorConsent = new Consents(vendorId, vendorId, "vendorConsents");
-                                       mVendorConsents.add(vendorConsent);
-                                   }
-                               }
-                               if(consent.rejectedCategories.size() > 0 ){
-                                   Consents purposeHeader = new Consents("0", "Rejected Purpose Consents Ids", "Header");
-                                   mPurposeConsents.add(purposeHeader);
-                                   for (String purposeId : consent.rejectedCategories) {
-                                       Log.i(TAG, "The category " + purposeId + " was rejected.");
-                                       Consents purposeConsents = new Consents(purposeId, purposeId, "purposeConsents");
-                                       mPurposeConsents.add(purposeConsents);
-                                   }
-                               }
-                            }
-                            Log.d(TAG, "setOnInteractionComplete");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!isShow && onConsentReadyCalled) {
-                                        isShowOnceOrError = true;
-                                    }
-                                    showPropertyDebugInfo();
-                                }
-                            });
+                            Log.d(TAG, "setOnConsentReady");
+                            runOnUiThread(this::showPropertyDebugInfo);
                         }
                 )
-                .setOnErrorOccurred(ccpaConsentLib -> {
+                .setOnError(ccpaConsentLib -> {
                     hideProgressBar();
-                    Log.d(TAG, "setOnErrorOccurred");
-                    showAlertDialog("" + ccpaConsentLib.error.getMessage(), false);
+                    Log.d(TAG, "setOnError");
+                    showAlertDialog("" + ccpaConsentLib.error.consentLibErrorMessage);
                     Log.d(TAG, "Something went wrong: ", ccpaConsentLib.error);
                 });
 
@@ -161,13 +130,44 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         }
 
         if (!TextUtils.isEmpty(property.getAuthId())) {
-            consentLibBuilder.setAuthId(property.getAuthId());
+            //consentLibBuilder.setAuthId(property.getAuthId());
             Log.d(TAG, "AuthID : " + property.getAuthId());
+            Log.d(TAG, "AuthID : " + "feature not available for ccpa currently");
         } else {
             Log.d(TAG, "AuthID Not available : " + property.getAuthId());
         }
         // generate ConsentLib at this point modifying builder will not do anything
         return consentLibBuilder.build();
+    }
+
+    private void getConsentsFromConsentLib(CCPAConsentLib ccpaConsentLib) {
+        UserConsent consent = ccpaConsentLib.userConsent;
+        if (consent.status == UserConsent.ConsentStatus.rejectedNone) {
+            mConsentNotAvailable.setText("There are no rejected vendors/purposes.");
+            Log.i(TAG, "There are no rejected vendors/purposes.");
+        } else if (consent.status == UserConsent.ConsentStatus.rejectedAll) {
+            mConsentNotAvailable.setText("All vendors/purposes were rejected.");
+            Log.i(TAG, "All vendors/purposes were rejected.");
+        } else {
+            if (consent.rejectedVendors.size() > 0) {
+                Consents vendorHeader = new Consents("0", "Rejected Vendor Ids", "Header");
+                mVendorConsents.add(vendorHeader);
+                for (String vendorId : consent.rejectedVendors) {
+                    Log.i(TAG, "The vendor " + vendorId + " was rejected.");
+                    Consents vendorConsent = new Consents(vendorId, vendorId, "vendorConsents");
+                    mVendorConsents.add(vendorConsent);
+                }
+            }
+            if (consent.rejectedCategories.size() > 0) {
+                Consents purposeHeader = new Consents("0", "Rejected Purpose Ids", "Header");
+                mPurposeConsents.add(purposeHeader);
+                for (String purposeId : consent.rejectedCategories) {
+                    Log.i(TAG, "The category " + purposeId + " was rejected.");
+                    Consents purposeConsents = new Consents(purposeId, purposeId, "purposeConsents");
+                    mPurposeConsents.add(purposeConsents);
+                }
+            }
+        }
     }
 
 
@@ -183,13 +183,11 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         mConstraintLayout = findViewById(R.id.parentLayout);
         mConstraintLayout.setVisibility(View.GONE);
 
-
         getSupportActionBar().hide();
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mConsentUUID = findViewById(R.id.tvConsentUUID);
-       // mMetaData = findViewById(R.id.tvMetaData);
         mConsentNotAvailable = findViewById(R.id.tv_consentsNotAvailable);
 
         mConsentRecyclerView = findViewById(R.id.consentRecyclerView);
@@ -198,20 +196,18 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         DividerItemDecoration itemDecor = new DividerItemDecoration(this, VERTICAL);
         mConsentRecyclerView.addItemDecoration(itemDecor);
         mConsentRecyclerView.setAdapter(mConsentListRecyclerAdapter);
+        mainViewGroup = findViewById(android.R.id.content);
 
         Bundle data = getIntent().getExtras();
         Property property = data.getParcelable(Constants.PROPERTY);
-
-
-        try {
-            mConsentLib = buildConsentLib(property, this);
+        if (data.getParcelableArrayList(Constants.CONSENTS) != null) {
+            mConsentList = data.getParcelableArrayList(Constants.CONSENTS);
+            setConsents(true);
+        } else {
             if (Util.isNetworkAvailable(this)) {
                 showProgressBar();
-                mConsentLib.run();
-            } else showAlertDialog(getString(R.string.network_check_message), false);
-        } catch (Exception e) {
-            showAlertDialog("" + e.toString(), false);
-            e.printStackTrace();
+                buildConsentLib(property, this).run();
+            } else showAlertDialog(getString(R.string.network_check_message));
         }
     }
 
@@ -220,7 +216,6 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
 
         switch (item.getItemId()) {
             case R.id.action_showPM:
-                resetFlag();
                 buildAndShowConsentLibPM();
                 break;
             case android.R.id.home:
@@ -239,20 +234,16 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void buildAndShowConsentLibPM(){
+    private void buildAndShowConsentLibPM() {
         Bundle data = getIntent().getExtras();
         Property property = data.getParcelable(Constants.PROPERTY);
         mConsentLib.destroy();
-        try {
-            mConsentLib = buildConsentLib(property, this);
-            if (Util.isNetworkAvailable(this)) {
-                showProgressBar();
-                mConsentLib.showPm();
-            }else showAlertDialog(getString(R.string.network_check_message), false);
-        } catch (ConsentLibException e) {
-            showAlertDialog("" + e.toString(), false);
-            e.printStackTrace();
-        }
+
+        mConsentLib = buildConsentLib(property, this);
+        if (Util.isNetworkAvailable(this)) {
+            showProgressBar();
+            mConsentLib.showPm();
+        } else showAlertDialog(getString(R.string.network_check_message));
     }
 
     @Override
@@ -266,14 +257,6 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         super.onResume();
         ViewModelProvider.Factory viewModelFactory = ViewModelUtils.createFor(viewModel);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(viewModel.getClass());
-    }
-
-    private void addProperty(Property property) {
-        viewModel.addProperty(property);
-    }
-
-    private void updateProperty(Property property) {
-        viewModel.updateProperty(property);
     }
 
     private void showProgressBar() {
@@ -314,7 +297,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     }
 
     // method to show alert/error dialog
-    private void showAlertDialog(String message, boolean isPropertyList) {
+    private void showAlertDialog(String message) {
         hideProgressBar();
         if (!isDestroyed()) {
             if (mAlertDialog == null) {
@@ -326,15 +309,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (!isPropertyList) {
-                                                if (isPropertySaved) {
-                                                    onBackPressed();
-                                                } else {
-                                                    ConsentViewActivity.this.finish();
-                                                }
-                                            } else {
-                                                setConsents();
-                                            }
+                                            setConsents(false);
                                         }
                                     });
                                 }
@@ -347,6 +322,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         }
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -356,24 +332,22 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     }
 
     // method to set consents to recycler view
-    private void setConsents() {
+    private void setConsents(boolean isNewProperty) {
         hideProgressBar();
         showEUConsentAndConsentUUID();
         showActionBar();
 
-        mConsentList.addAll(mVendorConsents);
-        mConsentList.addAll(mPurposeConsents);
-        if (isShowOnceOrError) {
-            saveToDatabase();
+        if (!isNewProperty) {
+            mConsentList.addAll(mVendorConsents);
+            mConsentList.addAll(mPurposeConsents);
         }
 
         if (mConsentList.size() > 0) {
             mConsentNotAvailable.setVisibility(View.GONE);
-            mConsentRecyclerView.setVisibility(View.VISIBLE);
             mConsentListRecyclerAdapter.setConsentList(mConsentList);
             mConsentListRecyclerAdapter.notifyDataSetChanged();
         } else {
-            mConsentRecyclerView.setVisibility(View.GONE);
+            Log.d(TAG, "mConsentList is empty");
             mConsentNotAvailable.setVisibility(View.VISIBLE);
         }
     }
@@ -390,130 +364,10 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         if (preferences.getString(Constants.CONSENT_UUID_KEY, null) != null) {
             mConsentUUID.setText(preferences.getString(Constants.CONSENT_UUID_KEY, null));
         }
-        if (preferences.getString(Constants.EU_CONSENT_KEY, null) != null) {
-           // mMetaData.setText(preferences.getString(Constants.META_DATA, null));
-        }
     }
 
     // show debug info of property
     private void showPropertyDebugInfo() {
-        if (isShowOnceOrError) {
-            showAlertDialogForShowMessageOnce(getResources().getString(R.string.no_message_matching_scenario), true);
-        } else {
-            setConsents();
-        }
-
-    }
-
-    // method to update or add property to database
-    private void saveToDatabase() {
-        Bundle bundle = getIntent().getExtras();
-        Property property;
-        if (bundle != null && !isPropertySaved) {
-            property = bundle.getParcelable(Constants.PROPERTY);
-            if (bundle.containsKey("Update")) {
-                if (property != null && bundle.getString("Update") != null)
-                    property.setId(Integer.parseInt(bundle.getString("Update")));
-                updateProperty(property);
-                isPropertySaved = true;
-            } else if (bundle.containsKey("Add")) {
-                addProperty(property);
-                isPropertySaved = true;
-            } else {
-                Log.d(TAG, "No need to add or update as its from propertyList");
-            }
-        } else {
-            Log.d(TAG, "Data not present to update or add");
-        }
-
-    }
-
-    private void showAlertDialogForShowMessageOnce(String message, boolean isPropertyList) {
-        hideProgressBar();
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ConsentViewActivity.this)
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton("Clear Cookies", (dialog, which) -> {
-                    dialog.cancel();
-                    showAlertDialogForCookiesCleared(isPropertyList);
-                })
-                .setNegativeButton("Show property Info", (dialog, which) -> {
-                    dialog.cancel();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!isPropertyList) {
-                                ConsentViewActivity.this.finish();
-                            } else {
-                                setConsents();
-                            }
-                        }
-                    });
-                });
-        AlertDialog mAlertDialog = alertDialog.create();
-        mAlertDialog.show();
-    }
-
-    private void showAlertDialogForCookiesCleared(boolean isPropertyList) {
-        SpannableString cookieConfirmation = new SpannableString(getResources().getString(R.string.cookie_confirmation_message));
-        cookieConfirmation.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 12, 21, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        cookieConfirmation.setSpan(new RelativeSizeSpan(1.2f), 12, 21, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ConsentViewActivity.this)
-                .setMessage(cookieConfirmation)
-                .setCancelable(false)
-                .setPositiveButton("YES", (dialog, which) -> {
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.clear();
-                    editor.commit();
-                    clearCookies(isPropertyList);
-
-                })
-                .setNegativeButton("NO", (dialog, which) -> {
-                    dialog.cancel();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!isPropertyList) {
-                                ConsentViewActivity.this.finish();
-                            } else {
-                                setConsents();
-                            }
-                        }
-                    });
-                });
-        AlertDialog mAlertDialog = alertDialog.create();
-        mAlertDialog.show();
-    }
-
-    private void clearCookies(boolean isPropertyList) {
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeAllCookies(value -> {
-            Log.d(TAG, "Cookies cleared : " + value.toString());
-            if (value) {
-                resetFlag();
-                Bundle data = getIntent().getExtras();
-                Property property = data.getParcelable(Constants.PROPERTY);
-                try {
-                    mConsentLib = buildConsentLib(property, this);
-                    if (Util.isNetworkAvailable(this)) {
-                        showProgressBar();
-                        mConsentLib.run();
-                    } else showAlertDialog(getString(R.string.network_check_message), false);
-                } catch (Exception e) {
-                    showAlertDialog("" + e.toString(), false);
-                    e.printStackTrace();
-                }
-            } else {
-                showAlertDialog(getString(R.string.unable_to_clear_cookies), isPropertyList);
-            }
-        });
-
-    }
-
-    private void resetFlag() {
-        isShow = onConsentReadyCalled = isShowOnceOrError = false;
-        mConsentList.clear();
-        mVendorConsents.clear();
-        mPurposeConsents.clear();
+        setConsents(false);
     }
 }

@@ -20,11 +20,16 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
+import com.sourcepoint.ccpa_cmplibrary.ConsentLibBuilder;
+import com.sourcepoint.ccpa_cmplibrary.UserConsent;
 import com.sourcepointccpa.app.R;
 import com.sourcepointccpa.app.SourcepointApp;
 import com.sourcepointccpa.app.adapters.TargetingParamsAdapter;
@@ -32,7 +37,9 @@ import com.sourcepointccpa.app.common.Constants;
 import com.sourcepointccpa.app.database.entity.TargetingParam;
 import com.sourcepointccpa.app.database.entity.Property;
 import com.sourcepointccpa.app.listeners.RecyclerViewClickListener;
+import com.sourcepointccpa.app.models.Consents;
 import com.sourcepointccpa.app.repository.PropertyListRepository;
+import com.sourcepointccpa.app.utility.Util;
 import com.sourcepointccpa.app.viewmodel.NewPropertyViewModel;
 import com.sourcepointccpa.app.viewmodel.ViewModelUtils;
 
@@ -45,16 +52,141 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
 
     private final String TAG = "NewPropertyActivity";
     private ProgressDialog mProgressDialog;
-    private TextInputEditText mAccountIdET, mPropertyIdET, mPropertyNameET,mPMIdET ,mAuthIdET, mKeyET, mValueET ;
+    private TextInputEditText mAccountIdET, mPropertyIdET, mPropertyNameET, mPMIdET, mAuthIdET, mKeyET, mValueET;
 
-    private TextView mAddParamBtn;
-
-    private SwitchCompat mStagingSwitch , mShowPMSwitch;
+    private SwitchCompat mStagingSwitch;
     private TextView mTitle;
     private AlertDialog mAlertDialog;
     private TargetingParamsAdapter mTargetingParamsAdapter;
     private List<TargetingParam> mTargetingParamList = new ArrayList<>();
     private TextView mAddParamMessage;
+    private boolean onConsentReadyCalled = false;
+
+    private ViewGroup mainViewGroup;
+    private boolean isShow = false;
+    private boolean messageVisible = false;
+    private List<Consents> mVendorConsents = new ArrayList<>();
+    private List<Consents> mPurposeConsents = new ArrayList<>();
+    private ArrayList<Consents> mConsentList = new ArrayList<>();
+    private CCPAConsentLib mCCPAConsentLib;
+
+    private void showMessageWebView(WebView webView) {
+        webView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
+        webView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+        webView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+        webView.bringToFront();
+        webView.requestLayout();
+        messageVisible = true;
+        invalidateOptionsMenu();
+        mainViewGroup.addView(webView);
+    }
+
+    private void removeWebView(WebView webView) {
+        if (webView.getParent() != null)
+            mainViewGroup.removeView(webView);
+        messageVisible = false;
+        invalidateOptionsMenu();
+    }
+
+    private CCPAConsentLib buildConsentLib(Property property, Activity activity) {
+
+        ConsentLibBuilder consentLibBuilder = CCPAConsentLib.newBuilder(property.getAccountID(), property.getProperty(), property.getPropertyID(), property.getPmID(), activity)
+                // optional, used for running stage campaigns
+                .setStage(property.isStaging())
+                .setShowPM(property.isShowPM())
+                //optional message timeout default timeout is 5 seconds
+                .setMessageTimeOut(15000)
+                .setOnConsentUIReady(ccpaConsentLib -> {
+                    hideProgressBar();
+                    getSupportActionBar().hide();
+                    Log.d(TAG, "setOnConsentUIReady");
+                    isShow = true;
+                    showMessageWebView(ccpaConsentLib.webView);
+                })
+                .setOnConsentUIFinished(ccpaConsentLib -> {
+                    removeWebView(ccpaConsentLib.webView);
+                    getSupportActionBar().show();
+                    Log.d(TAG, "setOnConsentUIFinished");
+                })
+                // optional, callback triggered when message choice is selected when called choice
+                // type will be available as Integer at cLib.choiceType
+                .setOnMessageChoiceSelect(ccpaConsentLib -> {
+                    Log.i(TAG, "Choice type selected by user: " + ccpaConsentLib.choiceType.toString());
+                    Log.d(TAG, "setOnMessageChoiceSelect");
+                })
+                // optional, callback triggered when consent data is captured when called
+                .setOnConsentReady(ccpaConsentLib -> {
+                            runOnUiThread(this::showProgressBar);
+                            saveToDatabase(property);
+                            onConsentReadyCalled = true;
+                            UserConsent consent = ccpaConsentLib.userConsent;
+                            getConsentsFromConsentLib(ccpaConsentLib);
+
+                            Log.d(TAG, "setOnInteractionComplete");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!isShow && onConsentReadyCalled) {
+                                        showAlertDialogForMessageShowOnce(getResources().getString(R.string.no_message_matching_scenario), property);
+                                    }else {
+                                        startConsentViewActivity(property);
+                                    }
+                                }
+                            });
+                        }
+                )
+                .setOnError(ccpaConsentLib -> {
+                    hideProgressBar();
+                    Log.d(TAG, "setOnError");
+                    showAlertDialog("" + ccpaConsentLib.error.consentLibErrorMessage);
+                    Log.d(TAG, "Something went wrong: ", ccpaConsentLib.error);
+                });
+
+        //get and set targeting param
+        List<TargetingParam> list = property.getTargetingParamList();//getTargetingParamList(property);
+        for (TargetingParam tps : list) {
+            consentLibBuilder.setTargetingParam(tps.getKey(), tps.getValue());
+            Log.d(TAG, "" + tps.getKey() + " " + tps.getValue());
+        }
+
+        if (!TextUtils.isEmpty(property.getAuthId())) {
+            //consentLibBuilder.setAuthId(property.getAuthId());
+            Log.d(TAG, "AuthID : " + property.getAuthId());
+        } else {
+            Log.d(TAG, "AuthID Not available : " + property.getAuthId());
+        }
+        // generate ConsentLib at this point modifying builder will not do anything
+        return consentLibBuilder.build();
+    }
+
+    private void getConsentsFromConsentLib(CCPAConsentLib ccpaConsentLib) {
+        UserConsent consent = ccpaConsentLib.userConsent;
+        if (consent.status == UserConsent.ConsentStatus.rejectedNone) {
+            Log.i(TAG, "There are no rejected vendors/purposes.");
+        } else if (consent.status == UserConsent.ConsentStatus.rejectedAll) {
+            Log.i(TAG, "All vendors/purposes were rejected.");
+        } else {
+            if (consent.rejectedVendors.size() > 0) {
+                Consents vendorHeader = new Consents("0", "Rejected Vendor Ids", "Header");
+                mVendorConsents.add(vendorHeader);
+                for (String vendorId : consent.rejectedVendors) {
+                    Log.i(TAG, "The vendor " + vendorId + " was rejected.");
+                    Consents vendorConsent = new Consents(vendorId, vendorId, "vendorConsents");
+                    mVendorConsents.add(vendorConsent);
+                }
+            }
+            if (consent.rejectedCategories.size() > 0) {
+                Consents purposeHeader = new Consents("0", "Rejected Purpose Ids", "Header");
+                mPurposeConsents.add(purposeHeader);
+                for (String purposeId : consent.rejectedCategories) {
+                    Log.i(TAG, "The category " + purposeId + " was rejected.");
+                    Consents purposeConsents = new Consents(purposeId, purposeId, "purposeConsents");
+                    mPurposeConsents.add(purposeConsents);
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +197,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         getSupportActionBar().setCustomView(R.layout.tool_bar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mTitle = getSupportActionBar().getCustomView().findViewById(R.id.toolbar_title);
+        mainViewGroup = findViewById(android.R.id.content);
 
         setupUI();
     }
@@ -76,15 +209,11 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         mPMIdET = findViewById(R.id.etPMId);
         mAuthIdET = findViewById(R.id.etAuthID);
         mStagingSwitch = findViewById(R.id.toggleStaging);
-        mShowPMSwitch = findViewById(R.id.toggleShowPM);
         mStagingSwitch.setChecked(false);
-        mShowPMSwitch.setChecked(false);
-
-
 
         mKeyET = findViewById(R.id.etKey);
         mValueET = findViewById(R.id.etValue);
-        mAddParamBtn = findViewById(R.id.btn_addParams);
+        TextView mAddParamBtn = findViewById(R.id.btn_addParams);
         mAddParamBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,8 +246,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
                 mPropertyNameET.setText(property.getProperty());
                 mPMIdET.setText(property.getPmID());
                 mStagingSwitch.setChecked(property.isStaging());
-                mShowPMSwitch.setChecked(property.isShowPM());
-                if (!TextUtils.isEmpty(property.getAuthId())){
+                if (!TextUtils.isEmpty(property.getAuthId())) {
                     mAuthIdET.setText(property.getAuthId());
                 }
                 mTargetingParamList = property.getTargetingParamList();
@@ -147,48 +275,13 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
 
 
         // hides keyboard when touch outside
-        mAccountIdET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
-        mPropertyIdET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
-        mPropertyNameET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
-        mPMIdET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
-        mAuthIdET.setOnFocusChangeListener(new View.OnFocusChangeListener(){
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
-        mKeyET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
-        mValueET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                hideSoftKeyboard(v, hasFocus);
-            }
-        });
+        mAccountIdET.setOnFocusChangeListener(this::hideSoftKeyboard);
+        mPropertyIdET.setOnFocusChangeListener(this::hideSoftKeyboard);
+        mPropertyNameET.setOnFocusChangeListener(this::hideSoftKeyboard);
+        mPMIdET.setOnFocusChangeListener(this::hideSoftKeyboard);
+        mAuthIdET.setOnFocusChangeListener(this::hideSoftKeyboard);
+        mKeyET.setOnFocusChangeListener(this::hideSoftKeyboard);
+        mValueET.setOnFocusChangeListener(this::hideSoftKeyboard);
     }
 
     @Override
@@ -247,9 +340,25 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         mAlertDialog.show();
     }
 
+    private void showAlertDialogForMessageShowOnce(String message, Property property) {
+        if (!(mAlertDialog != null && mAlertDialog.isShowing())) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(NewPropertyActivity.this)
+                    .setMessage(message)
+                    .setCancelable(false)
+                    .setPositiveButton("OK", (dialog, which) -> {
+                                dialog.cancel();
+                                startConsentViewActivity(property);
+                            }
+                    );
+            mAlertDialog = alertDialog.create();
+        }
+        mAlertDialog.show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.new_property, menu);
+        menu.findItem(R.id.action_saveProperty).setEnabled(!messageVisible);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -280,7 +389,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         String pmID = mPMIdET.getText().toString().trim();
         String authId = mAuthIdET.getText().toString().trim();
         boolean isStaging = mStagingSwitch.isChecked();
-        boolean isShowPm = mShowPMSwitch.isChecked();
+        boolean isShowPm = false;
         if (TextUtils.isEmpty(accountID)) {
             return null;
         }
@@ -296,7 +405,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         int account = Integer.parseInt(accountID);
         int property_id = Integer.parseInt(PropertyID);
 
-        return new Property(account, property_id, propertyName, pmID, isStaging, isShowPm, authId ,mTargetingParamList);
+        return new Property(account, property_id, propertyName, pmID, isStaging, isShowPm, authId, mTargetingParamList);
     }
 
     private void loadPropertyWithInput() {
@@ -312,7 +421,14 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
                     showAlertDialog(getResources().getString(R.string.property_details_exists));
                     hideProgressBar();
                 } else {
-                    startConsentViewActivity(property);
+                    mCCPAConsentLib = buildConsentLib(property, this);
+                    if (Util.isNetworkAvailable(this)) {
+                        showProgressBar();
+                        mCCPAConsentLib.run();
+                    } else {
+                        showAlertDialog(getString(R.string.network_check_message));
+                        hideProgressBar();
+                    }
                 }
                 listSize.removeObservers(this);
             });
@@ -377,24 +493,15 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
 
         Intent intent = new Intent(NewPropertyActivity.this, ConsentViewActivity.class);
         intent.putExtra(Constants.PROPERTY, property);
-        Log.d(TAG, "" + property.getId());
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null && bundle.containsKey(Constants.UPDATE)) {
-            intent.putExtra(Constants.UPDATE, bundle.getString(Constants.UPDATE));
-        } else {
-            intent.putExtra(Constants.ADD, Constants.ADD);
-        }
+        intent.putParcelableArrayListExtra(Constants.CONSENTS, mConsentList);
         startActivity(intent);
     }
 
     private RecyclerViewClickListener getRecyclerViewClickListener() {
-        return new RecyclerViewClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                mTargetingParamList.remove(mTargetingParamList.get(position));
-                mTargetingParamsAdapter.notifyDataSetChanged();
-                setAddParamsMessage();
-            }
+        return (view, position) -> {
+            mTargetingParamList.remove(mTargetingParamList.get(position));
+            mTargetingParamsAdapter.notifyDataSetChanged();
+            setAddParamsMessage();
         };
     }
 
@@ -404,5 +511,26 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         } else {
             mAddParamMessage.setVisibility(View.GONE);
         }
+    }
+
+    // method to update or add property to database
+    private void saveToDatabase(Property property) {
+        Bundle bundle = getIntent().getExtras();
+        Log.d(TAG, "saveToDatabase");
+        if (bundle != null && bundle.containsKey("Update")) {
+            if (property != null && bundle.getString("Update") != null)
+                property.setId(Integer.parseInt(bundle.getString("Update")));
+            updateProperty(property);
+        } else {
+            addProperty(property);
+        }
+    }
+
+    private void addProperty(Property property) {
+        viewModel.addProperty(property);
+    }
+
+    private void updateProperty(Property property) {
+        viewModel.updateProperty(property);
     }
 }
