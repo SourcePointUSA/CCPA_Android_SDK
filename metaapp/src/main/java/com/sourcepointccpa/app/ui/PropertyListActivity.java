@@ -36,6 +36,7 @@ import com.sourcepointccpa.app.viewmodel.PropertyListViewModel;
 
 import java.util.List;
 
+// property list activity
 public class PropertyListActivity extends BaseActivity<PropertyListViewModel> {
 
     private final String TAG = "PropertyListActivity";
