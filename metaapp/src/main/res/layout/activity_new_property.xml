@@ -155,7 +155,7 @@
 
         </LinearLayout>
 
-        <LinearLayout
+<!--        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_10"
@@ -180,7 +180,7 @@
                 android:layout_weight="0.3"
                 android:theme="@style/switch.Theme"/>
 
-        </LinearLayout>
+        </LinearLayout>-->
 
         <TextView
             android:id="@+id/tv_targetingParams"
