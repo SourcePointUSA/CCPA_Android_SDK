@@ -302,6 +302,7 @@ public class CCPAConsentLib {
                 try{
                     JSONObject jsonResult = (JSONObject) result;
                     consentUUID = jsonResult.getString("uuid");
+                    metaData = jsonResult.getString("meta");
                     finish();
                 }
                 catch(Exception e){
