@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private GDPRConsentLib buildGDPRConsentLib() {
-        return GDPRConsentLib.newBuilder(378, "vice.android.app", 4073,"5e19063e6468c12231c899a8",this)
+        return GDPRConsentLib.newBuilder(22, "twosdks.demo", 7480,"5e6a80616146a00ea27a9153",this)
                 .setTargetingParam("SDK_TYPE", "GDPR")
                 .setOnConsentUIReady(v -> {
                     showMessageWebView(v);
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private CCPAConsentLib buildCCPAConsentLib() {
-        return CCPAConsentLib.newBuilder(378, "vice.android.app", 4073,"5e19063e6468c12231c899a8",this)
+        return CCPAConsentLib.newBuilder(22, "twosdks.demo", 7480,"5e6a7f997653402334162542",this)
                 .setTargetingParam("SDK_TYPE", "CCPA")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
