@@ -1,3 +1,6 @@
+## 1.1.3 (March, 21, 2020)
+* Fixed message aways being shown despite consent gate config
+
 ## 1.1.2 (January, 29, 2020)
 * Fixed sharedPreferences data clean before saving consent
 
