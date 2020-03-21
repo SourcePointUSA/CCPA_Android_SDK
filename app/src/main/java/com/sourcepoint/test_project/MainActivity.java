@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GDPRConsentLib buildGDPRConsentLib() {
         return GDPRConsentLib.newBuilder(378, "vice.android.app", 4073,"5e19063e6468c12231c899a8",this)
-                .setStagingCampaign(false)
+                .setTargetingParam("SDK_TYPE", "GDPR")
                 .setOnConsentUIReady(v -> {
                     showMessageWebView(v);
                     Log.i(TAG, "onConsentUIReady");
@@ -56,9 +56,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private CCPAConsentLib buildCCPAConsentLib() {
-        return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
-                .setStagingCampaign(false)
-                .setTargetingParam("params", "true")
+        return CCPAConsentLib.newBuilder(378, "vice.android.app", 4073,"5e19063e6468c12231c899a8",this)
+                .setTargetingParam("SDK_TYPE", "CCPA")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         buildCCPAConsentLib().run();
-        //buildGDPRConsentLib().run();
+        buildGDPRConsentLib().run();
     }
 
     @Override
