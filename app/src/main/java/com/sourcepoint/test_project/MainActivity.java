@@ -3,20 +3,19 @@ package com.sourcepoint.test_project;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 
 import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
 import com.sourcepoint.ccpa_cmplibrary.UserConsent;
 import com.sourcepoint.gdpr_cmplibrary.GDPRConsentLib;
-import com.sourcepoint.gdpr_cmplibrary.GDPRUserConsent;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private ViewGroup mainViewGroup;
 
-    private void showMessageWebView(WebView webView) {
+    private void showMessageWebView(View webView) {
         webView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
         webView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
         webView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -24,44 +23,41 @@ public class MainActivity extends AppCompatActivity {
         webView.requestLayout();
         mainViewGroup.addView(webView);
     }
-    private void removeWebView(WebView webView) {
-        if(webView.getParent() != null)
-            mainViewGroup.removeView(webView);
+    private void removeWebView(View view) {
+        if(view != null && view.getParent() != null)
+            mainViewGroup.removeView(view);
     }
 
     private GDPRConsentLib buildGDPRConsentLib() {
-        return GDPRConsentLib.newBuilder(22, "mobile.demo", 2372,"5c0e81b7d74b3c30c6852301",this)
-                .setStagingCampaign(true)
-                .setOnConsentUIReady(consentLib -> {
-                    showMessageWebView(consentLib.webView);
+        return GDPRConsentLib.newBuilder(378, "vice.android.app", 4073,"5e19063e6468c12231c899a8",this)
+                .setTargetingParam("SDK_TYPE", "GDPR")
+                .setOnConsentUIReady(v -> {
+                    showMessageWebView(v);
                     Log.i(TAG, "onConsentUIReady");
                 })
-                .setOnConsentUIFinished(consentLib -> {
-                    removeWebView(consentLib.webView);
+                .setOnConsentUIFinished(v -> {
+                    removeWebView(v);
                     Log.i(TAG, "onConsentUIFinished");
                 })
-                .setOnConsentReady(consentLib -> {
+                .setOnConsentReady(c -> {
                     Log.i(TAG, "onConsentReady");
-                    GDPRUserConsent consent = consentLib.userConsent;
-                    for (String vendorId : consent.acceptedVendors) {
+                    for (String vendorId : c.acceptedVendors) {
                         Log.i(TAG, "The vendor " + vendorId + " was accepted.");
                     }
-                    for (String purposeId : consent.acceptedCategories) {
+                    for (String purposeId : c.acceptedCategories) {
                         Log.i(TAG, "The category " + purposeId + " was accepted.");
                     }
                 })
-                .setOnError(consentLib -> {
-                    Log.e(TAG, "Something went wrong: ", consentLib.error);
-                    Log.i(TAG, "ConsentLibErrorMessage: " + consentLib.error.consentLibErrorMessage);
-                    removeWebView(consentLib.webView);
+                .setOnError(e -> {
+                    Log.e(TAG, "Something went wrong: ", e);
+                    Log.i(TAG, "ConsentLibErrorMessage: " + e.consentLibErrorMessage);
                 })
                 .build();
     }
 
     private CCPAConsentLib buildCCPAConsentLib() {
-        return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
-                .setStagingCampaign(true)
-                .setTargetingParam("params", "true")
+        return CCPAConsentLib.newBuilder(378, "vice.android.app", 4073,"5e19063e6468c12231c899a8",this)
+                .setTargetingParam("SDK_TYPE", "CCPA")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
@@ -106,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         mainViewGroup = findViewById(android.R.id.content);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             buildCCPAConsentLib().showPm();
-            buildGDPRConsentLib().showPm();
+            //buildGDPRConsentLib().showPm();
         });
     }
 }

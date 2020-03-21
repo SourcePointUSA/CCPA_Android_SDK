@@ -94,6 +94,7 @@ class SourcePointClient {
             // cannot send meta without uuid for some mysterious reason
             if(meta != null) params.add("meta=" + meta);
         }
+        Log.i(LOG_TAG, baseMsgUrl + "?" + TextUtils.join("&", params));
         return baseMsgUrl + "?" + TextUtils.join("&", params);
     }
 
@@ -108,7 +109,6 @@ class SourcePointClient {
 
 
     void getMessage(String consentUUID, String meta, CCPAConsentLib.OnLoadComplete onLoadComplete) {
-        //TODO inject real params to messageUrl
         String url = messageUrl(consentUUID, meta);
         http.get(url, new ResponseHandler(url, onLoadComplete) {
             @Override
