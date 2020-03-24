@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 .setOnConsentReady(consentLib -> {
                     Log.i(TAG, "onConsentReady");
                     UserConsent consent = consentLib.userConsent;
-                    if(consent.status == UserConsent.ConsentStatus.rejectedNone){
+                    if(consent.status == UserConsent.ConsentStatus.rejectedNone || consent.status == UserConsent.ConsentStatus.consentedAll){
                         Log.i(TAG, "There are no rejected vendors/purposes.");
                     } else if(consent.status == UserConsent.ConsentStatus.rejectedAll){
                         Log.i(TAG, "All vendors/purposes were rejected.");
