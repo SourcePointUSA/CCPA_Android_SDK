@@ -202,7 +202,7 @@ public class CCPAConsentLib {
 
     private void onMsgAccepted() throws UnsupportedEncodingException, JSONException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedNone);
-        sendConsent(ActionTypes.PM_COMPLETE);
+        sendConsent(ActionTypes.MSG_ACCEPT);
     }
 
     private void onDismiss(){
