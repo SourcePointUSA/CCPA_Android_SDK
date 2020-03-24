@@ -13,7 +13,7 @@ To use `ccpa_cmplibrary` in your app, include `com.sourcepoint.ccpa_cmplibrary:c
 ```
 ...
 dependencies {
-    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.1.3'
+    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.1.4'
 }
 ```
 
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                     UserConsent consent = consentLib.userConsent;
                     if(consent.status == UserConsent.ConsentStatus.rejectedNone){
                         Log.i(TAG, "There are no rejected vendors/purposes.");
-                    } else if(consent.status == UserConsent.ConsentStatus.rejectedAll){
+                    } else if(consent.status == UserConsent.ConsentStatus.rejectedNone || consent.status == UserConsent.ConsentStatus.consentedAll){
                         Log.i(TAG, "All vendors/purposes were rejected.");
                     } else {
                         for (String vendorId : consent.rejectedVendors) {
