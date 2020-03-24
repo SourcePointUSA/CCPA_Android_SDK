@@ -11,7 +11,8 @@ public class UserConsent {
     public enum ConsentStatus {
         rejectedAll,
         rejectedSome,
-        rejectedNone
+        rejectedNone,
+        consentedAll,
     }
 
     public ConsentStatus status;
@@ -26,7 +27,6 @@ public class UserConsent {
         if(this.rejectedVendors.isEmpty() && this.rejectedCategories.isEmpty())
             this.status = ConsentStatus.rejectedNone;
         setJsonConsents();
-
     }
 
     public UserConsent(JSONObject jConsent) throws JSONException, ConsentLibException {
@@ -61,6 +61,7 @@ public class UserConsent {
         if(statusName.equals(ConsentStatus.rejectedAll.name())) return ConsentStatus.rejectedAll;
         if(statusName.equals(ConsentStatus.rejectedNone.name())) return ConsentStatus.rejectedNone;
         if(statusName.equals(ConsentStatus.rejectedSome.name())) return ConsentStatus.rejectedSome;
+        if(statusName.equals(ConsentStatus.consentedAll.name())) return ConsentStatus.consentedAll;
         throw new ConsentLibException("ConsentStatus string not valid.");
     }
 }
