@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         buildCCPAConsentLib().run();
-        buildGDPRConsentLib().run();
+        //buildGDPRConsentLib().run();
     }
 
     @Override
