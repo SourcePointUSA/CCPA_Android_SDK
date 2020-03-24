@@ -201,7 +201,7 @@ public class CCPAConsentLib {
     }
 
     private void onMsgAccepted() throws UnsupportedEncodingException, JSONException {
-        userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedNone);
+        userConsent = new UserConsent(UserConsent.ConsentStatus.consentedAll);
         sendConsent(ActionTypes.MSG_ACCEPT);
     }
 
@@ -301,6 +301,7 @@ public class CCPAConsentLib {
             public void onSuccess(Object result) {
                 try{
                     JSONObject jsonResult = (JSONObject) result;
+                    userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
                     consentUUID = jsonResult.getString("uuid");
                     metaData = jsonResult.getString("meta");
                     finish();
