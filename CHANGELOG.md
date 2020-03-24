@@ -1,3 +1,6 @@
+## 1.1.4 (March, 24, 2020)
+* UserConsent.ConsentStatus.consentedAll added: this allow to use acceptedAll actions on consent messages
+
 ## 1.1.3 (March, 21, 2020)
 * Fixed message aways being shown despite consent gate config
 
