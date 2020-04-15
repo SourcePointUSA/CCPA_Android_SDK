@@ -11,7 +11,7 @@ import com.sourcepoint.ccpa_cmplibrary.UserConsent;
 import com.sourcepoint.gdpr_cmplibrary.GDPRConsentLib;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "**MainActivity";
 
     private ViewGroup mainViewGroup;
 
@@ -28,36 +28,8 @@ public class MainActivity extends AppCompatActivity {
             mainViewGroup.removeView(view);
     }
 
-    private GDPRConsentLib buildGDPRConsentLib() {
-        return GDPRConsentLib.newBuilder(22, "twosdks.demo", 7480,"5e6a80616146a00ea27a9153",this)
-                .setTargetingParam("SDK_TYPE", "GDPR")
-                .setOnConsentUIReady(v -> {
-                    showMessageWebView(v);
-                    Log.i(TAG, "onConsentUIReady");
-                })
-                .setOnConsentUIFinished(v -> {
-                    removeWebView(v);
-                    Log.i(TAG, "onConsentUIFinished");
-                })
-                .setOnConsentReady(c -> {
-                    Log.i(TAG, "onConsentReady");
-                    for (String vendorId : c.acceptedVendors) {
-                        Log.i(TAG, "The vendor " + vendorId + " was accepted.");
-                    }
-                    for (String purposeId : c.acceptedCategories) {
-                        Log.i(TAG, "The category " + purposeId + " was accepted.");
-                    }
-                })
-                .setOnError(e -> {
-                    Log.e(TAG, "Something went wrong: ", e);
-                    Log.i(TAG, "ConsentLibErrorMessage: " + e.consentLibErrorMessage);
-                })
-                .build();
-    }
-
     private CCPAConsentLib buildCCPAConsentLib() {
-        return CCPAConsentLib.newBuilder(22, "twosdks.demo", 7480,"5e6a7f997653402334162542",this)
-                .setTargetingParam("SDK_TYPE", "CCPA")
+        return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
