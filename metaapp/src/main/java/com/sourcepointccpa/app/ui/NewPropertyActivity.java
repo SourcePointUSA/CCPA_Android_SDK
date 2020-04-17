@@ -161,7 +161,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
 
     private void getConsentsFromConsentLib(CCPAConsentLib ccpaConsentLib) {
         UserConsent consent = ccpaConsentLib.userConsent;
-        if (consent.status == UserConsent.ConsentStatus.rejectedNone) {
+        if (consent.status == UserConsent.ConsentStatus.consentedAll || consent.status == UserConsent.ConsentStatus.rejectedNone) {
             Log.i(TAG, "There are no rejected vendors/purposes.");
         } else if (consent.status == UserConsent.ConsentStatus.rejectedAll) {
             Log.i(TAG, "All vendors/purposes were rejected.");

@@ -94,7 +94,6 @@ class SourcePointClient {
             // cannot send meta without uuid for some mysterious reason
             if(meta != null) params.add("meta=" + meta);
         }
-        Log.i(LOG_TAG, baseMsgUrl + "?" + TextUtils.join("&", params));
         return baseMsgUrl + "?" + TextUtils.join("&", params);
     }
 
@@ -110,9 +109,11 @@ class SourcePointClient {
 
     void getMessage(String consentUUID, String meta, CCPAConsentLib.OnLoadComplete onLoadComplete) {
         String url = messageUrl(consentUUID, meta);
+        Log.i(LOG_TAG, "sending get-msgUrl request to: " + url);
         http.get(url, new ResponseHandler(url, onLoadComplete) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.i(LOG_TAG, response.toString());
                 onLoadComplete.onSuccess(response);
             }
 
@@ -132,11 +133,14 @@ class SourcePointClient {
 
     void sendConsent(int  actionType, JSONObject params, CCPAConsentLib.OnLoadComplete onLoadComplete) throws UnsupportedEncodingException, JSONException {
         String url = consentUrl(actionType);
+        Log.i(LOG_TAG, "sending consent to: " + url);
         params.put("requestUUID", getRequestUUID());
+        Log.i(LOG_TAG, params.toString());
         StringEntity entity = new StringEntity(params.toString());
         http.post(null, url, entity, "application/json",  new ResponseHandler(url, onLoadComplete) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.i(LOG_TAG, response.toString());
                 onLoadComplete.onSuccess(response);
             }
 

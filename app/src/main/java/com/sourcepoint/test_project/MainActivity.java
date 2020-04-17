@@ -10,10 +10,17 @@ import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
 import com.sourcepoint.ccpa_cmplibrary.UserConsent;
 import com.sourcepoint.gdpr_cmplibrary.GDPRConsentLib;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Scanner;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "**MainActivity";
 
     private ViewGroup mainViewGroup;
+
+    private PropertyConfig config;
 
     private void showMessageWebView(View webView) {
         webView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
@@ -29,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private CCPAConsentLib buildCCPAConsentLib() {
-        return CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 6099,"5df9105bcf42027ce707bb43",this)
+        return CCPAConsentLib.newBuilder(config.accountId, config.propertyName, config.propertyId, config.pmId,this)
+                .setTargetingParam("SDK_TYPE","CCPA")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
@@ -72,9 +80,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainViewGroup = findViewById(android.R.id.content);
+        config = getConfig(R.raw.vice_timiout_test);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             buildCCPAConsentLib().showPm();
             //buildGDPRConsentLib().showPm();
         });
+    }
+
+    private PropertyConfig getConfig(int configResource){
+        PropertyConfig config = null;
+        try {
+            config = new PropertyConfig(new JSONObject(new Scanner(getResources().openRawResource(configResource)).useDelimiter("\\A").next()));
+        } catch (JSONException e) {
+            Log.e(TAG, "Unable to parse config file.", e);
+        }
+        return config;
     }
 }
