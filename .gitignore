@@ -4,6 +4,7 @@
 .DS_Store
 /build
 /captures
+app/src/main/res/raw/ignore_*
 .externalNativeBuild
 .idea
 .idea/*
