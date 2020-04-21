@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainViewGroup = findViewById(android.R.id.content);
-        config = getConfig(R.raw.vice_timiout_test);
+        config = getConfig(R.raw.ccpa_mobile_demo);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             buildCCPAConsentLib().showPm();
             //buildGDPRConsentLib().showPm();
