@@ -375,10 +375,10 @@ public class CCPAConsentLib {
         cancelCounter();
         runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
-        resetCallBacks();
+        resetCallbacks();
     }
 
-    private void resetCallBacks(){
+    private void resetCallbacks(){
         onAction = onError = onConsentUIFinished = onConsentReady = onConsentUIReady = c -> {};
     }
 
