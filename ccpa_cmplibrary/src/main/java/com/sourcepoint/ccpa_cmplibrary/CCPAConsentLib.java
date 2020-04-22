@@ -66,8 +66,9 @@ public class CCPAConsentLib {
     private final String property;
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
-    private final Callback onAction, onConsentReady, onError;
+    private Callback onAction, onConsentReady, onError;
     private Callback onConsentUIReady, onConsentUIFinished;
+
     private final boolean weOwnTheView, isShowPM;
 
     //default time out changes
@@ -120,6 +121,7 @@ public class CCPAConsentLib {
         isShowPM = b.isShowPM;
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
+
         onError = b.onError;
         onConsentUIReady = b.onConsentUIReady;
         onConsentUIFinished = b.onConsentUIFinished;
@@ -147,7 +149,7 @@ public class CCPAConsentLib {
             public void onMessageReady() {
                 Log.d("msgReady", "called");
                 if (mCountDownTimer != null) mCountDownTimer.cancel();
-                if(!onMessageReadyCalled && !hasErrorOccurred()) {
+                if(!onMessageReadyCalled) {
                     runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIReady.run(CCPAConsentLib.this));
                     onMessageReadyCalled = true;
                 }
@@ -373,6 +375,11 @@ public class CCPAConsentLib {
         cancelCounter();
         runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
+        resetCallBacks();
+    }
+
+    private void resetCallBacks(){
+        onAction = onError = onConsentUIFinished = onConsentReady = onConsentUIReady = c -> {};
     }
 
     private void cancelCounter(){
