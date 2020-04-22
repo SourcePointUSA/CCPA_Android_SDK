@@ -147,7 +147,7 @@ public class CCPAConsentLib {
             public void onMessageReady() {
                 Log.d("msgReady", "called");
                 if (mCountDownTimer != null) mCountDownTimer.cancel();
-                if(!onMessageReadyCalled) {
+                if(!onMessageReadyCalled && !hasErrorOccurred()) {
                     runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIReady.run(CCPAConsentLib.this));
                     onMessageReadyCalled = true;
                 }
@@ -278,9 +278,12 @@ public class CCPAConsentLib {
             @Override
             public void onFailure(ConsentLibException e) {
                 onErrorTask(e);
-
             }
         });
+    }
+
+    private boolean hasErrorOccurred(){
+        return error != null;
     }
 
     private JSONObject paramsToSendConsent() throws JSONException {
@@ -325,8 +328,7 @@ public class CCPAConsentLib {
             @Override
             public void onFinish() {
                 if (!onMessageReadyCalled) {
-                    onConsentUIReady = null;
-                    webView.onError(new ConsentLibException("a timeout has occurred when loading the message"));
+                    onErrorTask(new ConsentLibException("a timeout has occurred when loading the message"));
                 }
             }
         };
