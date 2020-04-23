@@ -66,8 +66,9 @@ public class CCPAConsentLib {
     private final String property;
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
-    private final Callback onAction, onConsentReady, onError;
+    private Callback onAction, onConsentReady, onError;
     private Callback onConsentUIReady, onConsentUIFinished;
+
     private final boolean weOwnTheView, isShowPM;
 
     //default time out changes
@@ -120,6 +121,7 @@ public class CCPAConsentLib {
         isShowPM = b.isShowPM;
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
+
         onError = b.onError;
         onConsentUIReady = b.onConsentUIReady;
         onConsentUIFinished = b.onConsentUIFinished;
@@ -278,9 +280,12 @@ public class CCPAConsentLib {
             @Override
             public void onFailure(ConsentLibException e) {
                 onErrorTask(e);
-
             }
         });
+    }
+
+    private boolean hasErrorOccurred(){
+        return error != null;
     }
 
     private JSONObject paramsToSendConsent() throws JSONException {
@@ -325,8 +330,7 @@ public class CCPAConsentLib {
             @Override
             public void onFinish() {
                 if (!onMessageReadyCalled) {
-                    onConsentUIReady = null;
-                    webView.onError(new ConsentLibException("a timeout has occurred when loading the message"));
+                    onErrorTask(new ConsentLibException("a timeout has occurred when loading the message"));
                 }
             }
         };
@@ -371,6 +375,11 @@ public class CCPAConsentLib {
         cancelCounter();
         runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
+        resetCallbacks();
+    }
+
+    private void resetCallbacks(){
+        onAction = onError = onConsentUIFinished = onConsentReady = onConsentUIReady = c -> {};
     }
 
     private void cancelCounter(){
