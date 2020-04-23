@@ -1,3 +1,6 @@
+## 1.1.5 (April, 23, 2020)
+* concurrency crash on timeout error fixed
+
 ## 1.1.4 (March, 24, 2020)
 * UserConsent.ConsentStatus.consentedAll added: this allow to use acceptedAll actions on consent messages
 
