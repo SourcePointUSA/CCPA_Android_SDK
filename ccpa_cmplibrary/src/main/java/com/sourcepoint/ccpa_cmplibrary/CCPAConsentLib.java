@@ -263,7 +263,18 @@ public class CCPAConsentLib {
                     metaData = jsonResult.getString("meta");
                     userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
                     if(jsonResult.has("url")){
-                        webView.loadConsentMsgFromUrl(jsonResult.getString("url"));
+                        String messageUrl = jsonResult.getString("url");
+                        runOnLiveActivityUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    webView.loadConsentMsgFromUrl(messageUrl);
+                                } catch (ConsentLibException.NoInternetConnectionException e) {
+                                    e.printStackTrace();
+                                    onErrorTask(e);
+                                }
+                            }
+                        });
                     }else{
                         finish();
                     }

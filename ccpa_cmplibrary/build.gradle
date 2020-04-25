@@ -42,7 +42,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api 'com.google.guava:guava:27.0.1-android'
-    implementation 'com.loopj.android:android-async-http:1.4.9'
+    //okhttp
+    implementation("com.squareup.okhttp3:okhttp:3.12.10")
 
     //junit
     testImplementation 'junit:junit:4.12'
