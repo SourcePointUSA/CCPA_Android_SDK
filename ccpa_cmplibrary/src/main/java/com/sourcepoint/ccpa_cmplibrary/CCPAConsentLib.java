@@ -2,6 +2,7 @@ package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -31,6 +33,10 @@ public class CCPAConsentLib {
 
     @SuppressWarnings("WeakerAccess")
     public static final String META_DATA_KEY = "sp.ccpa.metaData";
+    public static final String AUTH_ID_KEY = "sp.ccpa.authId";
+
+    private  final StoreClient storeClient;
+
     private final String pmId;
 
     private final String PM_BASE_URL = "https://ccpa-inapp-pm.sp-prod.net";
@@ -78,8 +84,6 @@ public class CCPAConsentLib {
     private CountDownTimer mCountDownTimer = null;
 
     private final SourcePointClient sourcePoint;
-
-    private final SharedPreferences sharedPref;
 
     @SuppressWarnings("WeakerAccess")
     public ConsentWebView webView;
@@ -131,15 +135,34 @@ public class CCPAConsentLib {
         // configurable time out
         defaultMessageTimeOut = b.defaultMessageTimeOut;
 
-        sourcePoint = new SourcePointClient(b.accountId, b.property + "/" + b.page, propertyId, b.stagingCampaign, b.targetingParamsString);
+        storeClient = new StoreClient(PreferenceManager.getDefaultSharedPreferences(activity));
+        sourcePoint = new SourcePointClient(b.accountId, b.property + "/" + b.page, propertyId, b.stagingCampaign, b.targetingParamsString, b.authId);
 
-        // read consent from/store consent to default shared preferences
-        // per gdpr framework: https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/852cf086fdac6d89097fdec7c948e14a2121ca0e/In-App%20Reference/Android/app/src/main/java/com/smaato/soma/cmpconsenttooldemoapp/cmpconsenttool/storage/CMPStorage.java
-        //sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(activity);
-        consentUUID = sharedPref.getString(CONSENT_UUID_KEY, UUID.randomUUID().toString());
-        metaData = sharedPref.getString(META_DATA_KEY, "{}");
         webView = buildWebView();
+
+        setConsentData(b.authId);
+    }
+
+    void setConsentData(String newAuthId){
+
+        if(didAuthIdChange(newAuthId)) storeClient.clearAllData();
+
+        metaData = storeClient.getMetaData();
+
+        consentUUID = storeClient.getConsentUUID();
+
+        storeClient.setAuthId(newAuthId);
+    }
+
+    private boolean didAuthIdChange(String newAuthId){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return !Objects.equals(newAuthId, storeClient.getAuthId());
+        }
+        //TODO: remove this code when we migrate to api > 19
+        String storedAuthId = storeClient.getAuthId();
+        if(newAuthId == null && storedAuthId == null) return false;
+        else if (newAuthId != null && newAuthId.equals(storeClient.getAuthId())) return false;
+        return true;
     }
 
     private ConsentWebView buildWebView() {
@@ -387,12 +410,9 @@ public class CCPAConsentLib {
     }
 
 
-    private void storeData(){
-        //Log.i("uuid", consentUUID);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        if(consentUUID != null) editor.putString(CONSENT_UUID_KEY, consentUUID);
-        if(metaData != null) editor.putString(META_DATA_KEY, metaData);
-        editor.commit();
+    void storeData(){
+        storeClient.setConsentUuid(consentUUID);
+        storeClient.setMetaData(metaData);
     }
 
     private void finish() {
