@@ -57,6 +57,19 @@ public class ConsentLibBuilder {
         return this;
     }
 
+    /**
+     *  <b>Optional</b> Sets the authId for consent data.
+     * @param authId - a string representing authId, e.g "/some_user_UUID"
+     * @return ConsentLibBuilder - the next build step
+     * @see ConsentLibBuilder
+     */
+    public ConsentLibBuilder setAuthId(String authId) {
+        this.authId = authId;
+        return this;
+    }
+
+
+
     // TODO: add what are the possible choices returned to the Callback
     /**
      *  <b>Optional</b> Sets the Callback to be called when the user selects an option on the WebView.
