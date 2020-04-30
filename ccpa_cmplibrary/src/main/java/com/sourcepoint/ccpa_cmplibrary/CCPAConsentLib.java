@@ -1,7 +1,6 @@
 package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -16,7 +15,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
@@ -30,10 +28,6 @@ public class CCPAConsentLib {
 
     @SuppressWarnings("WeakerAccess")
     public static final String CONSENT_UUID_KEY = "sp.ccpa.consentUUID";
-
-    @SuppressWarnings("WeakerAccess")
-    public static final String META_DATA_KEY = "sp.ccpa.metaData";
-    public static final String AUTH_ID_KEY = "sp.ccpa.authId";
 
     private  final StoreClient storeClient;
 
@@ -145,7 +139,7 @@ public class CCPAConsentLib {
 
     void setConsentData(String newAuthId){
 
-        if(didAuthIdChange(newAuthId)) storeClient.clearAllData();
+        if(didConsentUserChange(newAuthId, storeClient.getAuthId())) storeClient.clearAllData();
 
         metaData = storeClient.getMetaData();
 
@@ -154,15 +148,8 @@ public class CCPAConsentLib {
         storeClient.setAuthId(newAuthId);
     }
 
-    private boolean didAuthIdChange(String newAuthId){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return !Objects.equals(newAuthId, storeClient.getAuthId());
-        }
-        //TODO: remove this code when we migrate to api > 19
-        String storedAuthId = storeClient.getAuthId();
-        if(newAuthId == null && storedAuthId == null) return false;
-        else if (newAuthId != null && newAuthId.equals(storeClient.getAuthId())) return false;
-        return true;
+    private boolean didConsentUserChange(String newAuthId, String oldAuthId){
+        return oldAuthId != null && newAuthId != null && !newAuthId.equals(oldAuthId);
     }
 
     private ConsentWebView buildWebView() {

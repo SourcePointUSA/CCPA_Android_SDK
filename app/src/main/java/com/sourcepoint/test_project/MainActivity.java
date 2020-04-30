@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CCPAConsentLib buildCCPAConsentLib() {
         return CCPAConsentLib.newBuilder(config.accountId, config.propertyName, config.propertyId, config.pmId,this)
+                .setAuthId("releasetest-0001")
                 .setTargetingParam("SDK_TYPE","CCPA")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
