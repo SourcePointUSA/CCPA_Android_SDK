@@ -33,6 +33,7 @@ class SourcePointClient {
     private int propertyId;
     private Boolean isStagingCampaign;
     private String requestUUID = "";
+    private String authId;
 
     private String getRequestUUID(){
         if(!requestUUID.isEmpty()) return requestUUID;
@@ -70,13 +71,15 @@ class SourcePointClient {
             String property,
             int propertyId,
             boolean isStagingCampaign,
-            String targetingParams
+            String targetingParams,
+            String authID
     ) {
         this.isStagingCampaign = isStagingCampaign;
         this.accountId = accountID;
         this.propertyId = propertyId;
         this.property = property;
         this.targetingParams = targetingParams;
+        this.authId = authID;
     }
 
     //TODO: extract url from user params
@@ -89,6 +92,7 @@ class SourcePointClient {
         params.add("alwaysDisplayDNS=" + "false");
         params.add("targetingParams=" + targetingParams);
         params.add("campaignEnv=" + (isStagingCampaign ? "stage" : "prod"));
+        if(authId != null) params.add("authId=" + authId);
         if(consentUUID != null) {
             params.add("uuid=" + consentUUID);
             // cannot send meta without uuid for some mysterious reason
