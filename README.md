@@ -13,7 +13,7 @@ To use `ccpa_cmplibrary` in your app, include `com.sourcepoint.ccpa_cmplibrary:c
 ```
 ...
 dependencies {
-    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.1.5'
+    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.2.0'
 }
 ```
 
@@ -87,6 +87,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
+```
+
+## Authenticated Consent
+
+In order to use the authenticated consent all you need to do is calling `.setAuthId(String)` in the instance of `ConsentLibBuilder`. Example: 
+
+```java
+CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 2372,"5c0e81b7d74b3c30c6852301",this)
+    // calling other .set methods
+    .setAuthId("JohnDoe")
+    .build();
 ```
 
 # Docs
