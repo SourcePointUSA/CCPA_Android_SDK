@@ -1,3 +1,6 @@
+## 1.2.0 (April, 30, 2020)
+* Authenticated consent flow implemented 🗝️
+
 ## 1.1.5 (April, 23, 2020)
 * concurrency crash on timeout error fixed
 
