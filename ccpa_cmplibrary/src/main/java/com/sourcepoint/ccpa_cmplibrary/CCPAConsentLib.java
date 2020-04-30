@@ -1,7 +1,6 @@
 package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -14,7 +13,6 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
-import java.util.Objects;
 
 /**
  * Entry point class encapsulating the Consents a giving user has given to one or several vendors.
