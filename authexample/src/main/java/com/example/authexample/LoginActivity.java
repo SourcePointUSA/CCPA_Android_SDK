@@ -16,8 +16,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.sourcepoint.ccpa_cmplibrary.Consent;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -31,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     ConsentManager consentManager;
 
     ArrayList<String> loadingData() {
-        return new ArrayList<>(Arrays.asList("consentUUID: loading..."));
+        return new ArrayList<>(Arrays.asList("consentUUID: loading...", "euconsent: loading..."));
     }
 
     @Override
@@ -41,9 +44,10 @@ public class LoginActivity extends AppCompatActivity {
 
         consentManager = new ConsentManager(this) {
             @Override
-            void onConsentsReady(ArrayList<String> consentDataList) {
+            void onConsentsReady(HashSet<Consent> consents, String consentUUID, String euconsent) {
                 consentListViewData.clear();
-                consentListViewData.addAll(consentDataList);
+                consentListViewData.add("consentUUID: "+consentUUID);
+                consentListViewData.add("euconsent: "+euconsent);
                 consentListViewAdapter.notifyDataSetChanged();
             }
         };
