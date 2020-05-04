@@ -283,6 +283,12 @@ abstract public class ConsentWebView extends WebView {
                 onError(new ConsentLibException(message));
                 return false;
             }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                loadLinkOnExternalBrowser(url);
+                return true;
+            }
         });
         setWebChromeClient(new WebChromeClient() {
             @Override
@@ -304,6 +310,11 @@ abstract public class ConsentWebView extends WebView {
         });
         addJavascriptInterface(new MessageInterface(), "JSReceiver");
         resumeTimers();
+    }
+
+    private void loadLinkOnExternalBrowser(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW , Uri.parse(url));
+        this.getContext().startActivity(intent);
     }
 
     boolean hasLostInternetConnection() {
