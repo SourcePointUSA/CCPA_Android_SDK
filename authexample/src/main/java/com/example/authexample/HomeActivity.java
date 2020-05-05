@@ -1,8 +1,8 @@
 package com.example.authexample;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -12,10 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.sourcepoint.ccpa_cmplibrary.Consent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -31,7 +29,7 @@ public class HomeActivity extends AppCompatActivity {
     ArrayList<String> consentListViewData = loadingData();
 
     ArrayList<String> loadingData() {
-        return new ArrayList<>(Arrays.asList("consentUUID: loading...", "euconsent: loading..."));
+        return new ArrayList<>(Arrays.asList("consentUUID: loading..."));
     }
 
     @Override
@@ -57,17 +55,17 @@ public class HomeActivity extends AppCompatActivity {
 
         consentListView.setAdapter(consentListViewAdapter);
 
-        consentManager = new ConsentManager(this) {
+        consentManager = new ConsentManager(this , findViewById(android.R.id.content)) {
             @Override
-            void onConsentsReady(HashSet<Consent> consents, String consentUUID, String euconsent) {
+            void onConsentsReady(ArrayList<String> consents, String consentUUID) {
                 consentListViewData.clear();
                 consentListViewData.add("consentUUID: "+consentUUID);
-                consentListViewData.add("euconsent: "+euconsent);
+                consentListViewData.addAll(consents);
                 consentListViewAdapter.notifyDataSetChanged();
             }
         };
 
-        consentManager.loadMessage(false, userName);
+        consentManager.loadMessage();
     }
 
     @Override
@@ -81,7 +79,7 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_privacy_settings) {
             Log.d("App", "onOptionsItemSelected: " + item.getItemId());
-            consentManager.loadMessage(true, userName);
+            consentManager.loadMessage(userName);
             return true;
         }
 
