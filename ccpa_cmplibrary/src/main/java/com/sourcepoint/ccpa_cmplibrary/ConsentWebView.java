@@ -233,6 +233,7 @@ abstract public class ConsentWebView extends WebView {
         getSettings().setJavaScriptEnabled(true);
         getSettings().setSupportMultipleWindows(true);
         getSettings().setDomStorageEnabled(true);
+        this.requestFocus();
         setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -294,10 +295,12 @@ abstract public class ConsentWebView extends WebView {
         });
         setOnKeyListener((view, keyCode, event) -> {
             WebView webView = (WebView) view;
-            if (event.getAction() == KeyEvent.ACTION_DOWN &&
-                    KeyEvent.KEYCODE_BACK == keyCode &&
-                    webView.canGoBack()) {
-                webView.goBack();
+            if (event.getAction() == KeyEvent.ACTION_DOWN && KeyEvent.KEYCODE_BACK == keyCode ) {
+                  if( webView.canGoBack()) {
+                      webView.goBack();
+                  }else {
+                      ConsentWebView.this.onAction(CCPAConsentLib.ActionTypes.DISMISS);
+                  }
                 return true;
             }
             return false;
