@@ -3,9 +3,6 @@ package com.sourcepoint.ccpa_cmplibrary;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -98,12 +95,7 @@ class SourcePointClient {
                 if (response.isSuccessful()){
                     String messageJson = response.body().string();
                     Log.i(LOG_TAG , messageJson);
-                    try {
-                        onLoadComplete.onSuccess(new JSONObject(messageJson));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        onLoadComplete.onFailure( new ConsentLibException(e, "Error while converting string to josn : "+e.getMessage()));
-                    }
+                    onLoadComplete.onSuccess(messageJson);
                 }else {
                     Log.d(LOG_TAG, "Failed to load resource " + url + " due to " + response.code() + ": " + response.message());
                     onLoadComplete.onFailure(new ConsentLibException(response.message()));
@@ -138,12 +130,7 @@ class SourcePointClient {
                 if (response.isSuccessful()){
                     String messageJson = response.body().string();
                     Log.i(LOG_TAG , messageJson);
-                    try {
-                        onLoadComplete.onSuccess(new JSONObject(messageJson));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        onLoadComplete.onFailure( new ConsentLibException(e, "Error while converting string to josn : "+e.getMessage()));
-                    }
+                    onLoadComplete.onSuccess(messageJson);
                 }else {
                     Log.d(LOG_TAG, "Failed to load resource " + url + " due to " + response.code() + ": " + response.message());
                     onLoadComplete.onFailure(new ConsentLibException(response.message()));
