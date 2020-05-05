@@ -252,29 +252,29 @@ public class CCPAConsentLib {
         webView.loadUrl(pmUrl());
     }
 
+    private void loadConsentUI(String url){
+        runOnLiveActivityUIThread(() -> {
+            try {
+                webView.loadConsentMsgFromUrl(url);
+            } catch (ConsentLibException.NoInternetConnectionException e) {
+                e.printStackTrace();
+                onErrorTask(e);
+            }
+        });
+    }
+
     private void renderMsgAndSaveConsent() {
         if(webView == null) { webView = buildWebView(); }
         sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
             @Override
             public void onSuccess(Object result) {
                 try{
-                    JSONObject jsonResult = (JSONObject) result;
+                    JSONObject jsonResult = new JSONObject((String) result);
                     consentUUID = jsonResult.getString("uuid");
                     metaData = jsonResult.getString("meta");
                     userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
                     if(jsonResult.has("url")){
-                        String messageUrl = jsonResult.getString("url");
-                        runOnLiveActivityUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    webView.loadConsentMsgFromUrl(messageUrl);
-                                } catch (ConsentLibException.NoInternetConnectionException e) {
-                                    e.printStackTrace();
-                                    onErrorTask(e);
-                                }
-                            }
-                        });
+                        loadConsentUI(jsonResult.getString("url"));
                     }else{
                         finish();
                     }
@@ -316,7 +316,7 @@ public class CCPAConsentLib {
             @Override
             public void onSuccess(Object result) {
                 try{
-                    JSONObject jsonResult = (JSONObject) result;
+                    JSONObject jsonResult = new JSONObject((String) result);
                     userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
                     consentUUID = jsonResult.getString("uuid");
                     metaData = jsonResult.getString("meta");
