@@ -245,6 +245,11 @@ abstract public class ConsentWebView extends WebView {
                 };
                 Handler myHandler = new Handler(Looper.myLooper());
                 myHandler.postDelayed(run, timeoutMillisec);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.evaluateJavascript("javascript:" + getJSInjection(), null);
+                }else {
+                    view.loadUrl("javascript:" + getJSInjection());
+                }
             }
 
             @Override
@@ -252,8 +257,6 @@ abstract public class ConsentWebView extends WebView {
                 super.onPageFinished(view, url);
                 flushOrSyncCookies();
                 connectionPool.remove(url);
-                //view.loadUrl("javascript:" + "addEventListener('message', SDK.onEvent('oie'))");
-                view.loadUrl("javascript:" + getJSInjection());
             }
 
             @Override
@@ -287,7 +290,7 @@ abstract public class ConsentWebView extends WebView {
         });
         setWebChromeClient(new WebChromeClient() {
             @Override
-            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, android.os.Message resultMsg) {
+            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, Message resultMsg) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getLinkUrl(view.getHitTestResult())));
                 view.getContext().startActivity(browserIntent);
                 return false;

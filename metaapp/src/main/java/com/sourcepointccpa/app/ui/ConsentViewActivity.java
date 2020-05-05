@@ -86,11 +86,13 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
                 .setShowPM(property.isShowPM())
                 .setMessageTimeOut(15000)
                 .setOnConsentUIReady(ccpaConsentLib -> {
+                    getSupportActionBar().hide();
                     hideProgressBar();
                     Log.d(TAG, "setOnConsentUIReady");
                     showMessageWebView(ccpaConsentLib.webView);
                 })
                 .setOnConsentUIFinished(ccpaConsentLib -> {
+                    getSupportActionBar().show();
                     removeWebView(ccpaConsentLib.webView);
                     Log.d(TAG, "setOnConsentUIFinished");
                 })
@@ -213,6 +215,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
 
         switch (item.getItemId()) {
             case R.id.action_showPM:
+                getSupportActionBar().hide();
                 buildAndShowConsentLibPM();
                 break;
             case android.R.id.home:
@@ -234,7 +237,6 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     private void buildAndShowConsentLibPM() {
         Bundle data = getIntent().getExtras();
         Property property = data.getParcelable(Constants.PROPERTY);
-        mConsentLib.destroy();
 
         mConsentLib = buildConsentLib(property, this);
         if (Util.isNetworkAvailable(this)) {
