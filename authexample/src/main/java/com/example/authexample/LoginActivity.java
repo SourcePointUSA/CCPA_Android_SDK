@@ -1,8 +1,8 @@
 package com.example.authexample;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,11 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.sourcepoint.ccpa_cmplibrary.Consent;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -34,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     ConsentManager consentManager;
 
     ArrayList<String> loadingData() {
-        return new ArrayList<>(Arrays.asList("consentUUID: loading...", "euconsent: loading..."));
+        return new ArrayList<>(Arrays.asList("consentUUID: loading..."));
     }
 
     @Override
@@ -42,12 +39,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        consentManager = new ConsentManager(this) {
+        consentManager = new ConsentManager(this , findViewById(android.R.id.content)) {
             @Override
-            void onConsentsReady(HashSet<Consent> consents, String consentUUID, String euconsent) {
+            void onConsentsReady(ArrayList<String> consents, String consentUUID) {
                 consentListViewData.clear();
                 consentListViewData.add("consentUUID: "+consentUUID);
-                consentListViewData.add("euconsent: "+euconsent);
+                consentListViewData.addAll(consents);
                 consentListViewAdapter.notifyDataSetChanged();
             }
         };
@@ -78,13 +75,13 @@ public class LoginActivity extends AppCompatActivity {
 
         consentListView.setAdapter(consentListViewAdapter);
 
-        consentManager.loadMessage(false);
+        consentManager.loadMessage();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        consentManager.loadMessage(false);
+        consentManager.loadMessage();
     }
 
     @Override
@@ -98,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_privacy_settings) {
             Log.d("App", "onOptionsItemSelected: " + item.getItemId());
-            consentManager.loadMessage(true);
+            consentManager.loadMessage("");
             return true;
         }
 
