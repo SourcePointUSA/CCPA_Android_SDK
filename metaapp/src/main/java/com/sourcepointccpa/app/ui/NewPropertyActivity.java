@@ -150,7 +150,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         }
 
         if (!TextUtils.isEmpty(property.getAuthId())) {
-            //consentLibBuilder.setAuthId(property.getAuthId());
+            consentLibBuilder.setAuthId(property.getAuthId());
             Log.d(TAG, "AuthID : " + property.getAuthId());
         } else {
             Log.d(TAG, "AuthID Not available : " + property.getAuthId());
