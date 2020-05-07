@@ -129,7 +129,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         }
 
         if (!TextUtils.isEmpty(property.getAuthId())) {
-            //consentLibBuilder.setAuthId(property.getAuthId());
+            consentLibBuilder.setAuthId(property.getAuthId());
             Log.d(TAG, "AuthID : " + property.getAuthId());
             Log.d(TAG, "AuthID : " + "feature not available for ccpa currently");
         } else {
