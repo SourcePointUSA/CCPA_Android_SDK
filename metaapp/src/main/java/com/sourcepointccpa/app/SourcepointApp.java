@@ -1,11 +1,11 @@
 package com.sourcepointccpa.app;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.sourcepointccpa.app.database.AppDataBase;
 import com.sourcepointccpa.app.repository.PropertyListRepository;
 
-public class SourcepointApp extends Application {
+public class SourcepointApp extends MultiDexApplication {
 
     private AppExecutors mAppExecutors;
 
