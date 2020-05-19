@@ -210,12 +210,14 @@ public class CCPAConsentLib {
                     onErrorTask(e);
                 } catch (JSONException e) {
                     onErrorTask(e);
+                }catch (ConsentLibException e){
+                    onError(e);
                 }
             }
         };
     }
 
-    private void onMsgAccepted() throws UnsupportedEncodingException, JSONException {
+    private void onMsgAccepted() throws UnsupportedEncodingException, JSONException, ConsentLibException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.consentedAll);
         sendConsent(ActionTypes.MSG_ACCEPT);
     }
@@ -230,12 +232,12 @@ public class CCPAConsentLib {
         });
     }
 
-    private void onMsgRejected() throws UnsupportedEncodingException, JSONException {
+    private void onMsgRejected() throws UnsupportedEncodingException, JSONException, ConsentLibException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedAll);
         sendConsent(ActionTypes.MSG_REJECT);
     }
 
-    private void onShowPm(){
+    private void onShowPm() throws ConsentLibException{
         loadConsentUI(pmUrl());
     }
 
@@ -257,10 +259,14 @@ public class CCPAConsentLib {
     }
 
     public void showPm() {
-        loadConsentUI(pmUrl());
+        try {
+            loadConsentUI(pmUrl());
+        } catch (ConsentLibException e) {
+            onErrorTask(e);
+        }
     }
 
-    private void loadConsentUI(String url){
+    private void loadConsentUI(String url)throws ConsentLibException{
         if (!hasLostInternetConnection()) {
             runOnLiveActivityUIThread(() -> {
                 if (webView == null) {
@@ -269,11 +275,11 @@ public class CCPAConsentLib {
                 webView.loadConsentMsgFromUrl(url);
             });
         }else {
-            onErrorTask(new ConsentLibException.NoInternetConnectionException());
+            throw new ConsentLibException.NoInternetConnectionException();
         }
     }
 
-    private void renderMsgAndSaveConsent() {
+    private void renderMsgAndSaveConsent() throws ConsentLibException {
         if (!hasLostInternetConnection()) {
             sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
                 @Override
@@ -303,7 +309,7 @@ public class CCPAConsentLib {
                 }
             });
         }else {
-            onErrorTask(new ConsentLibException.NoInternetConnectionException());
+            throw new ConsentLibException.NoInternetConnectionException();
         }
     }
 
@@ -319,7 +325,7 @@ public class CCPAConsentLib {
         return params;
     }
 
-    private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException {
+    private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException, ConsentLibException {
         if (!hasLostInternetConnection()) {
             sourcePoint.sendConsent(actionType, paramsToSendConsent(), new OnLoadComplete() {
                 @Override
@@ -341,7 +347,7 @@ public class CCPAConsentLib {
                 }
             });
         }else {
-            onErrorTask(new ConsentLibException.NoInternetConnectionException());
+            throw new ConsentLibException.NoInternetConnectionException();
         }
     }
 
