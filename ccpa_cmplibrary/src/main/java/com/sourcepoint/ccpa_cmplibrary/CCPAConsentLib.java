@@ -412,14 +412,14 @@ public class CCPAConsentLib {
         storeClient.setMetaData(metaData);
     }
 
-    private boolean hasParent(View v) {
+    private boolean isViewPresented(View v) {
         return v != null && v.getParent() != null;
     }
 
     private void finish() {
         storeData();
         Log.i("uuid", consentUUID);
-        if(hasParent(webView)) runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
+        if(isViewPresented(webView)) runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
             if(userConsent != null) onConsentReady.run(CCPAConsentLib.this);
