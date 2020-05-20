@@ -5,6 +5,7 @@ import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 
 
@@ -411,10 +412,14 @@ public class CCPAConsentLib {
         storeClient.setMetaData(metaData);
     }
 
+    private boolean isViewPresented(View v) {
+        return v != null && v.getParent() != null;
+    }
+
     private void finish() {
         storeData();
         Log.i("uuid", consentUUID);
-        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
+        if(isViewPresented(webView)) runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
         runOnLiveActivityUIThread(() -> {
             removeWebViewIfNeeded();
             if(userConsent != null) onConsentReady.run(CCPAConsentLib.this);
