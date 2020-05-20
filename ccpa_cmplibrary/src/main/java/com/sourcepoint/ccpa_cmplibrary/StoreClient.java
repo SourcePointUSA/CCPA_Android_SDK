@@ -2,6 +2,8 @@ package com.sourcepoint.ccpa_cmplibrary;
 
 import android.content.SharedPreferences;
 
+import org.json.JSONObject;
+
 public class StoreClient {
 
     /**
@@ -12,6 +14,8 @@ public class StoreClient {
     public static final String META_DATA_KEY = "sp.ccpa.metaData";
 
     public static final String AUTH_ID_KEY = "sp.ccpa.authId";
+
+    public static final String USER_CONSENT_KEY = "sp.ccpa.userConsent";
 
     private SharedPreferences.Editor editor;
 
@@ -43,6 +47,11 @@ public class StoreClient {
         editor.commit();
     }
 
+    public void setUserConsents(UserConsent userConsent) {
+        editor.putString(USER_CONSENT_KEY, userConsent.getJsonConsents().toString());
+        editor.commit();
+    }
+
     public String getMetaData() {
         return pref.getString(META_DATA_KEY, DEFAULT_META_DATA);
     }
@@ -53,6 +62,15 @@ public class StoreClient {
 
     public String getAuthId() {
         return pref.getString(AUTH_ID_KEY, DEFAULT_AUTH_ID);
+    }
+
+    public UserConsent getUserConsent() throws ConsentLibException {
+        try {
+            String uStr = pref.getString(USER_CONSENT_KEY, null);
+            return uStr != null ? new UserConsent(new JSONObject(uStr)) : new UserConsent();
+        } catch (Exception e) {
+            throw new ConsentLibException(e, "Error trying to recover UserConsents for sharedPrefs");
+        }
     }
 
     public void clearAllData(){

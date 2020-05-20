@@ -16,9 +16,14 @@ public class UserConsent {
     }
 
     public ConsentStatus status;
-    public ArrayList<String> rejectedVendors = new ArrayList();
-    public ArrayList<String> rejectedCategories = new ArrayList();
+    public ArrayList<String> rejectedVendors ;
+    public ArrayList<String> rejectedCategories;
     public JSONObject jsonConsents = new JSONObject();
+
+    public UserConsent(){
+        this.rejectedVendors = new ArrayList();
+        this.rejectedCategories = new ArrayList();
+    }
 
     public UserConsent(JSONArray rejectedVendors, JSONArray rejectedCategories) throws JSONException {
         this.status = ConsentStatus.rejectedSome;
@@ -33,12 +38,16 @@ public class UserConsent {
         status = statusFromStr(jConsent.getString("status"));
         this.rejectedVendors = json2StrArr(jConsent.getJSONArray("rejectedVendors"));
         this.rejectedCategories = json2StrArr(jConsent.getJSONArray("rejectedCategories"));
-        setJsonConsents();
+        jsonConsents = jConsent;
     }
 
     public UserConsent(ConsentStatus status) throws JSONException {
         this.status = status;
         setJsonConsents();
+    }
+
+    public JSONObject getJsonConsents(){
+        return jsonConsents;
     }
 
     private ArrayList<String> json2StrArr(JSONArray jArray) throws JSONException {
