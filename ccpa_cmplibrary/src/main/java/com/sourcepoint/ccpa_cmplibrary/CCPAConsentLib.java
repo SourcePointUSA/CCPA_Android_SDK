@@ -267,20 +267,21 @@ public class CCPAConsentLib {
     }
 
     private void loadConsentUI(String url)throws ConsentLibException{
-        if (!hasLostInternetConnection()) {
+        if (hasLostInternetConnection())
+            throw new ConsentLibException.NoInternetConnectionException();
+
             runOnLiveActivityUIThread(() -> {
                 if (webView == null) {
                     webView = buildWebView();
                 }
                 webView.loadConsentMsgFromUrl(url);
             });
-        }else {
-            throw new ConsentLibException.NoInternetConnectionException();
-        }
     }
 
     private void renderMsgAndSaveConsent() throws ConsentLibException {
-        if (!hasLostInternetConnection()) {
+        if (hasLostInternetConnection())
+            throw new ConsentLibException.NoInternetConnectionException();
+
             sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
                 @Override
                 public void onSuccess(Object result) {
@@ -308,9 +309,6 @@ public class CCPAConsentLib {
                     onErrorTask(e);
                 }
             });
-        }else {
-            throw new ConsentLibException.NoInternetConnectionException();
-        }
     }
 
     private JSONObject paramsToSendConsent() throws JSONException {
@@ -326,7 +324,9 @@ public class CCPAConsentLib {
     }
 
     private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException, ConsentLibException {
-        if (!hasLostInternetConnection()) {
+        if (hasLostInternetConnection())
+            throw new ConsentLibException.NoInternetConnectionException();
+
             sourcePoint.sendConsent(actionType, paramsToSendConsent(), new OnLoadComplete() {
                 @Override
                 public void onSuccess(Object result) {
@@ -346,9 +346,6 @@ public class CCPAConsentLib {
                     onErrorTask(e);
                 }
             });
-        }else {
-            throw new ConsentLibException.NoInternetConnectionException();
-        }
     }
 
     boolean hasLostInternetConnection() {
