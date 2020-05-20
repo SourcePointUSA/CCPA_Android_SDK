@@ -1,6 +1,9 @@
 package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -167,7 +170,9 @@ public class CCPAConsentLib {
 
             @Override
             public void onError(ConsentLibException e) {
-                onErrorTask(e);
+                ConsentLibException exception = hasLostInternetConnection() ?
+                        new ConsentLibException.NoInternetConnectionException() : e;
+                onErrorTask(exception);
             }
 
             @Override
@@ -206,12 +211,14 @@ public class CCPAConsentLib {
                     onErrorTask(e);
                 } catch (JSONException e) {
                     onErrorTask(e);
+                }catch (ConsentLibException e){
+                    onError(e);
                 }
             }
         };
     }
 
-    private void onMsgAccepted() throws UnsupportedEncodingException, JSONException {
+    private void onMsgAccepted() throws UnsupportedEncodingException, JSONException, ConsentLibException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.consentedAll);
         sendConsent(ActionTypes.MSG_ACCEPT);
     }
@@ -226,18 +233,13 @@ public class CCPAConsentLib {
         });
     }
 
-    private void onMsgRejected() throws UnsupportedEncodingException, JSONException {
+    private void onMsgRejected() throws UnsupportedEncodingException, JSONException, ConsentLibException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedAll);
         sendConsent(ActionTypes.MSG_REJECT);
     }
 
-    private void onShowPm(){
-        webView.post(new Runnable() {
-            @Override
-            public void run() {
-                webView.loadUrl(pmUrl());
-            }
-        });
+    private void onShowPm() throws ConsentLibException{
+        loadConsentUI(pmUrl());
     }
 
     /**
@@ -258,54 +260,56 @@ public class CCPAConsentLib {
     }
 
     public void showPm() {
-        webView.loadUrl(pmUrl());
+        try {
+            loadConsentUI(pmUrl());
+        } catch (ConsentLibException e) {
+            onErrorTask(e);
+        }
     }
 
-    private void loadConsentUI(String url){
-        runOnLiveActivityUIThread(() -> {
-            try {
+    private void loadConsentUI(String url)throws ConsentLibException{
+        if (hasLostInternetConnection())
+            throw new ConsentLibException.NoInternetConnectionException();
+
+            runOnLiveActivityUIThread(() -> {
+                if (webView == null) {
+                    webView = buildWebView();
+                }
                 webView.loadConsentMsgFromUrl(url);
-            } catch (ConsentLibException.NoInternetConnectionException e) {
-                e.printStackTrace();
-                onErrorTask(e);
-            }
-        });
+            });
     }
 
-    private void renderMsgAndSaveConsent() {
-        if(webView == null) { webView = buildWebView(); }
-        sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
-            @Override
-            public void onSuccess(Object result) {
-                try{
-                    JSONObject jsonResult = new JSONObject((String) result);
-                    consentUUID = jsonResult.getString("uuid");
-                    metaData = jsonResult.getString("meta");
-                    userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
-                    if(jsonResult.has("url")){
-                        loadConsentUI(jsonResult.getString("url"));
-                    }else{
-                        finish();
+    private void renderMsgAndSaveConsent() throws ConsentLibException {
+        if (hasLostInternetConnection())
+            throw new ConsentLibException.NoInternetConnectionException();
+
+            sourcePoint.getMessage(consentUUID, metaData, new OnLoadComplete() {
+                @Override
+                public void onSuccess(Object result) {
+                    try {
+                        JSONObject jsonResult = new JSONObject((String) result);
+                        consentUUID = jsonResult.getString("uuid");
+                        metaData = jsonResult.getString("meta");
+                        userConsent = new UserConsent(jsonResult.getJSONObject("userConsent"));
+                        if (jsonResult.has("url")) {
+                            loadConsentUI(jsonResult.getString("url"));
+                        } else {
+                            finish();
+                        }
+                    }
+                    //TODO call onFailure callbacks / throw consentlibException
+                    catch (JSONException e) {
+                        onErrorTask(e);
+                    } catch (ConsentLibException e) {
+                        onErrorTask(e);
                     }
                 }
-                //TODO call onFailure callbacks / throw consentlibException
-                catch(JSONException e){
+
+                @Override
+                public void onFailure(ConsentLibException e) {
                     onErrorTask(e);
                 }
-                catch(ConsentLibException e){
-                    onErrorTask(e);
-                }
-            }
-
-            @Override
-            public void onFailure(ConsentLibException e) {
-                onErrorTask(e);
-            }
-        });
-    }
-
-    private boolean hasErrorOccurred(){
-        return error != null;
+            });
     }
 
     private JSONObject paramsToSendConsent() throws JSONException {
@@ -320,27 +324,40 @@ public class CCPAConsentLib {
         return params;
     }
 
-    private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException {
-        sourcePoint.sendConsent(actionType, paramsToSendConsent(), new OnLoadComplete() {
-            @Override
-            public void onSuccess(Object result) {
-                try{
-                    JSONObject jsonResult = new JSONObject((String) result);
-                    userConsent = new  UserConsent(jsonResult.getJSONObject("userConsent"));
-                    consentUUID = jsonResult.getString("uuid");
-                    metaData = jsonResult.getString("meta");
-                    finish();
+    private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException, ConsentLibException {
+        if (hasLostInternetConnection())
+            throw new ConsentLibException.NoInternetConnectionException();
+
+            sourcePoint.sendConsent(actionType, paramsToSendConsent(), new OnLoadComplete() {
+                @Override
+                public void onSuccess(Object result) {
+                    try {
+                        JSONObject jsonResult = new JSONObject((String) result);
+                        userConsent = new UserConsent(jsonResult.getJSONObject("userConsent"));
+                        consentUUID = jsonResult.getString("uuid");
+                        metaData = jsonResult.getString("meta");
+                        finish();
+                    } catch (Exception e) {
+                        onErrorTask(e);
+                    }
                 }
-                catch(Exception e){
+
+                @Override
+                public void onFailure(ConsentLibException e) {
                     onErrorTask(e);
                 }
-            }
+            });
+    }
 
-            @Override
-            public void onFailure(ConsentLibException e) {
-                onErrorTask(e);
-            }
-        });
+    boolean hasLostInternetConnection() {
+        ConnectivityManager manager = (ConnectivityManager) activity
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (manager == null) {
+            return true;
+        }
+
+        NetworkInfo activeNetwork = manager.getActiveNetworkInfo();
+        return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
     }
 
     private CountDownTimer getTimer(long defaultMessageTimeOut) {
@@ -393,9 +410,11 @@ public class CCPAConsentLib {
     private void onErrorTask(Exception e){
         this.error = new ConsentLibException(e);
         cancelCounter();
-        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this));
-        runOnLiveActivityUIThread(() -> CCPAConsentLib.this.onError.run(CCPAConsentLib.this));
-        resetCallbacks();
+        runOnLiveActivityUIThread(() -> {
+            CCPAConsentLib.this.onConsentUIFinished.run(CCPAConsentLib.this);
+            CCPAConsentLib.this.onError.run(CCPAConsentLib.this);
+            resetCallbacks();
+        });
     }
 
     private void resetCallbacks(){

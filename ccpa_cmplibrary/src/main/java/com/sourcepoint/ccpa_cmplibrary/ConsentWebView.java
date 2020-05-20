@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -117,9 +115,6 @@ abstract public class ConsentWebView extends WebView {
         @JavascriptInterface
         public void onAction(int choiceType) {
             Log.d("onAction", "called");
-            if (ConsentWebView.this.hasLostInternetConnection()) {
-                ConsentWebView.this.onError(new ConsentLibException.NoInternetConnectionException());
-            }
             ConsentWebView.this.onAction(choiceType);
         }
 
@@ -127,9 +122,6 @@ abstract public class ConsentWebView extends WebView {
         @JavascriptInterface
         public void onSavePM(String payloadStr) throws JSONException {
             Log.d("onSavePM", "called");
-            if (ConsentWebView.this.hasLostInternetConnection()) {
-                ConsentWebView.this.onError(new ConsentLibException.NoInternetConnectionException());
-            }
             JSONObject payloadJson = new JSONObject(payloadStr);
             ConsentWebView.this.onSavePM(
                     new UserConsent(
@@ -141,11 +133,8 @@ abstract public class ConsentWebView extends WebView {
 
         //called when an error is occured while loading web-view
         @JavascriptInterface
-        public void onError(String errorType) {
-            ConsentLibException error = ConsentWebView.this.hasLostInternetConnection() ?
-                    new ConsentLibException.NoInternetConnectionException() :
-                    new ConsentLibException("Something went wrong in the javascript world.");
-            ConsentWebView.this.onError(error);
+        public void onError(String errorType) {                               ;
+            ConsentWebView.this.onError(new ConsentLibException("Something went wrong in the javascript world."));
         }
         // xhr logger
         @JavascriptInterface
@@ -323,17 +312,6 @@ abstract public class ConsentWebView extends WebView {
         this.getContext().startActivity(intent);
     }
 
-    boolean hasLostInternetConnection() {
-        ConnectivityManager manager = (ConnectivityManager) getContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (manager == null) {
-            return true;
-        }
-
-        NetworkInfo activeNetwork = manager.getActiveNetworkInfo();
-        return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
-    }
-
     private void flushOrSyncCookies() {
         // forces the cookies sync between RAM and local storage
         // https://developer.android.com/reference/android/webkit/CookieSyncManager
@@ -357,9 +335,7 @@ abstract public class ConsentWebView extends WebView {
     abstract public void onSavePM(UserConsent userConsent);
 
 
-    public void loadConsentMsgFromUrl(String url) throws ConsentLibException.NoInternetConnectionException {
-        if (hasLostInternetConnection())
-            throw new ConsentLibException.NoInternetConnectionException();
+    public void loadConsentMsgFromUrl(String url) {
 
         // On API level >= 21, the JavascriptInterface is not injected on the page until the *second* page load
         // so we need to issue blank load with loadData
@@ -368,22 +344,6 @@ abstract public class ConsentWebView extends WebView {
         Log.d(TAG, "User-Agent: " + getSettings().getUserAgentString());
         loadUrl(url);
     }
-
-    private String pmUrl() {
-        return pmBaseUrl;
-    }
-
-    public boolean goBackIfPossible() {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (canGoBack()) goBack();
-            }
-        });
-        return canGoBack();
-    }
-
-
 
     public void display() {
         setLayoutParams(new ViewGroup.LayoutParams(0, 0));
