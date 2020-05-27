@@ -20,9 +20,13 @@ public class UserConsent {
     public ArrayList<String> rejectedCategories;
     public JSONObject jsonConsents = new JSONObject();
 
-    public UserConsent(){
+    public UserConsent() throws JSONException{
         this.rejectedVendors = new ArrayList();
         this.rejectedCategories = new ArrayList();
+        this.status = ConsentStatus.rejectedNone;
+        jsonConsents.put("rejectedVendors", new JSONArray(this.rejectedVendors));
+        jsonConsents.put("rejectedCategories", new JSONArray(this.rejectedCategories));
+        jsonConsents.put("status", this.status.name());
     }
 
     public UserConsent(JSONArray rejectedVendors, JSONArray rejectedCategories) throws JSONException {

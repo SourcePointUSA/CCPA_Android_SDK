@@ -145,7 +145,7 @@ public class CCPAConsentLib {
 
         storeClient.setAuthId(newAuthId);
         try {
-            storeClient.getUserConsent();
+           userConsent =  storeClient.getUserConsent();
         } catch (ConsentLibException e) {
             onErrorTask(e);
         }
