@@ -148,6 +148,11 @@ public class CCPAConsentLib {
         consentUUID = storeClient.getConsentUUID();
 
         storeClient.setAuthId(newAuthId);
+        try {
+           userConsent =  storeClient.getUserConsent();
+        } catch (ConsentLibException e) {
+            onErrorTask(e);
+        }
     }
 
     private boolean didConsentUserChange(String newAuthId, String oldAuthId){
@@ -429,6 +434,7 @@ public class CCPAConsentLib {
     void storeData(){
         storeClient.setConsentUuid(consentUUID);
         storeClient.setMetaData(metaData);
+        storeClient.setUserConsents(userConsent);
     }
 
     private boolean isViewPresented(View v) {
