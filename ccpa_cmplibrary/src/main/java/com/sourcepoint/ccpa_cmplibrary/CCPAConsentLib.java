@@ -50,6 +50,8 @@ public class CCPAConsentLib {
     }
 
     public String consentUUID;
+    public Boolean ccpaApplies;
+
 
     /**
      * After the user has chosen an option in the WebView, this attribute will contain an integer
@@ -147,7 +149,10 @@ public class CCPAConsentLib {
 
         consentUUID = storeClient.getConsentUUID();
 
+        ccpaApplies = storeClient.getCcpaApplies();
+
         storeClient.setAuthId(newAuthId);
+
         try {
            userConsent =  storeClient.getUserConsent();
         } catch (ConsentLibException e) {
@@ -295,6 +300,7 @@ public class CCPAConsentLib {
                         JSONObject jsonResult = new JSONObject((String) result);
                         consentUUID = jsonResult.getString("uuid");
                         metaData = jsonResult.getString("meta");
+                        ccpaApplies = jsonResult.getBoolean("ccpaApplies");
                         userConsent = new UserConsent(jsonResult.getJSONObject("userConsent"));
                         if (jsonResult.has("url")) {
                             loadConsentUI(jsonResult.getString("url"));
@@ -338,6 +344,7 @@ public class CCPAConsentLib {
                 public void onSuccess(Object result) {
                     try {
                         JSONObject jsonResult = new JSONObject((String) result);
+                        ccpaApplies = jsonResult.getBoolean("ccpaApplies");
                         userConsent = new UserConsent(jsonResult.getJSONObject("userConsent"));
                         consentUUID = jsonResult.getString("uuid");
                         metaData = jsonResult.getString("meta");
@@ -435,6 +442,8 @@ public class CCPAConsentLib {
         storeClient.setConsentUuid(consentUUID);
         storeClient.setMetaData(metaData);
         storeClient.setUserConsents(userConsent);
+        storeClient.setCcpaApplies(ccpaApplies);
+        storeClient.setConsentString(userConsent.consentString);
     }
 
     private boolean isViewPresented(View v) {
