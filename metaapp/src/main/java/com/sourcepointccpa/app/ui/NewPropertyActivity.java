@@ -60,10 +60,8 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
     private TargetingParamsAdapter mTargetingParamsAdapter;
     private List<TargetingParam> mTargetingParamList = new ArrayList<>();
     private TextView mAddParamMessage;
-    private boolean onConsentReadyCalled = false;
 
     private ViewGroup mainViewGroup;
-    private boolean isShow = false;
     private boolean messageVisible = false;
     private List<Consents> mVendorConsents = new ArrayList<>();
     private List<Consents> mPurposeConsents = new ArrayList<>();
@@ -93,14 +91,12 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
         ConsentLibBuilder consentLibBuilder = CCPAConsentLib.newBuilder(property.getAccountID(), property.getProperty(), property.getPropertyID(), property.getPmID(), activity)
                 // optional, used for running stage campaigns
                 .setStage(property.isStaging())
-                //.setShowPM(property.isShowPM())
                 //optional message timeout default timeout is 5 seconds
-                .setMessageTimeOut(15000)
+                .setMessageTimeOut(30000)
                 .setOnConsentUIReady(ccpaConsentLib -> {
                     hideProgressBar();
                     getSupportActionBar().hide();
                     Log.d(TAG, "setOnConsentUIReady");
-                    isShow = true;
                     showMessageWebView(ccpaConsentLib.webView);
                 })
                 .setOnConsentUIFinished(ccpaConsentLib -> {
@@ -116,25 +112,12 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
                 })
                 // optional, callback triggered when consent data is captured when called
                 .setOnConsentReady(ccpaConsentLib -> {
-                            runOnUiThread(this::showProgressBar);
-                            saveToDatabase(property);
-                            onConsentReadyCalled = true;
-                            UserConsent consent = ccpaConsentLib.userConsent;
-                            getConsentsFromConsentLib(ccpaConsentLib);
-
-                            Log.d(TAG, "setOnInteractionComplete");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!isShow && onConsentReadyCalled) {
-                                        showAlertDialogForMessageShowOnce(getResources().getString(R.string.no_message_matching_scenario), property);
-                                    }else {
-                                        startConsentViewActivity(property);
-                                    }
-                                }
-                            });
-                        }
-                )
+                    runOnUiThread(this::showProgressBar);
+                    saveToDatabase(property);
+                    getConsentsFromConsentLib(ccpaConsentLib);
+                    Log.d(TAG, "setOnError");
+                    runOnUiThread(() -> { startConsentViewActivity(property); });
+                })
                 .setOnError(ccpaConsentLib -> {
                     hideProgressBar();
                     Log.d(TAG, "setOnError");
@@ -334,21 +317,6 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
                     .setMessage(message)
                     .setCancelable(false)
                     .setPositiveButton("OK", (dialog, which) -> dialog.cancel()
-                    );
-            mAlertDialog = alertDialog.create();
-        }
-        mAlertDialog.show();
-    }
-
-    private void showAlertDialogForMessageShowOnce(String message, Property property) {
-        if (!(mAlertDialog != null && mAlertDialog.isShowing())) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(NewPropertyActivity.this)
-                    .setMessage(message)
-                    .setCancelable(false)
-                    .setPositiveButton("OK", (dialog, which) -> {
-                                dialog.cancel();
-                                startConsentViewActivity(property);
-                            }
                     );
             mAlertDialog = alertDialog.create();
         }
