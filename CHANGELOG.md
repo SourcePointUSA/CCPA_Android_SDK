@@ -1,3 +1,7 @@
+## 1.3.0 (June, 12, 2020)
+* Store the IABUSPrivacy_String as spec'ed by the CCPA IAB
+* ccpaApplies public attribute added to CCPAConsentLib class
+
 ## 1.2.0 (April, 30, 2020)
 * Authenticated consent flow implemented 🗝️
 
