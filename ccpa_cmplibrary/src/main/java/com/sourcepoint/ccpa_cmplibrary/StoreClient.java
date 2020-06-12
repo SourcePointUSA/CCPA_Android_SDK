@@ -16,16 +16,22 @@ public class StoreClient {
     public static final String AUTH_ID_KEY = "sp.ccpa.authId";
 
     public static final String USER_CONSENT_KEY = "sp.ccpa.userConsent";
+    public static final String IABUSPrivacy_String_KEY = "IABUSPrivacy_String";
+    public static final String CCPA_APPLIES_KEY = "sp.ccpa.ccpaApplies";
 
     private SharedPreferences.Editor editor;
 
     private SharedPreferences pref;
 
-    public static final String DEFAULT_EMPTY_CONSENT_STRING = "";
+    public static final String DEFAULT_EMPTY_CONSENT_STRING = "1---";
 
     public static final String DEFAULT_META_DATA = "{}";
 
     public static final String DEFAULT_AUTH_ID = null;
+
+    public static final String DEFAULT_EMPTY_UUID = "";
+    public static final Boolean DEFAULT_CCPA_APPLIES = false;
+
 
     StoreClient(SharedPreferences pref){
         this.editor = pref.edit();
@@ -42,7 +48,17 @@ public class StoreClient {
         editor.commit();
     }
 
-    public void setAuthId(String authId){
+    public void setConsentString(String consentString){
+        editor.putString(IABUSPrivacy_String_KEY, consentString);
+        editor.commit();
+    }
+
+    public void setCcpaApplies(Boolean ccpaApplies){
+        editor.putBoolean(CCPA_APPLIES_KEY, ccpaApplies);
+        editor.commit();
+    }
+
+    public void setAuthId(String authId) {
         editor.putString(AUTH_ID_KEY, authId);
         editor.commit();
     }
@@ -56,8 +72,16 @@ public class StoreClient {
         return pref.getString(META_DATA_KEY, DEFAULT_META_DATA);
     }
 
+    public String getConsentString() {
+        return pref.getString(IABUSPrivacy_String_KEY, DEFAULT_EMPTY_CONSENT_STRING);
+    }
+
+    public Boolean getCcpaApplies() {
+        return pref.getBoolean(CCPA_APPLIES_KEY, DEFAULT_CCPA_APPLIES);
+    }
+
     public String getConsentUUID() {
-        return pref.getString(CONSENT_UUID_KEY, "");
+        return pref.getString(CONSENT_UUID_KEY, DEFAULT_EMPTY_UUID);
     }
 
     public String getAuthId() {
@@ -73,11 +97,11 @@ public class StoreClient {
         }
     }
 
-    public void clearAllData(){
+    public void clearAllData() {
         clearInternalData();
     }
 
-    public void clearInternalData(){
+    public void clearInternalData() {
         editor.remove(CONSENT_UUID_KEY);
         editor.remove(META_DATA_KEY);
         editor.remove(AUTH_ID_KEY);

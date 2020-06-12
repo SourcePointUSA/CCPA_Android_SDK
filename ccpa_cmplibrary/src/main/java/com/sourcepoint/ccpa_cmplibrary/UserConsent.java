@@ -15,12 +15,13 @@ public class UserConsent {
         consentedAll,
     }
 
+    public String consentString = StoreClient.DEFAULT_EMPTY_CONSENT_STRING;
     public ConsentStatus status;
     public ArrayList<String> rejectedVendors ;
     public ArrayList<String> rejectedCategories;
     public JSONObject jsonConsents = new JSONObject();
 
-    public UserConsent() throws JSONException{
+    public UserConsent() throws JSONException {
         this.rejectedVendors = new ArrayList();
         this.rejectedCategories = new ArrayList();
         this.status = ConsentStatus.rejectedNone;
@@ -40,6 +41,7 @@ public class UserConsent {
 
     public UserConsent(JSONObject jConsent) throws JSONException, ConsentLibException {
         status = statusFromStr(jConsent.getString("status"));
+        consentString = jConsent.getString("uspstring");
         this.rejectedVendors = json2StrArr(jConsent.getJSONArray("rejectedVendors"));
         this.rejectedCategories = json2StrArr(jConsent.getJSONArray("rejectedCategories"));
         jsonConsents = jConsent;
@@ -65,6 +67,7 @@ public class UserConsent {
     }
 
     private void setJsonConsents() throws JSONException {
+        jsonConsents.put("uspstring", consentString);
         jsonConsents.put("status", status.name());
         jsonConsents.put("rejectedVendors", new JSONArray(rejectedVendors));
         jsonConsents.put("rejectedCategories", new JSONArray(rejectedCategories));
@@ -76,5 +79,9 @@ public class UserConsent {
         if(statusName.equals(ConsentStatus.rejectedSome.name())) return ConsentStatus.rejectedSome;
         if(statusName.equals(ConsentStatus.consentedAll.name())) return ConsentStatus.consentedAll;
         throw new ConsentLibException("ConsentStatus string not valid.");
+    }
+
+    public void setConsentString(String consentString){
+        this.consentString = consentString;
     }
 }
