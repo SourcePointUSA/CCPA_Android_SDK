@@ -82,10 +82,9 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     private CCPAConsentLib buildConsentLib(Property property, Activity activity) {
 
         ConsentLibBuilder consentLibBuilder = CCPAConsentLib.newBuilder(property.getAccountID(), property.getProperty(), property.getPropertyID(), property.getPmID(), activity)
-                // optional, used for running stage campaigns
                 .setStage(property.isStaging())
                 .setShowPM(property.isShowPM())
-                .setMessageTimeOut(30000)
+                .setMessageTimeOut(Constants.TIME_OUT)
                 .setOnConsentUIReady(ccpaConsentLib -> {
                     getSupportActionBar().hide();
                     hideProgressBar();
