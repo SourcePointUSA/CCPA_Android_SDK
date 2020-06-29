@@ -1,6 +1,8 @@
 package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -66,6 +68,11 @@ public class ConsentLibBuilder {
     public ConsentLibBuilder setAuthId(String authId) {
         this.authId = authId;
         return this;
+    }
+
+    public ConnectivityManager getConnectivityMenager(){
+        return (ConnectivityManager) activity
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
 
