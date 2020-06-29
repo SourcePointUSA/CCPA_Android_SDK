@@ -1,7 +1,6 @@
 package com.sourcepoint.ccpa_cmplibrary;
 
 import android.app.Activity;
-import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.CountDownTimer;
@@ -83,6 +82,8 @@ public class CCPAConsentLib {
 
     private final SourcePointClient sourcePoint;
 
+    private ConnectivityManager connectivityManager;
+
     @SuppressWarnings("WeakerAccess")
     public ConsentWebView webView;
 
@@ -128,6 +129,8 @@ public class CCPAConsentLib {
         onConsentUIReady = b.onConsentUIReady;
         onConsentUIFinished = b.onConsentUIFinished;
         viewGroup = b.viewGroup;
+
+        connectivityManager = b.getConnectivityMenager();
 
         weOwnTheView = viewGroup != null;
         // configurable time out
@@ -362,13 +365,7 @@ public class CCPAConsentLib {
     }
 
     boolean hasLostInternetConnection() {
-        ConnectivityManager manager = (ConnectivityManager) activity
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (manager == null) {
-            return true;
-        }
-
-        NetworkInfo activeNetwork = manager.getActiveNetworkInfo();
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
         return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
     }
 
