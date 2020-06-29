@@ -1,3 +1,6 @@
+## 1.3.1 (June, 29, 2020)
+* fix app crash on null activity
+
 ## 1.3.0 (June, 12, 2020)
 * Store the IABUSPrivacy_String as spec'ed by the CCPA IAB
 * ccpaApplies public attribute added to CCPAConsentLib class
