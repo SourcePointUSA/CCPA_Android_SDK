@@ -183,9 +183,7 @@ public class CCPAConsentLib {
 
             @Override
             public void onError(ConsentLibException e) {
-                ConsentLibException exception = hasLostInternetConnection() ?
-                        new ConsentLibException.NoInternetConnectionException() : e;
-                onErrorTask(exception);
+                onErrorTask(e);
             }
 
             @Override
