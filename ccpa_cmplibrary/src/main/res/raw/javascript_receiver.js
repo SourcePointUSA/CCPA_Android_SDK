@@ -19,7 +19,7 @@ addEventListener('message', handleEvent);
 
 function eventData(event) {
        return isFromPM(event) ? dataFromPM(event) : dataFromMessage(event);
-     };
+};
 
 function isFromPM(event) {
       return !!event.data.payload;
