@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -91,8 +90,16 @@ abstract public class ConsentWebView extends WebView {
     }
 
     public ConsentWebView(Context context) {
-        super(context);
+        super(getFixedContext(context));
         setup();
+    }
+
+    // Method created for avoiding crashes when inflating the webview on android Lollipop
+    public static Context getFixedContext(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return context.createConfigurationContext(context.getResources().getConfiguration());
+        }
+        return context;
     }
 
     private boolean doesLinkContainImage(HitTestResult testResult) {
