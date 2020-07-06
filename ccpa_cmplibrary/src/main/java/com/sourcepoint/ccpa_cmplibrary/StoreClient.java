@@ -99,6 +99,14 @@ public class StoreClient {
 
     public void clearAllData() {
         clearInternalData();
+        clearConsentData();
+    }
+
+    public void clearConsentData(){
+        editor.remove(IABUSPrivacy_String_KEY);
+        editor.remove(IABUSPrivacy_String_KEY);
+        editor.remove(USER_CONSENT_KEY);
+        editor.commit();
     }
 
     public void clearInternalData() {
