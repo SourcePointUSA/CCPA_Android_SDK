@@ -470,4 +470,8 @@ public class CCPAConsentLib {
             webView = null;
         }
     }
+
+    public void clearConsentData(){
+        storeClient.clearAllData();
+    }
 }
