@@ -29,10 +29,6 @@ public class SiteDebugInfoPage {
 		Thread.sleep(1000);
 	}
 
-	// @WithTimeout(time = 30, unit = TimeUnit.SECONDS)
-	@AndroidFindBy(id = "com.sourcepointccpa.app:id/toolbar_title")
-	public WebElement CCPASiteDebugInfoPageTitle;
-
 	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
 	@AndroidFindBy(id = "com.sourcepointccpa.app:id/tvConsentUUID")
 	public WebElement CCPAConsentUUID;

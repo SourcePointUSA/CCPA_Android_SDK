@@ -89,16 +89,19 @@ public class SiteListPage extends Page {
 
 	boolean siteFound = false;
 
-	public boolean isSitePressent_gdpr(String siteName, String udid, List<WebElement> siteList)
-			throws InterruptedException {
+	public boolean isSitePressent_ccpa(String siteName) throws InterruptedException {
 
 		siteFound = false;
-
-		if (driver.findElement(By.xpath("//XCUIElementTypeStaticText[@name='propertyCell']")).getText()
-				.equals(siteName)) {
-			siteFound = true;
+		try {
+		if (driver.findElements(By.id("com.sourcepointccpa.app:id/propertyNameTextView")).size() > 0) {
+			if (driver.findElement(By.id("com.sourcepointccpa.app:id/propertyNameTextView")).getText()
+					.equals(siteName)) {
+				siteFound = true;
+			}
 		}
-		System.out.println(siteFound);
+		}catch(Exception e) {
+			siteFound = false;
+		}
 		return siteFound;
 	}
 
@@ -109,33 +112,29 @@ public class SiteListPage extends Page {
 
 	public void tapOnSite_ccpa(String siteName, List<WebElement> siteList) throws InterruptedException {
 		driver.findElement(By.id("com.sourcepointccpa.app:id/propertyNameTextView")).click();
-		Thread.sleep(8000);
-
 	}
 
 	public void swipeHorizontaly_ccpa(String siteName) throws InterruptedException {
-		System.out.println("Swipe on " + siteName);
-		WebElement aa = driver.findElement(By.id("com.sourcepointccpa.app:id/propertyNameTextView"));
+		WebElement ele = driver.findElement(By.id("com.sourcepointccpa.app:id/propertyNameTextView"));
+		waitForElement(ele, timeOutInSeconds);
 
-		Point point = aa.getLocation();
+		Point point = ele.getLocation();
 		TouchAction action = new TouchAction((PerformsTouchActions) driver);
 
-		int[] rightTopCoordinates = { aa.getLocation().getX() + aa.getSize().getWidth(), aa.getLocation().getY() };
-		int[] leftTopCoordinates = { aa.getLocation().getX(), aa.getLocation().getY() };
+		int[] rightTopCoordinates = { ele.getLocation().getX() + ele.getSize().getWidth(), ele.getLocation().getY() };
+		int[] leftTopCoordinates = { ele.getLocation().getX(), ele.getLocation().getY() };
 		action.press(PointOption.point(rightTopCoordinates[0] - 1, rightTopCoordinates[1] + 1))
 				.waitAction(WaitOptions.waitOptions(Duration.ofMillis(3000)))
 				.moveTo(PointOption.point(leftTopCoordinates[0] + 1, leftTopCoordinates[1] + 1)).release().perform();
-
-		Thread.sleep(8000);
 	}
 
-	public void waitForElement(WebElement ele, int timeOutInSeconds) {
+	public void waitForElement(WebElement ele, int timeOutInSeconds) {;
 		WebDriverWait wait = new WebDriverWait(driver, timeOutInSeconds);
 		wait.until(ExpectedConditions.visibilityOf(ele));
 	}
 
-	public boolean verifyDeleteSiteMessage(String udid) {
-		return ErrorMessage.get(ErrorMessage.size() - 1).getText().contains("Are you sure you want to");
+	public boolean verifyDeleteSiteMessage() {
+		return ErrorMessage.get(ErrorMessage.size() - 1).getText().contains("Do you want to delete this property?");
 
 	}
 

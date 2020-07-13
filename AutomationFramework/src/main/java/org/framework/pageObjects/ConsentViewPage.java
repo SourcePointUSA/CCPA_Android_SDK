@@ -40,34 +40,9 @@ public class ConsentViewPage extends Page {
 		PageFactory.initElements(new AppiumFieldDecorator(driver), this);
 		Thread.sleep(1000);
 	}
-//	protected Report reporter = null;
-
-	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(xpath = "//android.view.View[contains(@resource-id,'sp_message_panel_id')]")
-	public WebElement ConsentMessageView;
-
-	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(xpath = "//android.view.View[@index='0']")
-	public WebElement ConsentMessageTitleText;
-
-	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(xpath = "//android.view.View[@index='1']")
-	public WebElement ConsentMessageBodyText;
 
 	@AndroidFindBy(xpath = "//android.view.View[@text='X']")
 	public WebElement CloseButton;
-
-	@AndroidFindBy(xpath = "//android.widget.Button[@text='Continue']")
-	public WebElement ContinueButton;
-
-	@AndroidFindBy(xpath = "//android.widget.Button[@text='Accept all cookies']")
-	public WebElement AcceptallCookiesButton;
-
-	@AndroidFindBy(xpath = "//android.widget.Button[@content-desc='Accept All cookies']")
-	public WebElement AcceptAllCookiesButton;
-
-	@AndroidFindBy(xpath = "//android.widget.Button[@text='Reject all cookies']")
-	public WebElement RejectAllCookiesButton;
 
 	@AndroidFindBy(xpath = "//android.widget.Button[@text='Show Purposes']")
 	public WebElement ShowPurposesButton;
@@ -75,14 +50,6 @@ public class ConsentViewPage extends Page {
 	@WithTimeout(time = 80, chronoUnit = ChronoUnit.SECONDS)
 	@AndroidFindBy(xpath = "(//android.view.View)")
 	public List<WebElement> ConsentMessage;
-
-	@WithTimeout(time = 50, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(id = "android:id/message")
-	public WebElement ErrorMessageView;
-
-	@WithTimeout(time = 50, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(id = "android:id/message")
-	public List<WebElement> WrongCampaignErrorText;
 
 	@AndroidFindBy(id = "android:id/button2")
 	public WebElement ShowSiteInfoButton;
@@ -121,7 +88,6 @@ public class ConsentViewPage extends Page {
 						.findElement(By.xpath("//android.widget.Button[@text='" + buttonText + "']"));
 			} else if (button.getAttribute("content-desc") != null
 					&& button.getAttribute("content-desc").equals(buttonText)) {
-				System.out.println("testing");
 				eleButton = (WebElement) driver
 						.findElement(By.xpath("//android.widget.Button[@content-desc='" + buttonText + "']"));
 			}
@@ -129,86 +95,19 @@ public class ConsentViewPage extends Page {
 		return eleButton;
 	}
 
-	public void loadTime() {
-		try {
-
-			long startTime = System.currentTimeMillis();
-			new WebDriverWait(driver, 120).until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//android.webkit.WebView[contains(@text,'Notice Message App')]")));
-			// new WebDriverWait(driver,
-			// 60).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//android.widget.Button[contains(@text,'Privacy
-			// Setting')]")));
-			long endTime = System.currentTimeMillis();
-			long totalTime = endTime - startTime;
-			System.out.println("**** Total Message Load Time: " + totalTime + " milliseconds");
-		} catch (Exception ex) {
-			System.out.println(ex);
-			throw ex;
-		}
-
-	}
-
-	public void scrollAndClick(String text) throws InterruptedException {
-		driver.findElement(MobileBy.AndroidUIAutomator(
-				"new UiScrollable(new UiSelector().scrollable(true).instance(0)).scrollIntoView(new UiSelector().textContains(\""
-						+ text + "\").instance(0))"))
-				.click();
-	}
-
-	public void scrollDown() {
-		Dimension dimension = driver.manage().window().getSize();
-
-		Double scrollHeightStart = dimension.getHeight() * 0.5;
-		int scrollStart = scrollHeightStart.intValue();
-
-		Double scrollHeightEnd = dimension.getHeight() * 0.8;
-		int scrollEnd = scrollHeightEnd.intValue();
-
-		new TouchAction((PerformsTouchActions) driver).press(PointOption.point(0, scrollStart))
-				.waitAction(WaitOptions.waitOptions(Duration.ofSeconds(2))).moveTo(PointOption.point(0, scrollEnd))
-				.release().perform();
-	}
-
 	ArrayList<String> consentMsg = new ArrayList<String>();
 
-	ArrayList<String> expectedList = new ArrayList<String>();
-
-	public void expectedList() {
-		expectedList.add("");
-		expectedList.add("");
-	}
-
 	public ArrayList<String> getConsentMessageDetails() throws InterruptedException {
-		 Thread.sleep(5000);
-		new WebDriverWait(driver, 120).until(ExpectedConditions
-				.presenceOfElementLocated(By.xpath("//android.webkit.WebView[contains(@text,'Notice Message App')]")));
-
+		
+		WebElement button = eleButton("Privacy Settings");
+		waitForElement(button, timeOutInSeconds);
+		
 		for (WebElement msg : ConsentMessage) {
 			consentMsg.add(msg.getText());
-			// consentMsg.add(msg.getAttribute("value"));
 		}
 		return consentMsg;
 	}
 
-	public void getLocation() {
-		for (WebElement msg : ConsentMessage) {
-			Point point = msg.getLocation();
-			TouchAction touchAction = new TouchAction((PerformsTouchActions) driver);
-			System.out.println("******************");
-			System.out.println((point.x) + (msg.getSize().getWidth()));
-			System.out.println((point.y) + (msg.getSize().getWidth()));
-			System.out.println("******************");
-		}
-	}
-
-	public String verifyWrongCampaignError() throws InterruptedException {
-		Thread.sleep(3000);
-		try {
-			return WrongCampaignErrorText.get(WrongCampaignErrorText.size() - 1).getText();
-		} catch (Exception e) {
-			throw e;
-		}
-	}
 
 	public void waitForElement(WebElement ele, int timeOutInSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, timeOutInSeconds);
