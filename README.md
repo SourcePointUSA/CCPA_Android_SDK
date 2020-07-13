@@ -13,7 +13,7 @@ To use `ccpa_cmplibrary` in your app, include `com.sourcepoint.ccpa_cmplibrary:c
 ```
 ...
 dependencies {
-    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.3.0'
+    implementation 'com.sourcepoint.ccpa_cmplibrary:ccpa_cmplibrary:1.3.2'
 }
 ```
 

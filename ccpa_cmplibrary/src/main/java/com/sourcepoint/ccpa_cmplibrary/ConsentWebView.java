@@ -4,18 +4,16 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.SslErrorHandler;
@@ -25,70 +23,18 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.example.ccpa_cmplibrary.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashSet;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 abstract public class ConsentWebView extends WebView {
     private static final String TAG = "ConsentWebView";
-
-    private static final String pmBaseUrl = "https://ccpa-inapp-pm.sp-prod.net/?privacy_manager_id=5df10416fb59af14237b09c8&site_id=5739&ccpa_origin=https://ccpa-service.sp-prod.net&";
-
-
-
-    // TODO: pass this script to a .js file and return it as a string in this method
-    private String getJSInjection(){
-        return "addEventListener('message', handleEvent);\n" +
-                "function handleEvent(event) {\n" +
-                "    try {\n" +
-                "        JSReceiver.log(JSON.stringify(event.data, null, 2));\n" +
-                "        if (event.data.name === 'sp.showMessage') {\n" +
-                "            JSReceiver.onMessageReady();\n" +
-                "            return;\n" +
-                "        }\n" +
-                "        const data = eventData(event);\n" +
-                "        JSReceiver.log(JSON.stringify(data, null, 2));\n" +
-                "        if(data.type) {\n" +
-                "            if(data.type === 1) JSReceiver.onSavePM(JSON.stringify(data.payload));\n" +
-                "            else JSReceiver.onAction(data.type);\n" +
-                "        }\n" +
-                "    } catch (err) {\n" +
-                "        JSReceiver.log(err.stack);\n" +
-                "    };\n" +
-                "};\n" +
-                "\n" +
-                "function eventData(event) {\n" +
-                "    return isFromPM(event) ? dataFromPM(event) : dataFromMessage(event);\n" +
-                "};\n" +
-                "\n" +
-                "function isFromPM(event) {\n" +
-                "    return !!event.data.payload;\n" +
-                "};\n" +
-                "\n" +
-                "function dataFromMessage(msgEvent) {\n" +
-                "    return {\n" +
-                "        name: msgEvent.data.name,\n" +
-                "        type: msgEvent.data.actions.length ? msgEvent.data.actions[0].data.type : null\n" +
-                "    };\n" +
-                "};\n" +
-                "\n" +
-                "function dataFromPM(pmEvent) {\n" +
-                "    const data = {\n" +
-                "        name: pmEvent.data.name,\n" +
-                "        type: pmEvent.data ? pmEvent.data.payload.actionType : null,\n" +
-                "    };\n" +
-                "    if(data.type === 1) data.payload = userConsents(pmEvent.data.payload);\n" +
-                "    return data;\n" +
-                "};\n" +
-                "\n" +
-                "function userConsents(payload){\n" +
-                "    return {\n" +
-                "        rejectedVendors: payload.consents.vendors.rejected,\n" +
-                "        rejectedCategories: payload.consents.categories.rejected\n" +
-                "    }\n" +
-                "}";
-    }
 
     @SuppressWarnings("unused")
     private class MessageInterface {
@@ -107,7 +53,6 @@ abstract public class ConsentWebView extends WebView {
         @JavascriptInterface
         public void onMessageReady() {
             Log.d("onMessageReady", "called");
-            ConsentWebView.this.flushOrSyncCookies();
             ConsentWebView.this.onMessageReady();
         }
 
@@ -131,7 +76,7 @@ abstract public class ConsentWebView extends WebView {
             );
         }
 
-        //called when an error is occured while loading web-view
+        //called when an error is occurred while loading web-view
         @JavascriptInterface
         public void onError(String errorType) {                               ;
             ConsentWebView.this.onError(new ConsentLibException("Something went wrong in the javascript world."));
@@ -144,49 +89,17 @@ abstract public class ConsentWebView extends WebView {
 
     }
 
-    // A simple mechanism to keep track of the urls being loaded by the WebView
-    private class ConnectionPool {
-        private HashSet<String> connections;
-        private static final String INITIAL_LOAD = "data:text/html,";
-
-        ConnectionPool() {
-            connections = new HashSet<>();
-        }
-
-        void add(String url) {
-            // on API level < 21 the initial load is not recognized by the WebViewClient#onPageStarted callback
-            if (url.equalsIgnoreCase(ConnectionPool.INITIAL_LOAD)) return;
-            connections.add(url);
-        }
-
-        void remove(String url) {
-            connections.remove(url);
-        }
-
-        boolean contains(String url) {
-            return connections.contains(url);
-        }
-    }
-
-    private long timeoutMillisec;
-    private ConnectionPool connectionPool;
-    private boolean isShowPM = false;
-
-    public static long DEFAULT_TIMEOUT = 10000;
-
-    public ConsentWebView(Context context, long timeoutMillisec, boolean isShowPM) {
-        super(context);
-        this.timeoutMillisec = timeoutMillisec;
-        connectionPool = new ConnectionPool();
-        this.isShowPM = isShowPM;
-        setup();
-    }
-
     public ConsentWebView(Context context) {
-        super(context);
-        this.timeoutMillisec = DEFAULT_TIMEOUT;
-        connectionPool = new ConnectionPool();
+        super(getFixedContext(context));
         setup();
+    }
+
+    // Method created for avoiding crashes when inflating the webview on android Lollipop
+    public static Context getFixedContext(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return context.createConfigurationContext(context.getResources().getConfiguration());
+        }
+        return context;
     }
 
     private boolean doesLinkContainImage(HitTestResult testResult) {
@@ -213,39 +126,26 @@ abstract public class ConsentWebView extends WebView {
             }
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
         }
-        CookieManager.getInstance().setAcceptCookie(true);
-        getSettings().setAppCacheEnabled(false);
-        getSettings().setBuiltInZoomControls(false);
-        getSettings().setSupportZoom(false);
+
         getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        getSettings().setAllowFileAccess(true);
         getSettings().setJavaScriptEnabled(true);
-        getSettings().setSupportMultipleWindows(true);
-        getSettings().setDomStorageEnabled(true);
+        this.setBackgroundColor(Color.TRANSPARENT);
         this.requestFocus();
         setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-                connectionPool.add(url);
-                Runnable run = () -> {
-                    if (connectionPool.contains(url))
-                        onError(new ConsentLibException.ApiException("TIMED OUT: " + url));
-                };
-                Handler myHandler = new Handler(Looper.myLooper());
-                myHandler.postDelayed(run, timeoutMillisec);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    view.evaluateJavascript("javascript:" + getJSInjection(), null);
-                }else {
-                    view.loadUrl("javascript:" + getJSInjection());
-                }
-            }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                flushOrSyncCookies();
-                connectionPool.remove(url);
+
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        view.evaluateJavascript("javascript:" + getFileContent(getResources().openRawResource(R.raw.javascript_receiver)), null);
+                    }else {
+                        view.loadUrl("javascript:" + getFileContent(getResources().openRawResource(R.raw.javascript_receiver)));
+                    }
+                }catch (Exception e){
+                    onError(new ConsentLibException(e));
+                }
             }
 
             @Override
@@ -307,23 +207,22 @@ abstract public class ConsentWebView extends WebView {
         resumeTimers();
     }
 
+    private String getFileContent(InputStream is) throws IOException {
+
+        BufferedReader br = new BufferedReader( new InputStreamReader(is, "UTF-8" ));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while(( line = br.readLine()) != null ) {
+            sb.append( line );
+            sb.append( '\n' );
+        }
+        return sb.toString();
+    }
+
     private void loadLinkOnExternalBrowser(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW , Uri.parse(url));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         this.getContext().startActivity(intent);
-    }
-
-    private void flushOrSyncCookies() {
-        // forces the cookies sync between RAM and local storage
-        // https://developer.android.com/reference/android/webkit/CookieSyncManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            CookieManager.getInstance().flush();
-        else CookieSyncManager.getInstance().sync();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        flushOrSyncCookies();
     }
 
     abstract public void onMessageReady();

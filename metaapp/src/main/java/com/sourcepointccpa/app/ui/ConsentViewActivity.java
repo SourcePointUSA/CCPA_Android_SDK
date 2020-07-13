@@ -1,5 +1,6 @@
 package com.sourcepointccpa.app.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -81,10 +82,9 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     private CCPAConsentLib buildConsentLib(Property property, Activity activity) {
 
         ConsentLibBuilder consentLibBuilder = CCPAConsentLib.newBuilder(property.getAccountID(), property.getProperty(), property.getPropertyID(), property.getPmID(), activity)
-                // optional, used for running stage campaigns
                 .setStage(property.isStaging())
                 .setShowPM(property.isShowPM())
-                .setMessageTimeOut(15000)
+                .setMessageTimeOut(Constants.TIME_OUT)
                 .setOnConsentUIReady(ccpaConsentLib -> {
                     getSupportActionBar().hide();
                     hideProgressBar();
@@ -258,6 +258,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(viewModel.getClass());
     }
 
+    @SuppressLint("NewApi")
     private void showProgressBar() {
 
         if (mProgressDialog == null) {
@@ -296,6 +297,7 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     }
 
     // method to show alert/error dialog
+    @SuppressLint("NewApi")
     private void showAlertDialog(String message) {
         hideProgressBar();
         if (!isDestroyed()) {

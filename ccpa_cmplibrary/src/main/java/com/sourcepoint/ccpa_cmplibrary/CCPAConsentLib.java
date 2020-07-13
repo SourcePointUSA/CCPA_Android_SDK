@@ -168,7 +168,7 @@ public class CCPAConsentLib {
     }
 
     private ConsentWebView buildWebView() {
-        return new ConsentWebView(activity, defaultMessageTimeOut, isShowPM) {
+        return new ConsentWebView(activity) {
 
             @Override
             public void onMessageReady() {
@@ -274,6 +274,8 @@ public class CCPAConsentLib {
 
     public void showPm() {
         try {
+            mCountDownTimer = getTimer(defaultMessageTimeOut);
+            mCountDownTimer.start();
             loadConsentUI(pmUrl());
         } catch (ConsentLibException e) {
             onErrorTask(e);
@@ -467,5 +469,9 @@ public class CCPAConsentLib {
             webView.destroy();
             webView = null;
         }
+    }
+
+    public void clearConsentData(){
+        storeClient.clearAllData();
     }
 }

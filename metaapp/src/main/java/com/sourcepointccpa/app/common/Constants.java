@@ -10,5 +10,7 @@ public class Constants {
 
     public static final String CONSENTS = "consents";
 
+    public static final long TIME_OUT = 30000;
+
 
 }
