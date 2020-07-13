@@ -14,6 +14,8 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
+import io.qameta.allure.Description;
+
 @Listeners({ TestListener.class })
 public class CCPA_MetaAppTests extends BaseTest {
 
@@ -59,28 +61,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 		return expectedAnotherCAMsg;
 	}
 
-	/**
-	 * Given the account id 808 and site name ccpa.automation.testing.com When user
-	 * add targeting parameter as region/ca Then the message with expected title
-	 * will displayed with Reject all and Privacy Settings buttons When user click
-	 * on Privacy Settings button Then user will see Privacy Manager screen When
-	 * user click on Cancel button Then user will navigate back to the consent
-	 * message
-	 */
-
 	@Test(groups = { "CCPASDKTests" }, priority = 1)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent should display When user navigate to Privacy Manager and click on Cancel button Then user\n"
+			+ "	 will navigate back to the consent message")
 	public void CheckCancleFromPrivacyManager() throws InterruptedException {
-
+		logMessage("CheckCancleFromPrivacyManager - \" + String.valueOf(Thread.currentThread().getId())");
 		SoftAssert softAssert = new SoftAssert();
 		setExpectedCAMsg();
-
 		String key = "region";
 		String value = "ca";
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckCancleFromPrivacyManager - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -92,19 +85,24 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Privacy Manager button");
+
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected consent message not displayed");
+			logMessage("Verify Privacy Manager displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
+			logMessage("Tap on Cancel and verify user navigate back to the message");
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			mobilePageWrapper.privacyManagerPage.ccpa_CancelButton.click();
 
 			ArrayList<String> consentMessage1 = mobilePageWrapper.consentViewPage1.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage1.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage1.containsAll(expectedCAMsg), "Expected message not displayed");
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -112,19 +110,21 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPASDKTests" }, priority = 2)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user select Reject all Then user will\n"
+			+ "	 navigate to Site Info screen showing ConsentUUID and no EUConsent and with no\n"
+			+ "	 Vendors & Purpose Consents When user navigate back & tap on the site name and\n"
+			+ "	 select MANAGE PREFERENCES button from consent message view Then he/she will\n"
+			+ "	 see all vendors & purposes as selected")
 	public void CheckConsentOnRejectAllFromConsentView() throws InterruptedException {
-
+		logMessage("CheckConsentOnRejectAllFromMessage - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
 		setExpectedCAMsg();
-
 		String key = "region";
 		String value = "ca";
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println(
-					"CheckConsentOnRejectAllFromConsentView - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -136,33 +136,37 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
 
+			logMessage("Check for message and tap on Reject All");
+
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Reject All").click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
-//				softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage
-//						.checkForNoPurposeConsentData(mobilePageWrapper.siteDebugInfoPage.CCPAConsentNotAvailable));
-			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
-					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
-
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
+			logMessage("Tap on the property again and navigate to PM");
 
-			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
+			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName,
+					"Property not present");
 			mobilePageWrapper.siteListPage.tapOnSite_ccpa(siteName, mobilePageWrapper.siteListPage.CCPASiteList);
 
 			ArrayList<String> consentMessage1 = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
 			softAssert.assertTrue(consentMessage1.containsAll(expectedCAMsg));
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			logMessage("Verify all toggle button displayed as false");
+
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 
 			// check PM data for all false
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -170,18 +174,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPASDKTests" }, priority = 3)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Privacy Manager button And navigate to PM, all consent\n"
+			+ "	 toggle should show as selected When user tap on Reject all Then should see\n"
+			+ "	 same ConsentUUID data")
 	public void CheckConsentOnRejectAllFromPM() throws InterruptedException {
-
+		logMessage(" Test execution start : CheckConsentOnRejectAllFromPM");
 		SoftAssert softAssert = new SoftAssert();
 		setExpectedCAMsg();
-
 		String key = "region";
 		String value = "ca";
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckConsentOnRejectAllFromPM - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details...");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -192,23 +197,28 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for the message and tap on Privacy Settings");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected consent message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// check for all purposes selected as true
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
+			logMessage("Tap on Reject All and check updated consent informations");
 
 			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
+
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
 			softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage
 					.checkForNoPurposeConsentData(mobilePageWrapper.siteDebugInfoPage.CCPAConsentNotAvailable));
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -216,19 +226,21 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPASDKTests" }, priority = 4)
+	@Description("Given user submit valid property details and tap on Save "
+			+ "Then expected message should display When user tap on Privacy Settings "
+			+ "Then all vendors/purposes should display as selected "
+			+ "When user tap on Reject All and navigate back Then no consent information should get stored"
+			+ "When user reset property cookies Then he/she should see message again"
+			+ "When user tap on Privacy Settng button Then all consent information data should displayed as true")
 	public void CheckPurposeConsentAfterResetCookies() throws InterruptedException {
-
+		logMessage("CheckPurposeConsentAfterResetCookies - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
 		setExpectedCAMsg();
-
+		String key = "region";
+		String value = "ca";
 		try {
-			String key = "region";
-			String value = "ca";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println(
-					"CheckPurposeConsentAfterResetCookies - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -239,25 +251,25 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Privacy Settings button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
 
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			// check for all purposes selected as false
-			// driver.hideKeyboard();
-			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
+			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
+
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
-
-//				softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage
-//						.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
-			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
-					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
+			logMessage("Delete cookies for the property and check for message");
 
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
 			mobilePageWrapper.siteListPage.CCPAResetButton.click();
@@ -266,14 +278,15 @@ public class CCPA_MetaAppTests extends BaseTest {
 
 			mobilePageWrapper.consentViewPage.YESButton.click();
 			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			logMessage("Tap on Privacy Setting button and check all consents are selected as true");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			System.out.println("passed");
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			// check for all purposes selected as true
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -281,20 +294,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPASDKTests" }, priority = 5)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Reject All from Then consent data\n"
+			+ "	 should get stored When user navigate to PM directly by clicking on Show PM\n"
+			+ "	 link Then all vendors/purposes should display as false")
 	public void CheckConsentDataFromPrivacyManagerDirect() throws InterruptedException {
-
+		logMessage("CheckConsentDataFromPrivacyManagerDirect - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
 		setExpectedCAMsg();
-
 		String key = "region";
 		String value = "ca";
-
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println(
-					"CheckConsentDataFromPrivacyManagerDirect - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -305,21 +317,27 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Reject All button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Reject All").click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
 			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
 					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
+			logMessage("Tap on Show Pm link to display PM directly and check all consents are selected as false");
 
 			mobilePageWrapper.siteDebugInfoPage.CCPAShowPMLink.click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
+			logMessage("Tap on Reject All button and check no consent data available ");
 
 			// check for all purposes selected as false
 			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
@@ -328,7 +346,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 					.checkForNoPurposeConsentData(mobilePageWrapper.siteDebugInfoPage.CCPAConsentNotAvailable));
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception : " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -336,19 +354,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPASDKTests" }, priority = 6)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Reject All from Then no consent data\n"
+			+ "	 should get stored When user navigate to PM directly by clicking on Show PM\n"
+			+ "	 link And tap on Cancel Then he.she should navigate back to info screen with no consent data")
 	public void CheckCancelFromDirectPrivacyManager() throws InterruptedException {
-
+		logMessage("CheckCancelFromDirectPrivacyManager - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
 		setExpectedCAMsg();
-
 		String key = "region";
 		String value = "ca";
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out
-					.println("CheckCancelFromDirectPrivacyManager - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -359,22 +377,30 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Reject All button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Reject All").click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
 					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
+			logMessage("Tap on Show link to display PM direct and tap on Cancel button");
 
 			mobilePageWrapper.siteDebugInfoPage.CCPAShowPMLink.click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			// driver.hideKeyboard();
 			mobilePageWrapper.privacyManagerPage.ccpa_CancelButton.click();
+			logMessage("Check for no consent information");
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			softAssert.assertEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(), consentData.get(0));
 			softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage
@@ -383,7 +409,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 			// check for all purposes selected as false
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception:" + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -391,18 +417,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 7)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Privacy Settings btton Then user should navigate to PM screen "
+			+ "  When user tap on Save and Exit Then navigate back to inof screen "
+			+ " When he/she agian tap on property Then he/she should not see message again")
 	public void CheckNoConsentMessageDisplayAfterShowSiteInfo() throws InterruptedException {
+		logMessage("CheckNoConsentMessageDisplayAfterShowSiteInfo - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
-
 		setShowOnceExpectedMsg();
+		String key = "displayMode";
+		String value = "appLaunch";
 		try {
-			String key = "displayMode";
-			String value = "appLaunch";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckNoConsentMessageDisplayAfterShowSiteInfo - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -413,31 +440,34 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Privacy Settings button");
 
 			ArrayList<String> actualConsentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(actualConsentMessage.containsAll(expectedShowOnceMsg));
+			softAssert.assertTrue(actualConsentMessage.containsAll(expectedShowOnceMsg),
+					"Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
-			logMessage("check details");
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
+			logMessage("Tap on Save and Exit button and check for consent information");
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
-//			softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
 					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
 			mobilePageWrapper.siteListPage.tapOnSite_ccpa(siteName, mobilePageWrapper.siteListPage.CCPASiteList);
-			logMessage("check details");
+			logMessage("Tap on the site again from property list and check for the consent information");
 
 			Assert.assertEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(), consentData.get(0));
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception : " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -445,17 +475,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 8)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Privacy Settings button Then user should navigate to PM screen "
+			+ "  When user tap on Save and Exit Then navigate back to inof screen "
+			+ "  When he/she delete property cookies Then he/she should see message again")
 	public void CheckConsentMessageDisplayAfterDeleteCookies() throws InterruptedException {
+		logMessage("CheckConsentMessageDisplayAfterDeleteCookies - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
 		setShowOnceExpectedMsg();
+		String key = "displayMode";
+		String value = "appLaunch";
 		try {
-			String key = "displayMode";
-			String value = "appLaunch";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println(
-					"CheckConsentMessageDisplayAfterDeleteCookies - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -467,13 +499,18 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
 
+			logMessage("Check for message and tap on Privacy Settings button");
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			// driver.hideKeyboard();
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
+
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
@@ -488,6 +525,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
+			logMessage("reset cookies and check for the message");
 			mobilePageWrapper.siteListPage.CCPAResetButton.click();
 			softAssert.assertTrue(mobilePageWrapper.consentViewPage.verifyDeleteCookiesMessage());
 			mobilePageWrapper.consentViewPage.YESButton.click();
@@ -496,7 +534,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 			softAssert.assertTrue(consentMessage1.containsAll(expectedShowOnceMsg));
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception :" + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -504,18 +542,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 9)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Reject All button "
+			+ "Then user should navigate to info screen with no consent information")
 	public void CheckConsentForTargetingParameterAfterRejectAll() throws InterruptedException {
 		SoftAssert softAssert = new SoftAssert();
-
+		logMessage(
+				"CheckConsentForTargetingParameterAfterRejectAll - " + String.valueOf(Thread.currentThread().getId()));
 		setExpectedCAMsg();
+		String key = "region";
+		String value = "ca";
 		try {
-			String key = "region";
-			String value = "ca";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckConsentForTargetingParameterAfterRejectAll - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -526,21 +565,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Reject All button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Reject All").click();
-//				softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
-//						"ConsentUUID not available");
-//				softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage
-//						.checkForNoPurposeConsentData(mobilePageWrapper.siteDebugInfoPage.CCPAConsentNotAvailable));
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception : " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -548,17 +585,17 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 10)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user navigate to PM and tap on Save and Exit button "
+			+ "Then user should navigate to info screen with consent information")
 	public void CheckConsentForTargetingParameterAfterAcceptAll() throws InterruptedException {
 		SoftAssert softAssert = new SoftAssert();
-
+		logMessage(
+				"CheckConsentMessageDisplayForTargetingParameter - " + String.valueOf(Thread.currentThread().getId()));
 		setExpectedCAMsg();
+		String key = "region";
+		String value = "ca";
 		try {
-			String key = "region";
-			String value = "ca";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckConsentMessageDisplayForTargetingParameter - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
@@ -570,24 +607,25 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Privacy Settings button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
 			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
+			logMessage("Tap on Save and exit button");
 
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
+
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
-
-			// softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
-
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception :" + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -595,17 +633,17 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 11)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When delete property then property should get removed from list")
 	public void DeleteSite() throws InterruptedException {
 		SoftAssert softAssert = new SoftAssert();
-
+		logMessage("DeleteSite - " + String.valueOf(Thread.currentThread().getId()));
 		setExpectedCAMsg();
+		String key = "region";
+		String value = "ca";
 		try {
-			String key = "region";
-			String value = "ca";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("DeleteSite - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -616,31 +654,34 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Reject All button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Reject All").click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
-
+			logMessage("Delete property");
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
 			mobilePageWrapper.siteListPage.CCPADeleteButton.click();
-			// softAssert.assertTrue(mobilePageWrapper.siteListPage.verifyDeleteSiteMessage());
+			softAssert.assertTrue(mobilePageWrapper.siteListPage.verifyDeleteSiteMessage());
 
 			mobilePageWrapper.siteListPage.NOButton.click();
 
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
 			mobilePageWrapper.siteListPage.CCPADeleteButton.click();
-			// softAssert.assertTrue(mobilePageWrapper.siteListPage.verifyDeleteSiteMessage(udid));
+			softAssert.assertTrue(mobilePageWrapper.siteListPage.verifyDeleteSiteMessage());
 
 			mobilePageWrapper.siteListPage.YESButton.click();
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception : " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -648,8 +689,13 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 12)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user tap on Reject All "
+			+ "Then user should navigate to info screen with no consent information "
+			+ "When user edit the property details with new data and save "
+			+ "Then he/she should see rescpective message configured for the new property")
 	public void EditSiteWithNoConsentGivenBefore() throws InterruptedException {
-
+		logMessage("EditSiteWithNoConsentGivenBefore - " + String.valueOf(Thread.currentThread().getId()));
 		setExpectedCAMsg();
 		setAnotherExpectedCAMsg();
 		String key = "region";
@@ -657,10 +703,8 @@ public class CCPA_MetaAppTests extends BaseTest {
 		SoftAssert softAssert = new SoftAssert();
 		ArrayList<String> consentData;
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("EditSiteWithNoConsentGivenBefore - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -671,11 +715,14 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Reject all button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Reject All").click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
@@ -684,24 +731,19 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
+			logMessage("Edit with new property details having no given consent before");
 
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
 			mobilePageWrapper.siteListPage.CCPAEditButton.click();
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys("6168");
 			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys("ccpa.cybage.testing.com");
 			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, "ON");
-
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
-
-			ArrayList<String> consentMessage1 = mobilePageWrapper.consentViewPage1.getConsentMessageDetails();
-
-			// softAssert.assertTrue(consentMessage1.containsAll(expectedAnotherCAMsg));
+			logMessage("Check message and tap on Privacy Setting button");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
-
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
@@ -710,7 +752,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 					.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -718,18 +760,20 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 13)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user navigate to PM and tap on Save & Exit "
+			+ " Then user should navigate to info screen with consent information When user reset the property cookies"
+			+ "Then he/she should see expected message")
 	public void ResetCookies() throws InterruptedException {
+		logMessage("ResetCookies - " + String.valueOf(Thread.currentThread().getId()));
 		SoftAssert softAssert = new SoftAssert();
 		setShowOnceExpectedMsg();
-
+		String key = "displayMode";
+		String value = "appLaunch";
 		ArrayList<String> consentData;
 		try {
-			String key = "displayMode";
-			String value = "appLaunch";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("ResetCookies - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details...");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -740,25 +784,28 @@ public class CCPA_MetaAppTests extends BaseTest {
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Privacy Settings button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg),
+					"Expected consent message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
+			logMessage("Tap on Save and Exit button");
 
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
-			// softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
+			logMessage("Reset the cookie for the property");
 			consentData = mobilePageWrapper.siteDebugInfoPage
 					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
 
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
-
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
 
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
@@ -771,7 +818,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 			softAssert.assertTrue(consentMessage1.containsAll(expectedShowOnceMsg));
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -779,67 +826,68 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 14)
+	@Description("Given user submit valid property details with authentication and tap on Save Then expected\n"
+			+ "	 consent message should display When user navigate to PM and tap on Save & exit "
+			+ "Then user should navigate to info screen with consent information "
+			+ "When user reset property cookies Then he/she shouldnot see message again")
 	public void CheckNoMessageWithShowOnceCriteriaWhenConsentAlreadySaved() throws Exception {
+		logMessage(" Test execution start ; CheckNoMessageWithShowOnceCriteriaWhenConsentAlreadySaved");
 		SoftAssert softAssert = new SoftAssert();
 		setShowOnceExpectedMsg();
-
+		String key = "displayMode";
+		String value = "appLaunch";
 		try {
-			String key = "displayMode";
-			String value = "appLaunch";
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckNoMessageWithShowOnceCriteriaWhenConsentAlreadySaved - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details with unique authentication...");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
 			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys(siteName);
 			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
 			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
-
 			Date date = new Date();
 			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(sdf.format(date));
-
 			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
-			ArrayList<String> consentData;
+			logMessage("Check for message and tap on Privacy Setting button");
 
-			// mobilePageWrapper.consentViewPage.loadTime();
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
+			logMessage("Tap on Save and Exit button");
 
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
-			Thread.sleep(3000);
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
-
-//			softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
-			consentData = mobilePageWrapper.siteDebugInfoPage
+			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
 					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
 
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
-
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
+			logMessage("Reset the cookies for the property");
 
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
 			mobilePageWrapper.siteListPage.CCPAResetButton.click();
+			softAssert.assertTrue(mobilePageWrapper.consentViewPage.verifyDeleteCookiesMessage());
 
-			// softAssert.assertTrue(mobilePageWrapper.consentViewPage.verifyDeleteCookiesMessage());
 			mobilePageWrapper.consentViewPage.YESButton.click();
-			Thread.sleep(3000);
-			softAssert.assertEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(), consentData.get(0));
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
+			softAssert.assertFalse(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(), consentData.get(0),
+					"ConsentUUID not matching");
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
@@ -847,21 +895,22 @@ public class CCPA_MetaAppTests extends BaseTest {
 	}
 
 	@Test(groups = { "CCPAMetaAppTests" }, priority = 15)
+	@Description("Given user submit valid property details with authentication and tap on Save Then expected\n"
+			+ "	 consent message should display When user navigate to PM and tap on Reject All button "
+			+ "Then user should navigate to info screen with no consent information "
+			+ "When user add same property with new unquie authentication details "
+			+ "Then he/she should message and see consent data as selected on PM")
 	public void CheckSavedConsentAlwaysWithSameAuthID() throws Exception {
+		logMessage(" Test execution start :CheckSavedConsentAlwaysWithSameAuthID");
 		setExpectedCAMsg();
 		String key = "region";
 		String value = "ca";
 		Date date = new Date();
 		ArrayList<String> consentData;
-
 		SoftAssert softAssert = new SoftAssert();
-
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println(
-					"CheckSavedConsentAlwaysWithSameAuthID - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details with unique authentication....");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -871,25 +920,22 @@ public class CCPA_MetaAppTests extends BaseTest {
 
 			authID = sdf.format(date);
 			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
-			System.out.println("AuthID : " + authID);
+			logMessage("Unique AuthID : " + authID);
 			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
-
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Reject All from PM");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
-
-			// mobilePageWrapper.consentViewPage.PrivacySettingsButton);
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-//				driver.hideKeyboard();
-
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
-			// mobilePageWrapper.privacyManagerPage.eleButton(udid, "Reject
-			// All"));
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
@@ -899,6 +945,7 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
 
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
+			logMessage("Create new property with same details but some other unique authentication");
 
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
@@ -906,242 +953,88 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys(siteName);
 			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
 			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
-
-//			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
-//			System.out.println("AuthID : " + authID);
+			Date date2 = new Date();
+			authID = sdf.format(date2);
+			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
+			logMessage("Unique AuthID : " + authID);
 			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and check all toggles displyed as false from PM");
 
 			ArrayList<String> consentMessage1 = mobilePageWrapper.consentViewPage1.getConsentMessageDetails();
 			softAssert.assertTrue(consentMessage1.containsAll(expectedCAMsg));
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 
 			// Check all consent are saves as true
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
 		}
 	}
 
-//	@Test(groups = { "CCPAMetaAppTests" }, priority = 16)
-	public void CheckConsentWithSameAuthIDWithNewInstallation() throws Exception {
-		setExpectedCAMsg();
-		String key = "region";
-		String value = "ca";
-
-		SoftAssert softAssert = new SoftAssert();
-
-		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckConsentWithSameAuthIDWithNewInstallation - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
-			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
-			mobilePageWrapper.siteListPage.CCPAAddButton.click();
-			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
-			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
-			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys(siteName);
-			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
-			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
-
-			Date date1 = new Date();
-			authID = sdf.format(date1);
-			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
-			System.out.println("AuthID : " + authID);
-			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
-					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
-			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
-			mobilePageWrapper.newSitePage.CCPASaveButton.click();
-
-			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
-
-			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
-
-			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
-			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
-					"ConsentUUID not available");
-
-			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
-
-			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
-
-			System.out.println("Uninstall app");
-			// mobilePageWrapper.siteListPage.removeCCPAApp();
-
-			System.out.println("Install app");
-			// mobilePageWrapper.siteListPage.installApp();
-
-			MobilePageWrapper mobilePageWrapper1 = new MobilePageWrapper(driver);
-			mobilePageWrapper1.siteListPage.CCPAAddButton.click();
-			mobilePageWrapper1.newSitePage.CCPAAccountID.sendKeys(accountId);
-			mobilePageWrapper1.newSitePage.CCPASiteId.sendKeys(siteID);
-			mobilePageWrapper1.newSitePage.CCPASiteName.sendKeys(siteName);
-			mobilePageWrapper1.newSitePage.CCPAPMId.sendKeys(pmID);
-			mobilePageWrapper1.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton,
-					staggingValue);
-			mobilePageWrapper1.newSitePage.CCPAAuthID.sendKeys(authID);
-
-			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper1.newSitePage.CCPAParameterKey,
-					mobilePageWrapper1.newSitePage.CCPAParameterValue, key, value);
-			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
-			mobilePageWrapper1.newSitePage.CCPASaveButton.click();
-
-			ArrayList<String> consentMessage1 = mobilePageWrapper1.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage1.containsAll(expectedCAMsg));
-
-			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper1.privacyManagerPage.isPrivacyManagerViewPresent());
-
-			// Check all consent are save as false
-		} catch (Exception e) {
-			System.out.println(e);
-			throw e;
-		} finally {
-			softAssert.assertAll();
-		}
-	}
-
-//	@Test(groups = { "CCPAMetaAppTests" }, priority = 17)
-	public void CheckSavedConsentAlwaysWithSameAuthIDCrossPlatform() throws Exception {
-
-		setExpectedCAMsg();
-		String key = "region";
-		String value = "ca";
-		SoftAssert softAssert = new SoftAssert();
-
-		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckSavedConsentAlwaysWithSameAuthIDCrossPlatform - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
-			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
-
-			mobilePageWrapper.siteListPage.CCPAAddButton.click();
-			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
-			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
-			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys(siteName);
-			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
-			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
-
-			Date date1 = new Date();
-			authID = sdf.format(date1);
-			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
-			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
-					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
-			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
-			mobilePageWrapper.newSitePage.CCPASaveButton.click();
-
-			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
-
-			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
-
-			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
-			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
-					"ConsentUUID not available");
-
-			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
-
-			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
-
-//				String baseDir = DirectoryOperations.getProjectRootPath();
-//				System.setProperty("webdriver.chrome.driver", baseDir + "/setupfiles/Fusion/chromedriver_MAC");
-//
-//				WebDriver driver1 = new ChromeDriver(); // init chrome driver
-//
-//				driver1.get("https://in-app-messaging.pm.sourcepoint.mgr.consensu.org/v2.0.html?\r\n" + "\r\n"
-//						+ "_sp_accountId=" + accountId + "&_sp_writeFirstPartyCookies=true&_sp_msg_domain=mms.sp-\r\n"
-//						+ "\r\n" + "prod.net&_sp_debug_level=OFF&_sp_pmOrigin=production&_sp_siteHref=https%3A%2F%2F"
-//						+ siteName + "\r\n" + "\r\n" + "%2F&_sp_msg_targetingParams=\r\n" + "\r\n" + "%7B\"" + key
-//						+ "\"%3A\"" + value + "\"%7D&_sp_authId=" + authID
-//						+ "&_sp_cmp_inApp=true&_sp_msg_stageCampaign=" + staggingValue + "&_sp_cmp_origin=%2F\r\n"
-//						+ "\r\n" + "%2Fsourcepoint.mgr.consensu.org");
-//
-//				Thread.sleep(5000);
-//				driver1.findElement(By.id("Show Purposes")).click();
-//				Thread.sleep(3000);
-//			WebDriverWait wait = new WebDriverWait(webDriver, 30);
-//			wait.until(ExpectedConditions.presenceOfElementLocated(By.className("priv_main_parent")));
-// Check all consent are save as true
-
-//			driver1.quit();
-		} catch (Exception e) {
-			System.out.println(e);
-			throw e;
-		} finally {
-			softAssert.assertAll();
-		}
-	}
-
-	@Test(groups = { "CCPAMetaAppTests" }, priority = 18)
+	@Test(groups = { "CCPAMetaAppTests" }, priority = 16)
+	@Description("Given user submit valid property details with authentication and tap on Save Then expected\n"
+			+ "	 consent message should display When user navigate to PM and tap on Reject All button "
+			+ "Then user should navigate to info screen with no consent information "
+			+ "When user delete the property and recreate same Then he/she should see message And should see consent as false from PM")
 	public void CheckConsentWithSameAuthIDAfterDeletingAndRecreate() throws Exception {
+		logMessage("CheckConsentWithSameAuthIDAfterDeletingAndRecreate - "
+				+ String.valueOf(Thread.currentThread().getId()));
 		setExpectedCAMsg();
 		String key = "region";
 		String value = "ca";
-
 		SoftAssert softAssert = new SoftAssert();
-
 		try {
-			System.out.println("***************** Test execution start *****************");
-			System.out.println("CheckConsentWithSameAuthIDAfterDeletingAndRecreate - "
-					+ String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details with unique authentication...");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
 			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys(siteName);
 			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
 			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
-
 			Date date1 = new Date();
 			authID = sdf.format(date1);
 			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
-			System.out.println("AuthID : " + authID);
+			logMessage("AuthID : " + authID);
 			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check message and tap on Privacy Settings button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
-			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedCAMsg), "Expected message not displayed");
 
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-//				driver.hideKeyboard();
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 
 			mobilePageWrapper.privacyManagerPage.ccpa_RejectAllButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
-
+			logMessage("Delete the property");
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
 
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
 			mobilePageWrapper.siteListPage.CCPADeleteButton.click();
-			// softAssert.assertTrue(mobilePageWrapper.siteListPage.verifyDeleteSiteMessage(udid));
+			softAssert.assertTrue(mobilePageWrapper.siteListPage.verifyDeleteSiteMessage());
 
 			mobilePageWrapper.siteListPage.YESButton.click();
-			// softAssert.assertFalse(mobilePageWrapper.siteListPage.isSitePressent_ccpa(siteName));
+			softAssert.assertFalse(mobilePageWrapper.siteListPage.isSitePressent_ccpa(siteName));
+			logMessage("Create property again with same Authentication details");
 
-			// MobilePageWrapper mobilePageWrapper1 = new MobilePageWrapper(driver);
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
@@ -1149,88 +1042,88 @@ public class CCPA_MetaAppTests extends BaseTest {
 			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
 			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
 			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
-
 			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for all toggels as false from PM");
 
 			ArrayList<String> consentMessage1 = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
 			softAssert.assertTrue(consentMessage1.containsAll(expectedCAMsg));
-
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
-
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
 
 			// Check all consent are save as false
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
 		}
 	}
 
-	@Test(groups = { "CCPAMetaAppTests" }, priority = 19)
+	@Test(groups = { "CCPAMetaAppTests" }, priority = 17)
+	@Description("Given user submit valid property details and tap on Save Then expected\n"
+			+ "	 consent message should display When user navigate to PM and tap on Save & Exit"
+			+ "Then user should navigate to info screen with consent information "
+			+ "When user edit property with authentication Then he/she should not see message again")
 	public void CheckNoMessageAfterLoggedInWithAuthID() throws Exception {
+		logMessage("CheckNoMessageAfterLoggedInWithAuthID - " + String.valueOf(Thread.currentThread().getId()));
 		setShowOnceExpectedMsg();
 		String key = "displayMode";
 		String value = "appLaunch";
 		Date date = new Date();
 		String authID = sdf.format(date);
-
 		SoftAssert softAssert = new SoftAssert();
-
 		try {
-			System.out.println(" Test execution start ");
-			System.out.println(
-					"CheckNoMessageAfterLoggedInWithAuthID - " + String.valueOf(Thread.currentThread().getId()));
-
 			MobilePageWrapper mobilePageWrapper = new MobilePageWrapper(driver);
+			logMessage("Enter property details...");
 			mobilePageWrapper.siteListPage.CCPAAddButton.click();
 			mobilePageWrapper.newSitePage.CCPAAccountID.sendKeys(accountId);
 			mobilePageWrapper.newSitePage.CCPASiteId.sendKeys(siteID);
 			mobilePageWrapper.newSitePage.CCPASiteName.sendKeys(siteName);
 			mobilePageWrapper.newSitePage.CCPAPMId.sendKeys(pmID);
 			mobilePageWrapper.newSitePage.selectCampaign(mobilePageWrapper.newSitePage.CCPAToggleButton, staggingValue);
-
 			mobilePageWrapper.newSitePage.addTargetingParameter(mobilePageWrapper.newSitePage.CCPAParameterKey,
 					mobilePageWrapper.newSitePage.CCPAParameterValue, key, value);
 			mobilePageWrapper.newSitePage.CCPAParameterAddButton.click();
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Check for message and tap on Privacy Settings button");
 
 			ArrayList<String> consentMessage = mobilePageWrapper.consentViewPage.getConsentMessageDetails();
 
-			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg));
+			softAssert.assertTrue(consentMessage.containsAll(expectedShowOnceMsg), "Expected message not displayed");
 			mobilePageWrapper.consentViewPage.eleButton("Privacy Settings").click();
 
-			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent());
-			// driver.hideKeyboard();
-
+			softAssert.assertTrue(mobilePageWrapper.privacyManagerPage.isPrivacyManagerViewPresent(),
+					"Privacy Manager not displayed");
+			logMessage("Tap on Save and Exit and check for consent information");
 			mobilePageWrapper.privacyManagerPage.ccpa_SaveAndExitButton.click();
-			Thread.sleep(5000);
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 
-//			softAssert.assertTrue(mobilePageWrapper.siteDebugInfoPage.isConsentViewDataPresent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentView));
 			ArrayList<String> consentData = mobilePageWrapper.siteDebugInfoPage
 					.storeConsent(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID);
-
 			mobilePageWrapper.siteDebugInfoPage.BackButton.click();
+			logMessage("Edit property details with unique authid");
 
 			softAssert.assertEquals(mobilePageWrapper.siteListPage.CCPASiteName.getText(), siteName);
 			mobilePageWrapper.siteListPage.swipeHorizontaly_ccpa(siteName);
-
 			mobilePageWrapper.siteListPage.CCPAEditButton.click();
 			mobilePageWrapper.newSitePage.CCPAAuthID.sendKeys(authID);
 			mobilePageWrapper.newSitePage.CCPASaveButton.click();
+			logMessage("Get consent information : ConsentUUID: "
+					+ mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText());
 
 			softAssert.assertNotEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(),
 					"ConsentUUID not available");
 			softAssert.assertEquals(mobilePageWrapper.siteDebugInfoPage.CCPAConsentUUID.getText(), consentData.get(0));
 
 		} catch (Exception e) {
-			System.out.println(e);
+			logMessage("Exception: " + e);
 			throw e;
 		} finally {
 			softAssert.assertAll();
