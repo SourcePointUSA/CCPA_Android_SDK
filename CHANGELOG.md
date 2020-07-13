@@ -1,3 +1,7 @@
+## 1.3.2 (July, 13, 2020)
+* add CCPAConsentLib.clearConsentData() to public API
+* fix consent dialog not showing on emulators
+
 ## 1.3.1 (June, 29, 2020)
 * fix app crash on null activity
 
