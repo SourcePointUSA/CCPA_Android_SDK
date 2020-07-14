@@ -56,14 +56,15 @@ public class PrivacyManagerPage extends Page {
 	public WebElement ccpa_AcceptAllButton;
 
 	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(xpath = "//android.widget.Button[@text='Save & Exit']")
+	@AndroidFindBy(xpath = "//andro"
+			+ "id.widget.Button[@text='Save & Exit']")
 	public WebElement ccpa_SaveAndExitButton;
 
-	@WithTimeout(time = 50, chronoUnit = ChronoUnit.SECONDS)
+	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
 	@AndroidFindBy(xpath = "//android.view.View[@text='Reject All']")
 	public WebElement ccpa_RejectAllButton;
 
-	@WithTimeout(time = 50, chronoUnit = ChronoUnit.SECONDS)
+	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
 	@AndroidFindBy(xpath = "//android.widget.Button[@text='Cancel']")
 	public WebElement ccpa_CancelButton;
 
@@ -75,32 +76,18 @@ public class PrivacyManagerPage extends Page {
 				"new UiScrollable(new UiSelector().scrollable(true).instance(0)).scrollIntoView(new UiSelector().textContains(\""
 						+ text + "\").instance(0))"))
 				.click();
-
-	}
-
-	public void loadTime() {
-		long startTime = System.currentTimeMillis();
-		new WebDriverWait(driver, 60).until(
-				ExpectedConditions.presenceOfElementLocated(By.xpath("//android.widget.Button[@text='Cancel']")));
-		long endTime = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
-		System.out.println("**** Total Privacy Manager Load Time: " + totalTime + " milliseconds");
 	}
 
 	boolean privacyManageeFound = false;
 
 	public boolean isPrivacyManagerViewPresent() throws InterruptedException {
-		Thread.sleep(3000);
-		new WebDriverWait(driver, 120).until(
-				ExpectedConditions.presenceOfElementLocated(By.xpath("//android.widget.Button[@text='Cancel']")));
-
 		try {
+			waitForElement(ccpa_SaveAndExitButton, timeOutInSeconds);		
 			if (driver.findElements(By.xpath("//*[@class='android.webkit.WebView']")).size() > 0)
 				privacyManageeFound = true;
 
 		} catch (Exception e) {
 			privacyManageeFound = false;
-			throw e;
 		}
 		return privacyManageeFound;
 	}
@@ -110,5 +97,11 @@ public class PrivacyManagerPage extends Page {
 		return eleButton;
 
 	}
+	
+	public void waitForElement(WebElement ele, int timeOutInSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, timeOutInSeconds);
+		wait.until(ExpectedConditions.visibilityOf(ele));
+	}
+
 
 }
