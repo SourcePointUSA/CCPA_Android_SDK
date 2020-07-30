@@ -191,7 +191,9 @@ public class CCPAConsentLib {
 
             @Override
             public void onSavePM(UserConsent u) {
+                CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SAVE_AND_EXIT;
                 CCPAConsentLib.this.userConsent = u;
+                CCPAConsentLib.this.onAction.run(CCPAConsentLib.this);
                 try {
                     sendConsent(ActionTypes.PM_COMPLETE);
                 } catch (Exception e) {
@@ -208,18 +210,22 @@ public class CCPAConsentLib {
                             onShowPm();
                             break;
                         case ActionTypes.MSG_ACCEPT:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.ACCEPT_ALL;
                             onMsgAccepted();
                             break;
                         case ActionTypes.DISMISS:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.MSG_CANCEL;
                             onDismiss();
                             break;
                         case ActionTypes.MSG_REJECT:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.REJECT_ALL;
                             onMsgRejected();
                             break;
                         default:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.UNKNOWN;
                             break;
                     }
+                    CCPAConsentLib.this.onAction.run(CCPAConsentLib.this);
                 }catch (UnsupportedEncodingException e) {
                     onErrorTask(e);
                 } catch (JSONException e) {

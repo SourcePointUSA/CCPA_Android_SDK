@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
                 })
+                .setOnAction(consentLib -> {
+                    Log.d(TAG, "user took the action: "+consentLib.choiceType);
+                })
                 .setOnConsentUIFinished(consentLib -> {
                     removeWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIFinished");
