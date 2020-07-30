@@ -43,6 +43,11 @@ public class CCPAConsentLib {
     public enum DebugLevel {DEBUG, OFF}
 
     public enum MESSAGE_OPTIONS {
+        REJECT_ALL,
+        ACCEPT_ALL,
+        SAVE_AND_EXIT,
+        MSG_CANCEL,
+        PM_DISMISS,
         SHOW_PRIVACY_MANAGER,
         UNKNOWN
     }
