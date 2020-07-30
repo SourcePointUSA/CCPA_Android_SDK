@@ -38,7 +38,6 @@ public class CCPAConsentLib {
 
     private final String CCPA_ORIGIN = "https://ccpa-service.sp-prod.net";
 
-
     private String metaData;
 
     public enum DebugLevel {DEBUG, OFF}
@@ -50,7 +49,6 @@ public class CCPAConsentLib {
 
     public String consentUUID;
     public Boolean ccpaApplies;
-
 
     /**
      * After the user has chosen an option in the WebView, this attribute will contain an integer
@@ -69,10 +67,9 @@ public class CCPAConsentLib {
     private final String property;
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
-    private Callback onAction, onConsentReady, onError;
-    private Callback onConsentUIReady, onConsentUIFinished;
+    private Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
 
-    private final boolean weOwnTheView, isShowPM;
+    private final boolean weOwnTheView;
 
     //default time out changes
     private boolean onMessageReadyCalled = false;
@@ -121,7 +118,6 @@ public class CCPAConsentLib {
         accountId = b.accountId;
         propertyId = b.propertyId;
         pmId = b.pmId;
-        isShowPM = b.isShowPM;
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
 
@@ -201,7 +197,6 @@ public class CCPAConsentLib {
             @Override
             public void onAction(int choiceType) {
                 try{
-                    Log.d(TAG, "onAction:  " +  choiceType  + " + choiceType");
                     switch (choiceType) {
                         case ActionTypes.SHOW_PM:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SHOW_PRIVACY_MANAGER;
