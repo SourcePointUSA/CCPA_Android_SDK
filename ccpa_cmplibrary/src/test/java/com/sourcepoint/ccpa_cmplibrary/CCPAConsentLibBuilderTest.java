@@ -61,8 +61,8 @@ public class CCPAConsentLibBuilderTest {
     }
 
     @Test
-    public void setOnMessageChoiceSelect() {
-        consentLibBuilder.setOnMessageChoiceSelect(callback);
+    public void setOnAction() {
+        consentLibBuilder.setOnAction(callback);
         assertEquals(callback, consentLibBuilder.onAction);
     }
 

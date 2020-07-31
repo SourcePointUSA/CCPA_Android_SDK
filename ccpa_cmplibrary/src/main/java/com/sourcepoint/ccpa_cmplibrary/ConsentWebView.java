@@ -38,7 +38,6 @@ abstract public class ConsentWebView extends WebView {
 
     @SuppressWarnings("unused")
     private class MessageInterface {
-
         @JavascriptInterface
         public void log(String tag, String msg){
             Log.i(tag, msg);
@@ -49,24 +48,21 @@ abstract public class ConsentWebView extends WebView {
             Log.i("JS", msg);
         }
 
-        // called when message is about to be shown
         @JavascriptInterface
         public void onMessageReady() {
             Log.d("onMessageReady", "called");
             ConsentWebView.this.onMessageReady();
         }
 
-        // called when a choice is selected on the message
         @JavascriptInterface
         public void onAction(int choiceType) {
-            Log.d("onAction", "called");
+            Log.d(TAG, "onAction called with "+choiceType);
             ConsentWebView.this.onAction(choiceType);
         }
 
-        // called when a choice is selected on the message
         @JavascriptInterface
         public void onSavePM(String payloadStr) throws JSONException {
-            Log.d("onSavePM", "called");
+            Log.d(TAG, "onSavePM called with: "+payloadStr);
             JSONObject payloadJson = new JSONObject(payloadStr);
             ConsentWebView.this.onSavePM(
                     new UserConsent(
@@ -76,17 +72,15 @@ abstract public class ConsentWebView extends WebView {
             );
         }
 
-        //called when an error is occurred while loading web-view
         @JavascriptInterface
         public void onError(String errorType) {                               ;
             ConsentWebView.this.onError(new ConsentLibException("Something went wrong in the javascript world."));
         }
-        // xhr logger
+
         @JavascriptInterface
         public void xhrLog(String response){
             Log.d("xhrLog" , response);
         }
-
     }
 
     public ConsentWebView(Context context) {
@@ -132,7 +126,6 @@ abstract public class ConsentWebView extends WebView {
         this.setBackgroundColor(Color.TRANSPARENT);
         this.requestFocus();
         setWebViewClient(new WebViewClient() {
-
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
@@ -208,7 +201,6 @@ abstract public class ConsentWebView extends WebView {
     }
 
     private String getFileContent(InputStream is) throws IOException {
-
         BufferedReader br = new BufferedReader( new InputStreamReader(is, "UTF-8" ));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -233,9 +225,7 @@ abstract public class ConsentWebView extends WebView {
 
     abstract public void onSavePM(UserConsent userConsent);
 
-
     public void loadConsentMsgFromUrl(String url) {
-
         // On API level >= 21, the JavascriptInterface is not injected on the page until the *second* page load
         // so we need to issue blank load with loadData
         loadData("", "text/html", null);

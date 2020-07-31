@@ -98,9 +98,9 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
                 })
                 // optional, callback triggered when message choice is selected when called choice
                 // type will be available as Integer at cLib.choiceType
-                .setOnMessageChoiceSelect(ccpaConsentLib -> {
+                .setOnAction(ccpaConsentLib -> {
                     Log.i(TAG, "Choice type selected by user: " + ccpaConsentLib.choiceType.toString());
-                    Log.d(TAG, "setOnMessageChoiceSelect");
+                    Log.d(TAG, "setOnAction");
                 })
                 // optional, callback triggered when consent data is captured when called
                 .setOnConsentReady(ccpaConsentLib -> {

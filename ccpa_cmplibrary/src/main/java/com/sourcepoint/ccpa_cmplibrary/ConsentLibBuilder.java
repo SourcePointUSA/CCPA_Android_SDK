@@ -75,9 +75,6 @@ public class ConsentLibBuilder {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
-
-
-    // TODO: add what are the possible choices returned to the Callback
     /**
      *  <b>Optional</b> Sets the Callback to be called when the user selects an option on the WebView.
      *  The selected choice will be available in the instance variable CCPAConsentLib.choiceType
@@ -85,7 +82,7 @@ public class ConsentLibBuilder {
      * @return ConsentLibBuilder - the next build step
      * @see ConsentLibBuilder
      */
-    public ConsentLibBuilder setOnMessageChoiceSelect(CCPAConsentLib.Callback c) {
+    public ConsentLibBuilder setOnAction(CCPAConsentLib.Callback c) {
         onAction = c;
         return this;
     }
