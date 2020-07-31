@@ -1,6 +1,6 @@
 package com.sourcepointccpa.app;
 
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDexApplication;
 
 import com.sourcepointccpa.app.database.AppDataBase;
 import com.sourcepointccpa.app.repository.PropertyListRepository;

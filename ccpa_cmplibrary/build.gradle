@@ -53,7 +53,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.2.1'
 
     //json jar
-    testImplementation 'org.json:json:20140107'
+    testImplementation 'org.json:json:20180813'
 
     // Unfortunately consent-string-sdk-java only supports Java 8 and above. That means API > 26
     // The following is a port to android environment
@@ -65,7 +65,7 @@ dependencies {
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier  = 'sources'
 }
 
 /*task javadoc(type: Javadoc) {
@@ -186,8 +186,8 @@ task copyPOMToZip(type: Copy) {
 
 task createZip(type: Zip) {
     from "$buildDir/zip"
-    destinationDir = file("$buildDir")
-    archiveName = "ccpa_cmplibrary-$VERSION_NAME" + ".zip"
+    destinationDirectory = file("$buildDir")
+    archiveFileName = "ccpa_cmplibrary-$VERSION_NAME" + ".zip"
 }
 
 task bundleZip {
