@@ -42,13 +42,6 @@ public class NewSitePage extends Page {
 	}
 
 	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
-	@AndroidFindBy(id = "com.sourcepointccpa.app:id/toolbar_title")
-	public WebElement CCPANewSitePageHeader;
-
-	@AndroidFindBy(xpath = "//android.widget.TextView[@text='Account ID")
-	public WebElement AccountIDLabel;
-
-	@WithTimeout(time = 30, chronoUnit = ChronoUnit.SECONDS)
 	@AndroidFindBy(id = "com.sourcepointccpa.app:id/action_saveProperty")
 	public WebElement CCPASaveButton;
 
@@ -102,7 +95,6 @@ public class NewSitePage extends Page {
 
 			touchAction.tap(PointOption.point(point.x + 20, point.y + 20)).perform();
 		}
-		Thread.sleep(3000);
 	}
 
 	public void addTargetingParameter(WebElement paramKey, WebElement paramValue, String key, String value)
@@ -117,50 +109,9 @@ public class NewSitePage extends Page {
 		((HidesKeyboard) driver).hideKeyboard();
 	}
 
-	public String getError() throws InterruptedException {
-		boolean check = false;
-		// waitForElement(ErrorMessage, 10);
-		Thread.sleep(5000);
-		int i = ErrorMessage.size();
-
-		String errorMsg = ErrorMessage.get(ErrorMessage.size() - 1).getText();
-		return errorMsg;
-	}
-
-	public boolean verifyError() throws InterruptedException {
-		boolean check = false;
-		// waitForElement(ErrorMessage, 10);
-		Thread.sleep(3000);
-		int i = ErrorMessage.size();
-
-		String errorMsg = ErrorMessage.get(ErrorMessage.size() - 1).getText();
-		if (errorMsg.equals("Please enter targeting parameter key and value")) {
-			check = true;
-		}
-		return check;
-	}
-
-//	public boolean verifyError() {
-//		return paramFound;
-//
-//	}
-
 	public void waitForElement(WebElement ele, int timeOutInSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, timeOutInSeconds);
 		wait.until(ExpectedConditions.visibilityOf(ele));
 	}
 
-	public boolean verifyErrorMsg(String udid) throws InterruptedException {
-		boolean check = false;
-		// waitForElement(ErrorMessage, 10);
-		Thread.sleep(3000);
-		int i = ErrorMessage.size();
-
-		String errorMsg = ErrorMessage.get(ErrorMessage.size() - 1).getText();
-
-		if (errorMsg.equals("Please enter property details")) {
-			check = true;
-		}
-		return check;
-	}
 }

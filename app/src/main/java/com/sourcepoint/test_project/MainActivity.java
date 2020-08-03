@@ -37,10 +37,12 @@ public class MainActivity extends AppCompatActivity {
 
     private CCPAConsentLib buildCCPAConsentLib() {
         return CCPAConsentLib.newBuilder(config.accountId, config.propertyName, config.propertyId, config.pmId,this)
-                .setTargetingParam("SDK_TYPE","CCPA")
                 .setOnConsentUIReady(consentLib -> {
                     showMessageWebView(consentLib.webView);
                     Log.i(TAG, "onConsentUIReady");
+                })
+                .setOnAction(consentLib -> {
+                    Log.d(TAG, "user took the action: "+consentLib.choiceType);
                 })
                 .setOnConsentUIFinished(consentLib -> {
                     removeWebView(consentLib.webView);
@@ -73,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         buildCCPAConsentLib().run();
-        //buildGDPRConsentLib().run();
     }
 
     @Override
@@ -84,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         config = getConfig(R.raw.ccpa_mobile_demo);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
             buildCCPAConsentLib().showPm();
-            //buildGDPRConsentLib().showPm();
         });
     }
 

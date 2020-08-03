@@ -38,19 +38,22 @@ public class CCPAConsentLib {
 
     private final String CCPA_ORIGIN = "https://ccpa-service.sp-prod.net";
 
-
     private String metaData;
 
     public enum DebugLevel {DEBUG, OFF}
 
     public enum MESSAGE_OPTIONS {
+        REJECT_ALL,
+        ACCEPT_ALL,
+        SAVE_AND_EXIT,
+        MSG_CANCEL,
+        PM_DISMISS,
         SHOW_PRIVACY_MANAGER,
         UNKNOWN
     }
 
     public String consentUUID;
     public Boolean ccpaApplies;
-
 
     /**
      * After the user has chosen an option in the WebView, this attribute will contain an integer
@@ -69,10 +72,9 @@ public class CCPAConsentLib {
     private final String property;
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
-    private Callback onAction, onConsentReady, onError;
-    private Callback onConsentUIReady, onConsentUIFinished;
+    private Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
 
-    private final boolean weOwnTheView, isShowPM;
+    private final boolean weOwnTheView;
 
     //default time out changes
     private boolean onMessageReadyCalled = false;
@@ -121,7 +123,6 @@ public class CCPAConsentLib {
         accountId = b.accountId;
         propertyId = b.propertyId;
         pmId = b.pmId;
-        isShowPM = b.isShowPM;
         onAction = b.onAction;
         onConsentReady = b.onConsentReady;
 
@@ -190,7 +191,9 @@ public class CCPAConsentLib {
 
             @Override
             public void onSavePM(UserConsent u) {
+                CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SAVE_AND_EXIT;
                 CCPAConsentLib.this.userConsent = u;
+                CCPAConsentLib.this.onAction.run(CCPAConsentLib.this);
                 try {
                     sendConsent(ActionTypes.PM_COMPLETE);
                 } catch (Exception e) {
@@ -201,25 +204,28 @@ public class CCPAConsentLib {
             @Override
             public void onAction(int choiceType) {
                 try{
-                    Log.d(TAG, "onAction:  " +  choiceType  + " + choiceType");
                     switch (choiceType) {
                         case ActionTypes.SHOW_PM:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SHOW_PRIVACY_MANAGER;
                             onShowPm();
                             break;
                         case ActionTypes.MSG_ACCEPT:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.ACCEPT_ALL;
                             onMsgAccepted();
                             break;
                         case ActionTypes.DISMISS:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.MSG_CANCEL;
                             onDismiss();
                             break;
                         case ActionTypes.MSG_REJECT:
+                            CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.REJECT_ALL;
                             onMsgRejected();
                             break;
                         default:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.UNKNOWN;
                             break;
                     }
+                    CCPAConsentLib.this.onAction.run(CCPAConsentLib.this);
                 }catch (UnsupportedEncodingException e) {
                     onErrorTask(e);
                 } catch (JSONException e) {
