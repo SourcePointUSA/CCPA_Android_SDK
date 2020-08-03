@@ -1,3 +1,6 @@
+## 1.3.3 (August, 03, 2020)
+* add .setOnAction(Runnable r) to consentLib builder: this callback will be fired on any user consent action
+
 ## 1.3.2 (July, 13, 2020)
 * add CCPAConsentLib.clearConsentData() to public API
 * fix consent dialog not showing on emulators
