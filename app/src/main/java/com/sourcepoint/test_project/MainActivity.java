@@ -1,6 +1,8 @@
 package com.sourcepoint.test_project;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,71 +11,109 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.sourcepoint.ccpa_cmplibrary.CCPAConsentLib;
 import com.sourcepoint.ccpa_cmplibrary.UserConsent;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Scanner;
+import com.sourcepoint.gdpr_cmplibrary.GDPRConsentLib;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "**MainActivity";
+    private static final String GDPRTag = "**GDPR";
+    private static final String CCPATag = "**CCPA";
 
     private ViewGroup mainViewGroup;
 
-    private PropertyConfig config;
-
-    private void showMessageWebView(View webView) {
-        webView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
-        webView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
-        webView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-        webView.bringToFront();
-        webView.requestLayout();
-        mainViewGroup.addView(webView);
+    private void showView(View view) {
+        if(view.getParent() == null){
+            view.setLayoutParams(new ViewGroup.LayoutParams(0, 0));
+            view.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+            view.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+            view.bringToFront();
+            view.requestLayout();
+            mainViewGroup.addView(view);
+        }
     }
-    private void removeWebView(View view) {
+    private void removeView(View view) {
         if(view != null && view.getParent() != null)
             mainViewGroup.removeView(view);
     }
 
     private CCPAConsentLib buildCCPAConsentLib() {
-        return CCPAConsentLib.newBuilder(config.accountId, config.propertyName, config.propertyId, config.pmId,this)
+        return CCPAConsentLib.newBuilder(22, "twosdks.demo", 7480, "5e6a7f997653402334162542",this)
+                .setTargetingParam("SDK_TYPE", "CCPA")
                 .setOnConsentUIReady(consentLib -> {
-                    showMessageWebView(consentLib.webView);
-                    Log.i(TAG, "onConsentUIReady");
+                    showView(consentLib.webView);
+                    Log.i(CCPATag, "onConsentUIReady");
                 })
                 .setOnAction(consentLib -> {
-                    Log.d(TAG, "user took the action: "+consentLib.choiceType);
+                    Log.d(CCPATag, "user took the action: "+consentLib.choiceType);
                 })
                 .setOnConsentUIFinished(consentLib -> {
-                    removeWebView(consentLib.webView);
-                    Log.i(TAG, "onConsentUIFinished");
+                    removeView(consentLib.webView);
+                    Log.i(CCPATag, "onConsentUIFinished");
                 })
                 .setOnConsentReady(consentLib -> {
-                    Log.i(TAG, "onConsentReady");
+                    Log.i(CCPATag, "onConsentReady");
                     UserConsent consent = consentLib.userConsent;
-                    Log.i(TAG, consent.consentString);
+                    Log.i(CCPATag, consent.consentString);
                     if(consent.status == UserConsent.ConsentStatus.rejectedNone || consent.status == UserConsent.ConsentStatus.consentedAll){
-                        Log.i(TAG, "There are no rejected vendors/purposes.");
+                        Log.i(CCPATag, "There are no rejected vendors/purposes.");
                     } else if(consent.status == UserConsent.ConsentStatus.rejectedAll){
-                        Log.i(TAG, "All vendors/purposes were rejected.");
+                        Log.i(CCPATag, "All vendors/purposes were rejected.");
                     } else {
                         for (String vendorId : consent.rejectedVendors) {
-                            Log.i(TAG, "The vendor " + vendorId + " was rejected.");
+                            Log.i(CCPATag, "The vendor " + vendorId + " was rejected.");
                         }
                         for (String purposeId : consent.rejectedCategories) {
-                            Log.i(TAG, "The category " + purposeId + " was rejected.");
+                            Log.i(CCPATag, "The category " + purposeId + " was rejected.");
                         }
                     }
                 })
                 .setOnError(consentLib -> {
-                    Log.e(TAG, "Something went wrong: ", consentLib.error);
+                    Log.e(CCPATag, "Something went wrong: ", consentLib.error);
                 })
+                .build();
+    }
+
+    private GDPRConsentLib buildGDPRConsentLib() {
+        return GDPRConsentLib.newBuilder(22, "twosdks.demo", 7480, "227349",this)
+                .setTargetingParam("SDK_TYPE", "GDPR")
+                .setOnConsentUIReady(view -> {
+                    showView(view);
+                    Log.i(GDPRTag, "onConsentUIReady");
+                })
+                .setOnConsentUIFinished(view -> {
+                    removeView(view);
+                    Log.i(GDPRTag, "onConsentUIFinished");
+                })
+                .setOnConsentReady(consent -> {
+                    Log.i(GDPRTag, "onConsentReady");
+                    Log.i(GDPRTag, "uuid: " + consent.uuid );
+                    Log.i(GDPRTag, "consentString: " + consent.consentString);
+                    Log.i(GDPRTag, "TCData: " + consent.TCData);
+                    Log.i(GDPRTag, "vendorGrants: " + consent.vendorGrants);
+                    for (String vendorId : consent.acceptedVendors) {
+                        Log.i(GDPRTag, "The vendor " + vendorId + " was accepted.");
+                    }
+                    for (String purposeId : consent.acceptedCategories) {
+                        Log.i(GDPRTag, "The category " + purposeId + " was accepted.");
+                    }
+                    for (String purposeId : consent.legIntCategories) {
+                        Log.i(GDPRTag, "The legIntCategory " + purposeId + " was accepted.");
+                    }
+                    for (String specialFeatureId : consent.specialFeatures) {
+                        Log.i(GDPRTag, "The specialFeature " + specialFeatureId + " was accepted.");
+                    }
+                })
+                .setOnError(error -> {
+                    Log.e(GDPRTag, "Something went wrong: ", error);
+                })
+                .setOnAction(actionType  -> Log.i(GDPRTag , "ActionType: "+actionType.toString()))
                 .build();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        // build and run both SDKs
+        buildGDPRConsentLib().run();
         buildCCPAConsentLib().run();
     }
 
@@ -82,19 +122,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainViewGroup = findViewById(android.R.id.content);
-        config = getConfig(R.raw.ccpa_mobile_demo);
         findViewById(R.id.review_consents).setOnClickListener(_v -> {
-            buildCCPAConsentLib().showPm();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            // check if either of the legislations applies and show the appropriate PM
+            if(prefs.getBoolean("ccpaApplies", false)) {
+                buildCCPAConsentLib().showPm();
+            } else if(prefs.getBoolean("IABTCF_gdprApplies", false)) {
+                buildGDPRConsentLib().showPm();
+            } else {
+                Log.d(TAG, "No legislation applies.");
+            }
         });
-    }
-
-    private PropertyConfig getConfig(int configResource){
-        PropertyConfig config = null;
-        try {
-            config = new PropertyConfig(new JSONObject(new Scanner(getResources().openRawResource(configResource)).useDelimiter("\\A").next()));
-        } catch (JSONException e) {
-            Log.e(TAG, "Unable to parse config file.", e);
-        }
-        return config;
     }
 }
