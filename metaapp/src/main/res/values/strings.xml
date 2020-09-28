@@ -49,4 +49,6 @@
     <string name="property_details_exists">Property details already exists.</string>
     <string name="authId">AuthId</string>
     <string name="show_pm">Show PM</string>
+    <string name="rejected_none">There are no rejected vendors/purposes.</string>
+    <string name="rejected_all">All vendors/purposes were rejected.</string>
 </resources>

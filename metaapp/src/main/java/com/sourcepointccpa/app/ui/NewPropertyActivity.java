@@ -113,7 +113,7 @@ public class NewPropertyActivity extends BaseActivity<NewPropertyViewModel> {
                     runOnUiThread(this::showProgressBar);
                     saveToDatabase(property);
                     getConsentsFromConsentLib(ccpaConsentLib);
-                    Log.d(TAG, "setOnError");
+                    Log.d(TAG, "setOnConsentReady");
                     runOnUiThread(() -> { startConsentViewActivity(property); });
                 })
                 .setOnError(ccpaConsentLib -> {
