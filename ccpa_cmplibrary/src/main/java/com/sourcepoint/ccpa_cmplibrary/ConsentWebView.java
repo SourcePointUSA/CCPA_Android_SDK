@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -127,10 +128,9 @@ abstract public class ConsentWebView extends WebView {
         this.requestFocus();
         setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-
-                try {
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                try{
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         view.evaluateJavascript("javascript:" + getFileContent(getResources().openRawResource(R.raw.javascript_receiver)), null);
                     }else {
