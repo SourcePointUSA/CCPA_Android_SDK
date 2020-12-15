@@ -103,8 +103,7 @@ CCPAConsentLib.newBuilder(22, "ccpa.mobile.demo", 2372,"5c0e81b7d74b3c30c6852301
 
 ## `pubData`
 When the user takes an action within the consent UI, it's possible to attach an arbitrary payload to the action data an have it sent to our endpoints. For more information on how to do that check our wiki: [Sending arbitrary data when the user takes an action](https://github.com/SourcePointUSA/CCPA_Android_SDK/wiki/Sending-arbitrary-data-when-the-user-takes-an-action.);
-```
-```
+
 ## Docs
 For the complete documentation, open `./docs/index.html` in the browser.
 
