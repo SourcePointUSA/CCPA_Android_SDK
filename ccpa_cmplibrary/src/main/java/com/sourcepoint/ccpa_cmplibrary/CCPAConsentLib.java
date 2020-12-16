@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,6 +72,7 @@ public class CCPAConsentLib {
     private final int accountId, propertyId;
     private final ViewGroup viewGroup;
     private Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
+    private onBeforeSendingConsent onBeforeSendingConsent;
 
     private final boolean weOwnTheView;
 
@@ -93,8 +93,30 @@ public class CCPAConsentLib {
         void run(CCPAConsentLib c);
     }
 
-    public interface OnLoadComplete {
+    public interface OnLoadComplete extends ProneToFailure{
         void onSuccess(Object result);
+    }
+
+    public interface onBeforeSendingConsent {
+        void run(ConsentAction a, OnBeforeSendingConsentComplete c);
+    }
+
+    public class OnBeforeSendingConsentComplete implements ProneToFailure {
+        public void post(ConsentAction a){
+            try {
+                sendConsent(a);
+            } catch (Exception e) {
+                CCPAConsentLib.this.onErrorTask(e);
+            }
+        }
+
+        @Override
+        public void onFailure(ConsentLibException exception) {
+            CCPAConsentLib.this.onErrorTask(exception);
+        }
+    }
+
+    public interface ProneToFailure {
 
         default void onFailure(ConsentLibException exception) {
             Log.d(TAG, "default implementation of onFailure, did you forget to override onFailure ?");
@@ -129,6 +151,7 @@ public class CCPAConsentLib {
         onError = b.onError;
         onConsentUIReady = b.onConsentUIReady;
         onConsentUIFinished = b.onConsentUIFinished;
+        onBeforeSendingConsent = b.onBeforeSendingConsent;
         viewGroup = b.viewGroup;
 
         connectivityManager = b.getConnectivityMenager();
@@ -193,9 +216,10 @@ public class CCPAConsentLib {
             public void onSavePM(UserConsent u) {
                 CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.SAVE_AND_EXIT;
                 CCPAConsentLib.this.userConsent = u;
+                ConsentAction consentAction = new ConsentAction(ActionTypes.PM_COMPLETE);
                 CCPAConsentLib.this.onAction.run(CCPAConsentLib.this);
                 try {
-                    sendConsent(ActionTypes.PM_COMPLETE);
+                    onBeforeSendingConsent.run(consentAction, new OnBeforeSendingConsentComplete());
                 } catch (Exception e) {
                     onErrorTask(e);
                 }
@@ -203,6 +227,7 @@ public class CCPAConsentLib {
 
             @Override
             public void onAction(int choiceType) {
+                ConsentAction consentAction = new ConsentAction(choiceType);
                 try{
                     switch (choiceType) {
                         case ActionTypes.SHOW_PM:
@@ -211,7 +236,7 @@ public class CCPAConsentLib {
                             break;
                         case ActionTypes.MSG_ACCEPT:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.ACCEPT_ALL;
-                            onMsgAccepted();
+                            onMsgAccepted(consentAction);
                             break;
                         case ActionTypes.DISMISS:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.MSG_CANCEL;
@@ -219,7 +244,7 @@ public class CCPAConsentLib {
                             break;
                         case ActionTypes.MSG_REJECT:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.REJECT_ALL;
-                            onMsgRejected();
+                            onMsgRejected(consentAction);
                             break;
                         default:
                             CCPAConsentLib.this.choiceType = MESSAGE_OPTIONS.UNKNOWN;
@@ -237,9 +262,9 @@ public class CCPAConsentLib {
         };
     }
 
-    private void onMsgAccepted() throws UnsupportedEncodingException, JSONException, ConsentLibException {
+    private void onMsgAccepted(ConsentAction consentAction) throws UnsupportedEncodingException, JSONException, ConsentLibException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.consentedAll);
-        sendConsent(ActionTypes.MSG_ACCEPT);
+        onBeforeSendingConsent.run(consentAction , new OnBeforeSendingConsentComplete());
     }
 
     private void onDismiss(){
@@ -252,9 +277,9 @@ public class CCPAConsentLib {
         });
     }
 
-    private void onMsgRejected() throws UnsupportedEncodingException, JSONException, ConsentLibException {
+    private void onMsgRejected(ConsentAction consentAction) throws UnsupportedEncodingException, JSONException, ConsentLibException {
         userConsent = new UserConsent(UserConsent.ConsentStatus.rejectedAll);
-        sendConsent(ActionTypes.MSG_REJECT);
+        onBeforeSendingConsent.run(consentAction, new OnBeforeSendingConsentComplete());
     }
 
     private void onShowPm() throws ConsentLibException{
@@ -334,7 +359,7 @@ public class CCPAConsentLib {
             });
     }
 
-    private JSONObject paramsToSendConsent() throws JSONException {
+    private JSONObject paramsToSendConsent(ConsentAction consentAction) throws JSONException {
         JSONObject params = new JSONObject();
 
         params.put("consents", userConsent.jsonConsents);
@@ -343,14 +368,15 @@ public class CCPAConsentLib {
         params.put("privacyManagerId", pmId);
         params.put("uuid", consentUUID);
         params.put("meta", metaData);
+        params.put("pubData", consentAction.getPubData());
         return params;
     }
 
-    private void sendConsent(int actionType) throws JSONException, UnsupportedEncodingException, ConsentLibException {
+    private void sendConsent(ConsentAction consentAction) throws JSONException, UnsupportedEncodingException, ConsentLibException {
         if (hasLostInternetConnection())
             throw new ConsentLibException.NoInternetConnectionException();
 
-            sourcePoint.sendConsent(actionType, paramsToSendConsent(), new OnLoadComplete() {
+            sourcePoint.sendConsent(consentAction.actionType, paramsToSendConsent(consentAction), new OnLoadComplete() {
                 @Override
                 public void onSuccess(Object result) {
                     try {
