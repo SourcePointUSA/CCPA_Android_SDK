@@ -1,3 +1,7 @@
+## 1.3.4 (December, 16, 2020)
+* When the user takes an action within the consent UI, it's possible to attach an arbitrary payload to the action data an have it sent to our endpoints.
+For more information on how to do that check our wiki: [Sending arbitrary data when the user takes an action](https://github.com/SourcePointUSA/CCPA_Android_SDK/wiki/Sending-arbitrary-data-when-the-user-takes-an-action.);
+
 ## 1.3.3 (August, 03, 2020)
 * add .setOnAction(Runnable r) to consentLib builder: this callback will be fired on any user consent action
 

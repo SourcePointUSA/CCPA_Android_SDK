@@ -17,8 +17,6 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CCPAConsentLibBuilderTest {
-
-
     private ConsentLibBuilder consentLibBuilder;
     private CCPAConsentLib.Callback callback;
 
@@ -34,12 +32,6 @@ public class CCPAConsentLibBuilderTest {
         return member;
     }
 
-    @Test(expected = ConsentLibException.class)
-    public void build() throws ConsentLibException {
-        CCPAConsentLib CCPAConsentLib = mock(CCPAConsentLib.class);
-        assertEquals(CCPAConsentLib, consentLibBuilder.build());
-    }
-
     @Test
     public void setMessageTimeout() {
         consentLibBuilder.setMessageTimeOut(20000);
@@ -51,13 +43,6 @@ public class CCPAConsentLibBuilderTest {
         String page = "page";
         consentLibBuilder.setPage(page);
         assertEquals(page, consentLibBuilder.page);
-    }
-
-    @Test
-    public void setViewGroup() {
-        ViewGroup v = mock(ViewGroup.class);
-        consentLibBuilder.setViewGroup(v);
-        assertEquals(v, consentLibBuilder.viewGroup);
     }
 
     @Test
@@ -143,13 +128,11 @@ public class CCPAConsentLibBuilderTest {
         jsonObject.put(key, stringValue);
         consentLibBuilder.setTargetingParam(key, stringValue);
 
-        EncodedParam targetingParamsString = new EncodedParam("targetingParams", jsonObject.toString());
-
         Method method = ConsentLibBuilder.class.getDeclaredMethod("setTargetingParamsString");
         method.setAccessible(true);
         method.invoke(consentLibBuilder);
 
-        assertEquals(targetingParamsString.toString(), consentLibBuilder.targetingParamsString.toString());
+        assertEquals("{\"key\":\"stringValue\"}", consentLibBuilder.targetingParamsString);
     }
 
     @Test

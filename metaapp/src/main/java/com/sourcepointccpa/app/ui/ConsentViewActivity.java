@@ -142,11 +142,11 @@ public class ConsentViewActivity extends BaseActivity<ConsentViewViewModel> {
     private void getConsentsFromConsentLib(CCPAConsentLib ccpaConsentLib) {
         UserConsent consent = ccpaConsentLib.userConsent;
         if (consent.status == UserConsent.ConsentStatus.rejectedNone) {
-            mConsentNotAvailable.setText("There are no rejected vendors/purposes.");
-            Log.i(TAG, "There are no rejected vendors/purposes.");
+            mConsentNotAvailable.setText(R.string.rejected_none);
+            Log.i(TAG, getString(R.string.rejected_none));
         } else if (consent.status == UserConsent.ConsentStatus.rejectedAll) {
-            mConsentNotAvailable.setText("All vendors/purposes were rejected.");
-            Log.i(TAG, "All vendors/purposes were rejected.");
+            mConsentNotAvailable.setText(R.string.rejected_all);
+            Log.i(TAG, getString(R.string.rejected_all));
         } else {
             if (consent.rejectedVendors.size() > 0) {
                 Consents vendorHeader = new Consents("0", "Rejected Vendor Ids", "Header");

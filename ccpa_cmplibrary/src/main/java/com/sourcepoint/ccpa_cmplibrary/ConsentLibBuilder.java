@@ -23,6 +23,7 @@ public class ConsentLibBuilder {
     String page = "";
     ViewGroup viewGroup = null;
     CCPAConsentLib.Callback onAction, onConsentReady, onError, onConsentUIReady, onConsentUIFinished;
+    protected CCPAConsentLib.onBeforeSendingConsent onBeforeSendingConsent = (a, c) -> c.post(a);
     boolean staging, stagingCampaign, newPM , isShowPM, shouldCleanConsentOnError;
 
     String targetingParamsString = null;
@@ -131,6 +132,12 @@ public class ConsentLibBuilder {
      */
     public ConsentLibBuilder setOnError(CCPAConsentLib.Callback callback) {
         onError = callback;
+        return this;
+    }
+
+
+    public ConsentLibBuilder setOnBeforeSendingConsent(CCPAConsentLib.onBeforeSendingConsent c){
+        this.onBeforeSendingConsent = c;
         return this;
     }
 
