@@ -150,16 +150,3 @@ include ':app', ':cmplibrary-release'
     </application>
 </manifest>
 ```
-
-## How to publish a new version into JCenter
-- Make sure you have bumped up the library version in `cmplibrary/build.gradle` but changing the line `def VERSION_NAME = x.y.z`
-- Open Gradle menu from right hand side menu in Android Studio
-- Run the following three tasks in order from the list of tasks under `cmplibrary` by double clicking on each:
-  - `build:clean`
-  - `build:assembleRelease`
-  - `other:bundleZip`
-
-- If everything goes fine, you should have a `cmplibrary-x.y.z` file in `cmplibrary/build` folder.
-- At this time, you have to create a new version manually with the same version name you chose above in BinTray.
-- Select the version you just created and click on "Upload Files", select the generated `cmplibrary-x.y.z` file and once appeared in the files list, check `Explode this archive` and click on Save Changes.
-- Now you need to push the new version to JCenter: go to the version page in BinTray, you will see a notice in the page "Notice: You have 3 unpublished item(s) for this version (expiring in 6 days and 22 hours) ", click on "Publish" in front of the notice. It will take few hours before your request to publish to JCenter will be approved.
