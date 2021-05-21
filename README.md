@@ -1,3 +1,5 @@
+# ❗The CCPA SDK is now part of the [Unified SDK](https://github.com/SourcePointUSA/android-cmp-app/). This repo is now deprecated.
+
 Table of Contents
 =================
    * [Setup](#setup)
